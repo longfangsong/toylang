@@ -3,7 +3,7 @@ var b;
 var c;
 a=1;
 b=2;
-c=a+b+a+b;
-if (c>5) {
-  c=100;
+c=a;
+while (c<10) {
+  c=c+b;
 }

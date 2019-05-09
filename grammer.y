@@ -5,9 +5,12 @@
 #include "node/statement/assign/assign.h"
 #include "node/statement/declare/declare.h"
 #include "node/statement/if/if.h"
+#include "node/statement/while/while.h"
 #include <stdio.h>
 #define YYSTYPE ASTNode*
 YYSTYPE result;
+int yylex();
+int yyerror(char* errMsg);
 %}
 
 
@@ -57,7 +60,7 @@ ifStatement:
 ;
 
 whileStatement:
-    WHILE '(' expression ')' '{' block '}'  {}
+    WHILE '(' expression ')' '{' block '}'  {$$=(ASTNode *)create_while_node((ExpressionNode *)$3,(StatementListNode *)$6);}
 ;
 
 statement:
@@ -75,7 +78,7 @@ block:
 %%
 
 int yyerror(char* errMsg) {
-    printf(errMsg);
+    printf("%s\n",errMsg);
     return 0;
 }
 

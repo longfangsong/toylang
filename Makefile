@@ -8,5 +8,6 @@ test.ll: compiler test.tyl
 	./compiler < test.tyl > test.ll
 test: test.ll
 	gcc test.ll -o test
+	./test
 clean:
 	rm -rf compiler lex.yy.c y.tab.c y.tab.h *.ll test a.out *.s
