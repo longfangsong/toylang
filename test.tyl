@@ -1,9 +1,10 @@
-var a;
-var b;
-var c;
+int a;
+int b;
+int c;
 a=1;
 b=2;
 c=a;
-while (c<10) {
-  c=c+b;
-}
+int d=a+b;
+double e=1.0;
+double f=2;
+

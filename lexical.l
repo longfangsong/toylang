@@ -1,29 +1,31 @@
 %{
-#include "node/expression/constant/constant.h"
-#include "node/expression/tempRegister/variable/variable.h"
-#define YYSTYPE ASTNode*
+#include "src/ast/node.h"
+#include "src/symbolTable/symbolTable.h"
 #include "y.tab.h"
-
-int yyerror(char* errMsg);
-extern YYSTYPE yylval;
 %}
 
 %%
-"if"                    {return IF;}
-"while"                 {return WHILE;}
-"var"                   {return VAR;}
-[0-9]+                  {
-    yylval = (ASTNode*)create_constant_node(atoi(yytext));
-    return CONST_VALUE;
-  }
-[a-zA-z_][0-9a-zA-z_]*  {
-    yylval = (ASTNode*)create_variable_node(yytext);
-    return VARIABLE;
-  }
-"=="                    {return EQUAL;}
-"!="                    {return NONEQUAL;}
-[ \t]                   {}
-.                       {return *yytext;}
+"char"                      {yylval.type=Char; return TYPE;}
+"int"                       {yylval.type=Int; return TYPE;}
+"double"                    {yylval.type=Double; return TYPE;}
+"string"                    {yylval.type=String; return TYPE;}
+"if"
+"while"
+[0-9]+                      {yylval.int_value=atoi(yytext); return INT_LITERAL;}
+[0-9]+\.[0-9]*              {yylval.double_value=atof(yytext); return DOUBLE_LITERAL;}
+[a-zA-z_][0-9a-zA-z_]*      {yylval.string_value=strdup(yytext); return IDENTIFY;}
+\'[^\n]\'
+\"[^\"\n]*\"
+"=="                        {return EQUAL;}
+"!="                        {return NONEQUAL;}
+"<"                         {return *yytext;}
+">"                         {return *yytext;}
+"+"                         {return *yytext;}
+"-"                         {return *yytext;}
+"*"                         {return *yytext;}
+"/"                         {return *yytext;}
+[ \t]                       {}
+.                           {return *yytext;}
 %%
 
 int yywrap() {
