@@ -32,12 +32,12 @@ static void print_ast_node(BinaryOperationResult *node, size_t layer) {
     for (size_t i = 0; i < layer; ++i) {
         printf("  ");
     }
-    printf("lhs:");
+    printf("lhs:\n");
     ((ASTNode *) node->lhs)->print_ast_node((ASTNode *) node->lhs, layer + 1);
     for (size_t i = 0; i < layer; ++i) {
         printf("  ");
     }
-    printf("rhs:");
+    printf("rhs:\n");
     ((ASTNode *) node->rhs)->print_ast_node((ASTNode *) node->rhs, layer + 1);
 }
 

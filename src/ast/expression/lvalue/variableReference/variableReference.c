@@ -39,6 +39,7 @@ VariableReference *create_variable_reference(Symbol *variable) {
 #endif
     ((RValue *) result)->generate_rvalue_code = (void (*)(RValue *)) generate_rvalue_code;
     ((LValue *) result)->lvalue_ir = (char *(*)(LValue *)) lvalue_ir;
-    result->variable=variable;
+    result->variable = variable;
+    ((RValue *) result)->type = variable->type;
     return result;
 }

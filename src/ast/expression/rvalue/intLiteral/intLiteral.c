@@ -17,7 +17,7 @@ static void print_ast_node(IntLiteral *node, size_t layer) {
     for (size_t i = 0; i < layer; ++i) {
         printf("  ");
     }
-    printf("IntLiteral %d", node->value);
+    printf("IntLiteral %d\n", node->value);
 }
 
 #endif
@@ -28,8 +28,9 @@ IntLiteral *create_int_literal(int value) {
 #ifdef DEBUG
     ((Expression *) result)->print_ast_node = (void (*)(struct ASTNode *node, size_t layer)) print_ast_node;
 #endif
+    result->value = value;
     ((RValue *) result)->rvalue_ir = (char *(*)(RValue *)) rvalue_ir;
     ((RValue *) result)->generate_rvalue_code = (void (*)(RValue *)) generate_rvalue_code;
-    result->value = value;
+    ((RValue *) result)->type = Int;
     return result;
 }

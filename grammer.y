@@ -10,6 +10,8 @@
 #include "src/ast/statement/compound/compound.h"
 #include "src/ast/statement/assign/assign.h"
 #include "src/ast/statement/declare/declare.h"
+#include "src/ast/statement/if/if.h"
+#include "src/ast/statement/while/while.h"
 #include "src/symbolTable/symbolTable.h"
 #include "src/symbolTable/symbol/type/symbolType.h"
 #include "src/symbolTable/symbol/symbol.h"
@@ -84,20 +86,20 @@ assignStatement:
 
 statementList:
     statementList statement                 {add_statement((CompoundStatement *)$1,$2);}
-    |                                       {$$=(ASTNode*)create_compound_statement();result=$$;}
+    |                                       {$$=(ASTNode*)create_compound_statement();}
     ;
 
 block:
-    '{' {push_frame();} statementList '}'         {$$=$3;pop_frame();}
+    '{' {push_frame();} statementList '}'   {$$=$3;pop_frame();}
     ;
 
 ifStatement:
-    IF expression block                     {$$=NULL;}
-    | IF expression block ELSE block        {$$=NULL;}
+    IF expression block                     {$$=(ASTNode*)create_if_statement($2,$3,NULL);}
+    | IF expression block ELSE block        {$$=(ASTNode*)create_if_statement($2,$3,$5);}
     ;
 
 whileStatement:
-    WHILE expression block                  {$$=NULL;}
+    WHILE expression block                  {$$=(ASTNode*)create_while_statement($2,$3);}
 ;
 
 statement:
@@ -109,12 +111,11 @@ statement:
 ;
 
 atomExpression:
-    INT_LITERAL                             {$$=create_int_literal($1);}
-    | DOUBLE_LITERAL                        {$$=create_double_literal($1);}
+    INT_LITERAL                             {$$=(ASTNode*)create_int_literal($1);}
+    | DOUBLE_LITERAL                        {$$=(ASTNode*)create_double_literal($1);}
     | IDENTIFY                              {
             Symbol* symbol=get_symbol($1);
-            VariableReference * ref = create_variable_reference(symbol);
-            $$=ref;
+            $$ = (ASTNode*)create_variable_reference(symbol);
         }
     | STRING_LITERAL                        {}
     | '(' expression ')'                    {$$=$2;}
@@ -146,7 +147,7 @@ binaryOrAtomExpression:
 ;
 
 expression:
-    binaryOrAtomExpression
+    binaryOrAtomExpression {}
     ;
 
 %%
@@ -158,11 +159,11 @@ int yyerror(char* errMsg) {
 
 int main() {
     push_frame();
-    printf("@.str = private unnamed_addr constant [3 x i8] c\"%%d\\00\", align 1\n");
-    printf("define i32 @main() #0 {\n");
+//    printf("@.str = private unnamed_addr constant [3 x i8] c\"%%d\\00\", align 1\n");
+//    printf("define i32 @main() #0 {\n");
     yyparse();
     result->print_ast_node(result, 0);
-    printf("%%1 = load i32, i32* %%c\n%%2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i32 %%1)\nret i32 0\n}\ndeclare i32 @printf(i8*, ...) #1");
+//    printf("%%1 = load i32, i32* %%c\n%%2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i32 %%1)\nret i32 0\n}\ndeclare i32 @printf(i8*, ...) #1");
     pop_frame();
     return 0;
 }
