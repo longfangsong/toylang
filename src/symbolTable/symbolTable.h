@@ -7,6 +7,7 @@
 typedef struct {
     size_t length;
     Symbol **symbols;
+    size_t namespace_id;
 } SymbolTableFrame;
 
 typedef struct {

@@ -7,7 +7,7 @@ void init_symbol(Symbol *memory, bool mutable, SymbolType type, char *name) {
     memory->mutable = mutable;
     memory->type = type;
     memory->name = malloc(strlen(name) + 1);
-    memory->layer = -1;
+    memory->namespace_id = (size_t) -1;
     strcpy(memory->name, name);
 }
 
@@ -27,4 +27,3 @@ char *type_name(Symbol *symbol) {
             exit(1);
     }
 }
-

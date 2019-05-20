@@ -8,10 +8,12 @@ int d=a+b;
 double e=1.0;
 double f=2;
 if a < 0 {
-    e = e+1.0;
+    e=e+1.0;
 }
 if b < 0 {
     b=b+1;
 } else {
     c=c+1;
+    int a=b+c;
+    d=a+b;
 }

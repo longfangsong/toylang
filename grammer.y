@@ -159,11 +159,8 @@ int yyerror(char* errMsg) {
 
 int main() {
     push_frame();
-//    printf("@.str = private unnamed_addr constant [3 x i8] c\"%%d\\00\", align 1\n");
-//    printf("define i32 @main() #0 {\n");
     yyparse();
     result->print_ast_node(result, 0);
-//    printf("%%1 = load i32, i32* %%c\n%%2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i32 %%1)\nret i32 0\n}\ndeclare i32 @printf(i8*, ...) #1");
     pop_frame();
     return 0;
 }

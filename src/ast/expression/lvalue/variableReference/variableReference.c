@@ -8,14 +8,14 @@ static void print_ast_node(VariableReference *node, size_t layer) {
     for (size_t i = 0; i < layer; ++i) {
         printf("  ");
     }
-    printf("VariableReference: %s\n", node->variable->name);
+    printf("VariableReference: %s %zu\n", node->variable->name, node->variable->namespace_id);
 }
 
 #endif
 
 static char *lvalue_ir(VariableReference *rValue) {
     char *result = malloc(128);
-    sprintf(result, "%%%s_%zu", rValue->variable->name, rValue->variable->layer);
+    sprintf(result, "%%%s_%zu", rValue->variable->name, rValue->variable->namespace_id);
     return result;
 }
 

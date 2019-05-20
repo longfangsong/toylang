@@ -19,6 +19,10 @@ static void print_ast_node(IfStatement *ifStatement, size_t layer) {
     printf("Statement:\n");
     ((ASTNode *) (ifStatement->statement))->print_ast_node((ASTNode *) (ifStatement->statement), layer + 1);
     if (ifStatement->else_statement != NULL) {
+        for (size_t i = 0; i < layer; ++i) {
+            printf("  ");
+        }
+        printf("ElseStatement:\n");
         ((ASTNode *) (ifStatement->else_statement))->print_ast_node((ASTNode *) (ifStatement->else_statement),
                                                                     layer + 1);
     }

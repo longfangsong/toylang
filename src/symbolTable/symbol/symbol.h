@@ -9,7 +9,7 @@ typedef struct {
     SymbolType type;
     bool mutable;
     char *name;
-    size_t layer;
+    size_t namespace_id;
 } Symbol;
 
 void init_symbol(Symbol *memory, bool mutable, SymbolType type, char *name);
