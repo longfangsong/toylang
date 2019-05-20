@@ -22,6 +22,12 @@ static void print_ast_node(CompoundStatement *compoundStatement, size_t layer) {
 
 #endif
 
+static void generate_code(CompoundStatement *node) {
+    for (size_t i = 0; i < node->child_count; ++i) {
+        node->children[i]->generate_code(node->children[i]);
+    }
+}
+
 static void free_node(CompoundStatement *compoundStatement) {
     for (size_t i = 0; i < compoundStatement->child_count; ++i) {
         ((ASTNode *) compoundStatement)->free_node((ASTNode *) compoundStatement);
@@ -39,6 +45,7 @@ CompoundStatement *create_compound_statement() {
     ((ASTNode *) (result))->print_ast_node = (void (*)(ASTNode *, size_t)) print_ast_node;
 #endif
     ((ASTNode *) (result))->free_node = (void (*)(ASTNode *)) free_node;
+    ((ASTNode *) (result))->generate_code = (void (*)(ASTNode *)) generate_code;
     return result;
 }
 

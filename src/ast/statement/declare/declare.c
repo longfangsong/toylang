@@ -6,6 +6,8 @@ static void free_node(DeclareStatement *node) {
     free(node);
 }
 
+#ifdef DEBUG
+
 static void print_ast_node(DeclareStatement *node, size_t layer) {
     for (size_t i = 0; i < layer; ++i) {
         printf("  ");
@@ -16,12 +18,22 @@ static void print_ast_node(DeclareStatement *node, size_t layer) {
     }
 }
 
+#endif
+
+static void generate_code(DeclareStatement *node) {
+    printf("%%%s_%zu = alloca %s\n", node->variable->name, node->variable->namespace_id, type_name(node->variable));
+    if (node->initial != NULL) {
+        ((Statement *) (node->initial))->generate_code((Statement *) (node->initial));
+    }
+}
+
 DeclareStatement *create_declare_statement(Symbol *variable, AssignStatement *initial) {
     DeclareStatement *result = (DeclareStatement *) malloc(sizeof(DeclareStatement));
 #ifdef DEBUG
     ((ASTNode *) result)->print_ast_node = (void (*)(ASTNode *, size_t)) print_ast_node;
 #endif
     ((ASTNode *) result)->free_node = (void (*)(ASTNode *)) free;
+    ((Statement *) result)->generate_code = (void (*)(Statement *)) generate_code;
     result->variable = variable;
     result->initial = initial;
     return result;

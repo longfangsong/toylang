@@ -7,7 +7,7 @@ static void generate_rvalue_code(DoubleLiteral *rValue) {
 
 static char *rvalue_ir(DoubleLiteral *rValue) {
     char *result = malloc(64);
-    sprintf(result, "%g", rValue->value);
+    sprintf(result, "%64.32lf", rValue->value);
     return result;
 }
 

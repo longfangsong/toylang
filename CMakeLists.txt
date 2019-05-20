@@ -27,4 +27,4 @@ add_executable(compiler
         src/ast/statement/declare/declare.c src/ast/statement/declare/declare.h
         src/ast/expression/rvalue/intLiteral/intLiteral.c src/ast/expression/rvalue/intLiteral/intLiteral.h
         src/ast/expression/rvalue/doubleLiteral/doubleLiteral.c src/ast/expression/rvalue/doubleLiteral/doubleLiteral.h
-        src/ast/statement/if/if.c src/ast/statement/if/if.h src/ast/statement/while/while.c src/ast/statement/while/while.h)
+        src/ast/statement/if/if.c src/ast/statement/if/if.h src/ast/statement/while/while.c src/ast/statement/while/while.h src/ast/statement/print/print.c src/ast/statement/print/print.h src/ast/expression/rvalue/rvalue.c)

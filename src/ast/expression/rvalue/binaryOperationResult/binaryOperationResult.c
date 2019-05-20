@@ -1,14 +1,6 @@
 #include "binaryOperationResult.h"
 #include <stdio.h>
 
-size_t next_temp_reg_id = 0;
-
-static char *rvalue_ir(BinaryOperationResult *rValue) {
-    char *result = malloc(128);
-    sprintf(result, "%%temp_%zu", rValue->temp_register_id);
-    return result;
-}
-
 #ifdef DEBUG
 
 static void print_ast_node(BinaryOperationResult *node, size_t layer) {
@@ -49,7 +41,13 @@ static void free_node(BinaryOperationResult *node) {
     free((ASTNode *) (node));
 }
 
-void generate_rvalue_code(BinaryOperationResult *node) {
+static char *rvalue_ir(BinaryOperationResult *rValue) {
+    char *result = malloc(128);
+    sprintf(result, "%%temp_%zu", rValue->temp_register_id);
+    return result;
+}
+
+static void generate_rvalue_code(BinaryOperationResult *node) {
     node->lhs->generate_rvalue_code(node->lhs);
     node->rhs->generate_rvalue_code(node->rhs);
     printf("%s = ", ((RValue *) node)->rvalue_ir((RValue *) node));
@@ -107,11 +105,11 @@ BinaryOperationResult *create_binary_operation_result(size_t operator_id, RValue
             ((RValue *) result)->type = lhs->type;
             break;
     }
-    ((RValue *) result)->rvalue_ir = (char *(*)(RValue *)) rvalue_ir;
+    ((RValue *) result)->rvalue_ir = (char *(*)(struct RValue *)) rvalue_ir;
     ((RValue *) result)->generate_rvalue_code = (void (*)(RValue *)) generate_rvalue_code;
-    result->temp_register_id = next_temp_reg_id++;
     result->operator_id = operator_id;
     result->lhs = lhs;
     result->rhs = rhs;
+    result->temp_register_id = next_temp_register++;
     return result;
 }

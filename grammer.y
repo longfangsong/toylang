@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "src/tools/tools.h"
 #include "src/ast/node.h"
 #include "src/ast/expression/lvalue/variableReference/variableReference.h"
@@ -12,21 +13,27 @@
 #include "src/ast/statement/declare/declare.h"
 #include "src/ast/statement/if/if.h"
 #include "src/ast/statement/while/while.h"
+#include "src/ast/statement/print/print.h"
 #include "src/symbolTable/symbolTable.h"
 #include "src/symbolTable/symbol/type/symbolType.h"
 #include "src/symbolTable/symbol/symbol.h"
 #include "src/symbolTable/symbol/array/array.h"
-ASTNode* result;
+
+ASTNode *result;
+
+int yylex();
+int yyerror(char *errMsg);
 %}
 
 %union {
     char char_value;
-    char* string_value;
+    char *string_value;
     int int_value;
     double double_value;
     size_t id_value;
-    ASTNode* node;
+    ASTNode *node;
     SymbolType type;
+    char print;
 };
 
 %token <type> TYPE
@@ -37,13 +44,14 @@ ASTNode* result;
 %token <id_value> IF ELSE WHILE FOR
 %token <id_value> LESSEQ GREATEREQ EQUAL NONEQUAL
 %token <id_value> AND OR
+%token <void> PRINT
 
 %left '>' '<' LESSEQ GREATEREQ EQUAL NONEQUAL
 %left '+' '-'
 %left '*' '/'
 
 %type <node> statement assignStatement statementList block ifStatement whileStatement defineStatement
-%type <node> program expression assign atomExpression unaryExpression binaryOrAtomExpression
+%type <node> program expression assign atomExpression unaryExpression binaryOrAtomExpression printStatement
 
 %%
 program:
@@ -81,7 +89,9 @@ assignStatement:
             VariableReference* ref=create_variable_reference(symbol);
             $$=(ASTNode*)create_assign_statement((LValue*)ref, (RValue*)$2);
         }
-    | IDENTIFY '[' INT_LITERAL ']' assign ';'  {$$=(ASTNode*)create_assign_statement((LValue*)get_symbol($1), (RValue*)$3);}
+    | IDENTIFY '[' INT_LITERAL ']' assign ';'  {
+            $$=(ASTNode*)create_assign_statement((LValue*)get_symbol($1), (RValue*)create_int_literal($3));
+        }
     ;
 
 statementList:
@@ -94,12 +104,16 @@ block:
     ;
 
 ifStatement:
-    IF expression block                     {$$=(ASTNode*)create_if_statement($2,$3,NULL);}
-    | IF expression block ELSE block        {$$=(ASTNode*)create_if_statement($2,$3,$5);}
+    IF expression block                     {$$=(ASTNode*)create_if_statement($2,(CompoundStatement *)$3,NULL);}
+    | IF expression block ELSE block        {$$=(ASTNode*)create_if_statement($2,(CompoundStatement *)$3,(CompoundStatement *)$5);}
     ;
 
 whileStatement:
-    WHILE expression block                  {$$=(ASTNode*)create_while_statement($2,$3);}
+    WHILE expression block                  {$$=(ASTNode*)create_while_statement($2,(CompoundStatement *)$3);}
+;
+
+printStatement:
+    PRINT '(' expression ')' ';'            {$$=(ASTNode*)create_print_statement((RValue*)$3);}
 ;
 
 statement:
@@ -108,6 +122,7 @@ statement:
     | block
     | ifStatement
     | whileStatement
+    | printStatement
 ;
 
 atomExpression:
@@ -152,15 +167,24 @@ expression:
 
 %%
 
-int yyerror(char* errMsg) {
+int yyerror(char *errMsg) {
     printf("%s", errMsg);
     return 0;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     push_frame();
     yyparse();
-    result->print_ast_node(result, 0);
+    if(argc == 1 || strcmp(argv[1],"-emit-llvm") == 0) {
+        printf("@double_fmt_str = private unnamed_addr constant [4 x i8] c\"%%g\\0A\\00\", align 1\n"
+               "@int_fmt_str = private unnamed_addr constant [4 x i8] c\"%%d\\0A\\00\", align 1\n");
+        printf("define i32 @main() #0 {\n");
+        result->generate_code(result);
+        printf("ret i32 0\n");
+        printf("}\ndeclare i32 @printf(i8*, ...) #1\n");
+    } else if(strcmp(argv[1],"-emit-ast") == 0) {
+        result->print_ast_node(result, 0);
+    }
     pop_frame();
     return 0;
 }

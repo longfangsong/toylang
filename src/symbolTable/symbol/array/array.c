@@ -5,4 +5,5 @@ ArraySymbol *create_array_symbol(bool mutable, SymbolType elementType, char *nam
     init_symbol((Symbol *) (result), mutable, Array, name);
     result->elementType = elementType;
     result->length = length;
+    return result;
 }

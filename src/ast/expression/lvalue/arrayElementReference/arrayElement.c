@@ -33,10 +33,24 @@ static void generate_rvalue_code(ArrayElementReference *node) {
            ((Symbol *) (node))->name,
            node->index
     );
-    printf("%s = load %s, %s* %s", rvalue_ir_str, type_string(node->array->elementType),
+    printf("%s = load %s, %s* %s\n", rvalue_ir_str, type_string(node->array->elementType),
            type_string(node->array->elementType), lvalue_ir_str);
     free(lvalue_ir_str);
     free(rvalue_ir_str);
+}
+
+static void generate_lvalue_code(ArrayElementReference *lValue) {
+    char *lvalue_ir_str = ((LValue *) (lValue))->lvalue_ir((LValue *) (lValue));
+
+    printf("%s = getelementptr inbounds [%zu x %s], [%zu x %s]* %s, i64 0, i64 %zu\n",
+           lvalue_ir_str,
+           lValue->array->length,
+           type_string(lValue->array->elementType),
+           lValue->array->length,
+           type_string(lValue->array->elementType),
+           ((Symbol *) (lValue))->name,
+           lValue->index
+    );
 }
 
 ArrayElementReference *create_array_element_reference(ArraySymbol *array, size_t index) {

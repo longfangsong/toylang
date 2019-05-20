@@ -13,4 +13,5 @@ typedef struct RValue {
     char *(*rvalue_ir)(struct RValue *rValue);
 } RValue;
 
+size_t next_temp_register;
 #endif //TOYLANG_RVALUE_H

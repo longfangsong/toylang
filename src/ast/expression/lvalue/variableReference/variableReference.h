@@ -7,6 +7,7 @@
 typedef struct VariableReference {
     LValue base;
     Symbol *variable;
+    size_t temp_register_id;
 } VariableReference;
 
 VariableReference *create_variable_reference(Symbol *variable);
