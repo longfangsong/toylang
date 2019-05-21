@@ -1,6 +1,7 @@
 #include "if.h"
 #include <stdio.h>
 
+size_t next_if_id = 0;
 #ifdef DEBUG
 
 static void print_ast_node(IfStatement *ifStatement, size_t layer) {
@@ -39,9 +40,30 @@ static void free_node(IfStatement *ifStatement) {
     free(ifStatement);
 }
 
+static void generate_code(IfStatement *node) {
+    ((RValue *) (node->condition))->generate_rvalue_code((RValue *) (node->condition));
+    char *condition_rvalue_ir = node->condition->rvalue_ir(node->condition);
+    size_t if_id = next_if_id++;
+    printf("br i1 %s, "
+           "label %%if_lable_%zu,"
+           "label %%else_lable_%zu\n",
+           condition_rvalue_ir,
+           if_id,
+           if_id);
+    printf("if_lable_%zu:\n", if_id);
+    ((Statement *) (node->statement))->generate_code((Statement *) (node->statement));
+    printf("br label %%if_end_lable_%zu\n", if_id);
+    printf("else_lable_%zu:\n", if_id);
+    if (node->else_statement != NULL) {
+        ((Statement *) (node->else_statement))->generate_code((Statement *) (node->else_statement));
+    }
+    printf("br label %%if_end_lable_%zu\n", if_id);
+    printf("if_end_lable_%zu:\n", if_id);
+    free(condition_rvalue_ir);
+}
 
 IfStatement *create_if_statement(
-        Expression *condition,
+        RValue *condition,
         CompoundStatement *statement,
         CompoundStatement *else_statement
 ) {
@@ -53,5 +75,6 @@ IfStatement *create_if_statement(
     result->condition = condition;
     result->statement = statement;
     result->else_statement = else_statement;
+    ((Statement *) (result))->generate_code = (void (*)(ASTNode *)) generate_code;
     return result;
 }

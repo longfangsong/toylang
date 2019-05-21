@@ -1,11 +1,5 @@
-int a;
-int b;
-int c;
-a=1;
-b=2;
-c=a;
-int d=a+b;
-double e=1.5;
-double f=2.0;
-print(e+f);
-print(c);
+int d=0;
+while d<10 {
+    d=d+1;
+    print(d);
+}

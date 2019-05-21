@@ -4,15 +4,16 @@
 #include "../statement.h"
 #include "../../expression/expression.h"
 #include "../compound/compound.h"
+#include "../../expression/rvalue/rvalue.h"
 
 typedef struct IfStatement {
     Statement base;
-    Expression *condition;
+    RValue *condition;
     CompoundStatement *statement;
     CompoundStatement *else_statement;
 } IfStatement;
 
-IfStatement *create_if_statement(Expression *condition,
+IfStatement *create_if_statement(RValue *condition,
                                  CompoundStatement *statement,
                                  CompoundStatement *else_statement
 );

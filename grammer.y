@@ -104,8 +104,8 @@ block:
     ;
 
 ifStatement:
-    IF expression block                     {$$=(ASTNode*)create_if_statement($2,(CompoundStatement *)$3,NULL);}
-    | IF expression block ELSE block        {$$=(ASTNode*)create_if_statement($2,(CompoundStatement *)$3,(CompoundStatement *)$5);}
+    IF expression block                     {$$=(ASTNode*)create_if_statement((RValue*)$2,(CompoundStatement *)$3,NULL);}
+    | IF expression block ELSE block        {$$=(ASTNode*)create_if_statement((RValue*)$2,(CompoundStatement *)$3,(CompoundStatement *)$5);}
     ;
 
 whileStatement:

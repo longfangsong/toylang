@@ -1,5 +1,6 @@
 #include "binaryOperationResult.h"
 #include <stdio.h>
+#include "../../../../../y.tab.h"
 
 #ifdef DEBUG
 
@@ -16,6 +17,18 @@ static void print_ast_node(BinaryOperationResult *node, size_t layer) {
         case '<':
         case '>':
             printf("%c", (char) (node->operator_id));
+            break;
+        case LESSEQ:
+            printf("<=");
+            break;
+        case GREATEREQ:
+            printf(">=");
+            break;
+        case EQUAL:
+            printf("==");
+            break;
+        case NONEQUAL:
+            printf("!=");
             break;
         default:
             exit(1);
@@ -50,7 +63,8 @@ static char *rvalue_ir(BinaryOperationResult *rValue) {
 static void generate_rvalue_code(BinaryOperationResult *node) {
     node->lhs->generate_rvalue_code(node->lhs);
     node->rhs->generate_rvalue_code(node->rhs);
-    printf("%s = ", ((RValue *) node)->rvalue_ir((RValue *) node));
+    char *rvalue = ((RValue *) node)->rvalue_ir((RValue *) node);
+    printf("%s = ", rvalue);
     switch (node->operator_id) {
         case '+':
             if (((RValue *) node)->type == Double) {
@@ -80,11 +94,84 @@ static void generate_rvalue_code(BinaryOperationResult *node) {
                 printf("sdif");
             }
             break;
+        case '>':
+            switch (node->lhs->type) {
+                case Int:
+                    printf("icmp sgt");
+                    break;
+                case Double:
+                    printf("fcmp ogt");
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case '<':
+            switch (node->lhs->type) {
+                case Int:
+                    printf("icmp slt");
+                    break;
+                case Double:
+                    printf("fcmp olt");
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case LESSEQ:
+            switch (node->lhs->type) {
+                case Int:
+                    printf("icmp sle");
+                    break;
+                case Double:
+                    printf("fcmp ole");
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case GREATEREQ:
+            switch (node->lhs->type) {
+                case Int:
+                    printf("icmp sge");
+                    break;
+                case Double:
+                    printf("fcmp oge");
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case EQUAL:
+            switch (node->lhs->type) {
+                case Int:
+                    printf("icmp eq");
+                    break;
+                case Double:
+                    printf("fcmp oeq");
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case NONEQUAL:
+            switch (node->lhs->type) {
+                case Int:
+                    printf("icmp ne");
+                    break;
+                case Double:
+                    printf("fcmp one");
+                    break;
+                default:
+                    break;
+            }
+            break;
         default:
             exit(1);
     }
     printf(" %s ", type_string(((RValue *) node)->type));
-    printf("%s, %s\n", node->rhs->rvalue_ir(node->rhs), node->lhs->rvalue_ir(node->lhs));
+    printf("%s, %s\n", node->lhs->rvalue_ir(node->lhs), node->rhs->rvalue_ir(node->rhs));
+    free(rvalue);
 }
 
 BinaryOperationResult *create_binary_operation_result(size_t operator_id, RValue *lhs, RValue *rhs) {
