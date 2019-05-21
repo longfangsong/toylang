@@ -16,13 +16,14 @@ static void print_ast_node(ArrayElementReference *node, size_t layer) {
 
 static char *lvalue_ir(ArrayElementReference *lValue) {
     char *result = malloc(128);
-    sprintf(result, "%%%s_index_%zu", ((Symbol *) (lValue->array))->name, lValue->index);
+    sprintf(result, "%%%s_index_%zu_%zu", ((Symbol *) (lValue->array))->name, lValue->index,
+            lValue->lvalue_register_id);
     return result;
 }
 
 static char *rvalue_ir(ArrayElementReference *rValue) {
     char *result = malloc(128);
-    sprintf(result, "%%temp_%zu", rValue->pointer_register_id);
+    sprintf(result, "%%temp_%zu", rValue->rvalue_register_id);
     return result;
 }
 
@@ -41,7 +42,6 @@ static void generate_rvalue_code(ArrayElementReference *node) {
 
 static void generate_lvalue_code(ArrayElementReference *node) {
     char *lvalue_ir_str = ((LValue *) (node))->lvalue_ir((LValue *) (node));
-    char *rvalue_ir_str = ((RValue *) (node))->rvalue_ir((RValue *) (node));
     printf("%s = getelementptr inbounds [%zu x %s], [%zu x %s]* %%%s_%zu, i64 0, i64 %zu\n",
            lvalue_ir_str,
            node->array->length,
@@ -68,6 +68,7 @@ ArrayElementReference *create_array_element_reference(ArraySymbol *array, size_t
     ((RValue *) (result))->rvalue_ir = (char *(*)(RValue *)) rvalue_ir;
     result->array = array;
     result->index = index;
-    result->pointer_register_id = next_pointer_register_id++;
+    result->rvalue_register_id = next_pointer_register_id++;
+    result->lvalue_register_id = next_pointer_register_id++;
     return result;
 }

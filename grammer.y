@@ -52,7 +52,7 @@ int yyerror(char *errMsg);
 %left '*' '/'
 
 %type <node> statement assignStatement statementList block ifStatement whileStatement defineStatement
-%type <node> program expression assign atomExpression unaryExpression binaryOrAtomExpression printStatement
+%type <node> program expression referenceExpression assign atomExpression unaryExpression binaryOrAtomExpression printStatement
 
 %%
 program:
@@ -85,15 +85,8 @@ defineStatement:
     ;
 
 assignStatement:
-    IDENTIFY assign ';'                     {
-            Symbol* symbol = get_symbol($1);
-            VariableReference* ref=create_variable_reference(symbol);
-            $$=(ASTNode*)create_assign_statement((LValue*)ref, (RValue*)$2);
-        }
-    | IDENTIFY '[' INT_LITERAL ']' assign ';'  {
-            Symbol* symbol = get_symbol($1);
-            VariableReference* ref=create_array_element_reference(symbol, $3);
-            $$=(ASTNode*)create_assign_statement((LValue*)ref, (RValue*)$5);
+    referenceExpression assign ';'  {
+            $$=(ASTNode*)create_assign_statement((LValue*)$1, (RValue*)$2);
         }
     ;
 
@@ -112,7 +105,7 @@ ifStatement:
     ;
 
 whileStatement:
-    WHILE expression block                  {$$=(ASTNode*)create_while_statement($2,(CompoundStatement *)$3);}
+    WHILE expression block                  {$$=(ASTNode*)create_while_statement((RValue*)$2,(CompoundStatement *)$3);}
 ;
 
 printStatement:
@@ -128,14 +121,21 @@ statement:
     | printStatement
 ;
 
-atomExpression:
-    INT_LITERAL                             {$$=(ASTNode*)create_int_literal($1);}
-    | DOUBLE_LITERAL                        {$$=(ASTNode*)create_double_literal($1);}
-    | IDENTIFY                              {
+referenceExpression:
+    IDENTIFY                                {
             Symbol* symbol=get_symbol($1);
             $$ = (ASTNode*)create_variable_reference(symbol);
         }
+    | IDENTIFY '[' expression ']'          {
+            ArraySymbol* symbol = (ArraySymbol*)get_symbol($1);
+            $$ = (ASTNode*)create_array_element_reference(symbol, $3);
+        }
+
+atomExpression:
+    INT_LITERAL                             {$$=(ASTNode*)create_int_literal($1);}
+    | DOUBLE_LITERAL                        {$$=(ASTNode*)create_double_literal($1);}
     | STRING_LITERAL                        {}
+    | referenceExpression                   {$$=$1;};
     | '(' expression ')'                    {$$=$2;}
     ;
 

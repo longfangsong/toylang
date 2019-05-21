@@ -1,5 +1,6 @@
 int array[10];
 array[0] = 1;
 array[1] = 2;
-print(1);
-print(0);
+int i=1;
+print(array[0]);
+print(array[1]);

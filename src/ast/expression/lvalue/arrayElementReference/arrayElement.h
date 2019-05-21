@@ -9,7 +9,8 @@ typedef struct ArrayElementReference {
     LValue base;
     ArraySymbol *array;
     size_t index;
-    size_t pointer_register_id;
+    size_t rvalue_register_id;
+    size_t lvalue_register_id;
 } ArrayElementReference;
 
 ArrayElementReference *create_array_element_reference(ArraySymbol *array, size_t index);
