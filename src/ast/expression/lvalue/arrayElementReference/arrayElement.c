@@ -1,8 +1,6 @@
 #include "arrayElement.h"
 #include <stdio.h>
 
-size_t next_pointer_register_id = 0;
-
 #ifdef DEBUG
 
 static void print_ast_node(ArrayElementReference *node, size_t layer) {
@@ -71,7 +69,7 @@ ArrayElementReference *create_array_element_reference(ArraySymbol *array, RValue
     ((RValue *) (result))->rvalue_ir = (char *(*)(RValue *)) rvalue_ir;
     result->array = array;
     result->index = index;
-    result->rvalue_register_id = next_pointer_register_id++;
-    result->lvalue_register_id = next_pointer_register_id++;
+    result->rvalue_register_id = next_temp_register++;
+    result->lvalue_register_id = next_temp_register++;
     return result;
 }
