@@ -9,14 +9,14 @@ static void print_ast_node(ArrayElementReference *node, size_t layer) {
     for (size_t i = 0; i < layer; ++i) {
         printf("  ");
     }
-    printf("ArrayElementReference: %s[%zu]\n", ((Symbol *) (node->array))->name, node->index);
+    printf("ArrayElementReference: %s\n", ((Symbol *) (node->array))->name);
 }
 
 #endif
 
 static char *lvalue_ir(ArrayElementReference *lValue) {
     char *result = malloc(128);
-    sprintf(result, "%%%s_index_%zu_%zu", ((Symbol *) (lValue->array))->name, lValue->index,
+    sprintf(result, "%%%s_element_%zu", ((Symbol *) (lValue->array))->name,
             lValue->lvalue_register_id);
     return result;
 }
@@ -42,7 +42,9 @@ static void generate_rvalue_code(ArrayElementReference *node) {
 
 static void generate_lvalue_code(ArrayElementReference *node) {
     char *lvalue_ir_str = ((LValue *) (node))->lvalue_ir((LValue *) (node));
-    printf("%s = getelementptr inbounds [%zu x %s], [%zu x %s]* %%%s_%zu, i64 0, i64 %zu\n",
+    ((RValue *) (node->index))->generate_rvalue_code((RValue *) (node->index));
+    char *index_rvalue_ir_str = ((RValue *) (node->index))->rvalue_ir((RValue *) (node->index));
+    printf("%s = getelementptr inbounds [%zu x %s], [%zu x %s]* %%%s_%zu, i64 0, i32 %s\n",
            lvalue_ir_str,
            node->array->length,
            type_string(node->array->elementType),
@@ -50,12 +52,13 @@ static void generate_lvalue_code(ArrayElementReference *node) {
            type_string(node->array->elementType),
            ((Symbol *) (node->array))->name,
            ((Symbol *) (node->array))->namespace_id,
-           node->index
+           index_rvalue_ir_str
     );
     free(lvalue_ir_str);
+    free(index_rvalue_ir_str);
 }
 
-ArrayElementReference *create_array_element_reference(ArraySymbol *array, size_t index) {
+ArrayElementReference *create_array_element_reference(ArraySymbol *array, RValue *index) {
     ArrayElementReference *result = (ArrayElementReference *) malloc(sizeof(ArrayElementReference));
     ((ASTNode *) result)->free_node = (void (*)(ASTNode *)) free;
 #ifdef DEBUG
