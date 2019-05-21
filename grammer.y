@@ -5,6 +5,7 @@
 #include "src/tools/tools.h"
 #include "src/ast/node.h"
 #include "src/ast/expression/lvalue/variableReference/variableReference.h"
+#include "src/ast/expression/lvalue/arrayElementReference/arrayElement.h"
 #include "src/ast/expression/rvalue/binaryOperationResult/binaryOperationResult.h"
 #include "src/ast/expression/rvalue/intLiteral/intLiteral.h"
 #include "src/ast/expression/rvalue/doubleLiteral/doubleLiteral.h"
@@ -90,7 +91,9 @@ assignStatement:
             $$=(ASTNode*)create_assign_statement((LValue*)ref, (RValue*)$2);
         }
     | IDENTIFY '[' INT_LITERAL ']' assign ';'  {
-            $$=(ASTNode*)create_assign_statement((LValue*)get_symbol($1), (RValue*)create_int_literal($3));
+            Symbol* symbol = get_symbol($1);
+            VariableReference* ref=create_array_element_reference(symbol, $3);
+            $$=(ASTNode*)create_assign_statement((LValue*)ref, (RValue*)$5);
         }
     ;
 

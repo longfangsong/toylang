@@ -1,7 +1,8 @@
 #include "symbol.h"
-
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "./array/array.h"
 
 void init_symbol(Symbol *memory, bool mutable, SymbolType type, char *name) {
     memory->mutable = mutable;
@@ -23,6 +24,12 @@ char *type_name(Symbol *symbol) {
             return "i32";
         case Double:
             return "double";
+        case Array: {
+            char *result = malloc(128);
+            sprintf(result, "[%zu x %s]", ((ArraySymbol *) symbol)->length,
+                    type_string(((ArraySymbol *) symbol)->elementType));
+            return result;
+        }
         default:
             exit(1);
     }
