@@ -13,15 +13,15 @@
 "else"                      {return ELSE;}
 "while"                     {return WHILE;}
 "print"                     {return PRINT;}
-(-)?[0-9]+                  {yylval.int_value=atoi(yytext); return INT_LITERAL;}
-(-)?[0-9]+\.[0-9]*          {yylval.double_value=atof(yytext); return DOUBLE_LITERAL;}
-[a-zA-Zzs][0-9a-zA-Z]*      {yylval.string_value=strdup(yytext); return IDENTIFY;}
-\'[^\n]\'
-\"[^\"\n]*\"
+([-])?[0-9]+               {yylval.int_value=atoi(yytext); return INT_LITERAL;}
+([-])?[0-9]+\.[0-9]*       {yylval.double_value=atof(yytext); return DOUBLE_LITERAL;}
+[a-zA-Z][0-9a-zA-Z_]*       {yylval.string_value=strdup(yytext); return IDENTIFY;}
 "=="                        {return EQUAL;}
 "!="                        {return NONEQUAL;}
 "<"                         {return *yytext;}
+"<="                        {return LESSEQ;}
 ">"                         {return *yytext;}
+">="                        {return GREATEREQ;}
 "+"                         {return *yytext;}
 "-"                         {return *yytext;}
 "*"                         {return *yytext;}

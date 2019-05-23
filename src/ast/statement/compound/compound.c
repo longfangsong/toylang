@@ -45,7 +45,7 @@ CompoundStatement *create_compound_statement() {
     ((ASTNode *) (result))->print_ast_node = (void (*)(ASTNode *, size_t)) print_ast_node;
 #endif
     ((ASTNode *) (result))->free_node = (void (*)(ASTNode *)) free_node;
-    ((ASTNode *) (result))->generate_code = (void (*)(ASTNode *)) generate_code;
+    ((Statement *) (result))->generate_code = (void (*)(Statement *)) generate_code;
     return result;
 }
 

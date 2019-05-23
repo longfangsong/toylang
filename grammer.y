@@ -20,44 +20,41 @@
 #include "src/symbolTable/symbol/symbol.h"
 #include "src/symbolTable/symbol/array/array.h"
 
-ASTNode *result;
+CompoundStatement *result;
 
 int yylex();
 int yyerror(char *errMsg);
 %}
 
 %union {
-    char char_value;
-    char *string_value;
     int int_value;
     double double_value;
-    size_t id_value;
+    char* string_value;
     ASTNode *node;
     SymbolType type;
-    char print;
 };
 
 %token <type> TYPE
-%token <string_value> IDENTIFY STRING_LITERAL
+%token <string_value> IDENTIFY
 %token <int_value> INT_LITERAL
 %token <double_value> DOUBLE_LITERAL
-%token <id_value> STRING INT DOUBLE
-%token <id_value> IF ELSE WHILE FOR
-%token <id_value> LESSEQ GREATEREQ EQUAL NONEQUAL
-%token <id_value> AND OR
+%token <type> STRING INT DOUBLE
+%token <void> IF ELSE WHILE FOR
+%token <void> LESSEQ GREATEREQ EQUAL NONEQUAL
 %token <void> PRINT
 
 %left '>' '<' LESSEQ GREATEREQ EQUAL NONEQUAL
 %left '+' '-'
 %left '*' '/'
 
-%type <node> statement assignStatement statementList block ifStatement whileStatement defineStatement
-%type <node> program expression referenceExpression assign atomExpression unaryExpression binaryOrAtomExpression printStatement
+%type <node> statement assignStatement statementList block ifStatement whileStatement defineStatement printStatement
+%type <node> expression referenceExpression assign atomExpression unaryExpression binaryOrAtomExpression
+%type <node> program
 
 %%
 program:
-    program statement           {add_statement((CompoundStatement *)$1,$2);}
-    |                           {$$=(ASTNode*)create_compound_statement();result=$$;}
+    program statement           {add_statement((CompoundStatement *)$1, (Statement*)$2);}
+    |                           {result=create_compound_statement(); $$=(ASTNode*)result;}
     ;
 
 assign:
@@ -91,7 +88,7 @@ assignStatement:
     ;
 
 statementList:
-    statementList statement                 {add_statement((CompoundStatement *)$1,$2);}
+    statementList statement                 {add_statement((CompoundStatement *)$1, (Statement*)$2);}
     |                                       {$$=(ASTNode*)create_compound_statement();}
     ;
 
@@ -128,14 +125,13 @@ referenceExpression:
         }
     | IDENTIFY '[' expression ']'          {
             ArraySymbol* symbol = (ArraySymbol*)get_symbol($1);
-            $$ = (ASTNode*)create_array_element_reference(symbol, $3);
+            $$ = (ASTNode*)create_array_element_reference(symbol, (RValue*)$3);
         }
 
 atomExpression:
     INT_LITERAL                             {$$=(ASTNode*)create_int_literal($1);}
     | DOUBLE_LITERAL                        {$$=(ASTNode*)create_double_literal($1);}
-    | STRING_LITERAL                        {}
-    | referenceExpression                   {$$=$1;};
+    | referenceExpression                   {$$=$1;}
     | '(' expression ')'                    {$$=$2;}
     ;
 
@@ -165,7 +161,7 @@ binaryOrAtomExpression:
 ;
 
 expression:
-    binaryOrAtomExpression {}
+    binaryOrAtomExpression {$$=$1;}
     ;
 
 %%
@@ -178,15 +174,15 @@ int yyerror(char *errMsg) {
 int main(int argc, char *argv[]) {
     push_frame();
     yyparse();
-    if(argc == 1 || strcmp(argv[1],"-emit-llvm") == 0) {
+    if(argc == 1 || strcmp(argv[1], "-emit-llvm") == 0) {
         printf("@double_fmt_str = private unnamed_addr constant [4 x i8] c\"%%g\\0A\\00\", align 1\n"
                "@int_fmt_str = private unnamed_addr constant [4 x i8] c\"%%d\\0A\\00\", align 1\n");
         printf("define i32 @main() #0 {\n");
-        result->generate_code(result);
+        ((Statement*)result)->generate_code((Statement*)result);
         printf("ret i32 0\n");
         printf("}\ndeclare i32 @printf(i8*, ...) #1\n");
     } else if(strcmp(argv[1],"-emit-ast") == 0) {
-        result->print_ast_node(result, 0);
+        ((ASTNode*)result)->print_ast_node((ASTNode*)result, 0);
     }
     pop_frame();
     return 0;

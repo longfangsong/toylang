@@ -11,8 +11,6 @@ typedef struct ASTNode {
 #endif
 
     void (*free_node)(struct ASTNode *node);
-
-    void (*generate_code)(struct ASTNode *node);
 } ASTNode;
 
 #endif //TOYLANG_NODE_H

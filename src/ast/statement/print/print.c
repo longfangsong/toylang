@@ -42,7 +42,7 @@ PrintStatement *create_print_statement(RValue *expression) {
     ((ASTNode *) result)->print_ast_node = (void (*)(ASTNode *, size_t)) print_ast_node;
 #endif
     ((ASTNode *) result)->free_node = (void (*)(ASTNode *)) free;
-    ((ASTNode *) result)->generate_code = (void (*)(ASTNode *)) generate_code;
+    ((Statement *) result)->generate_code = (void (*)(Statement *)) generate_code;
     result->expression = expression;
     return result;
 }

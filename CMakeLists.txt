@@ -10,7 +10,7 @@ add_executable(compiler
         src/symbolTable/symbol/symbol.c src/symbolTable/symbol/symbol.h
         src/symbolTable/symbol/type/symbolType.h
         src/symbolTable/symbol/array/array.c src/symbolTable/symbol/array/array.h
-        src/symbolTable/symbolTable.c src/symbolTable/symbolTable.h
+        src/symbolTable/symbolTable.c src/symbolTable/symbolType.h
         src/tools/tools.c src/tools/tools.h
         src/ast/statement/statement.h
         src/ast/node.h
@@ -22,7 +22,7 @@ add_executable(compiler
         src/ast/expression/rvalue/rvalue.h src/ast/expression/rvalue/rvalue.c
         src/ast/expression/lvalue/variableReference/variableReference.c src/ast/expression/lvalue/variableReference/variableReference.h
         src/ast/expression/lvalue/arrayElementReference/arrayElement.c src/ast/expression/lvalue/arrayElementReference/arrayElement.h
-        src/symbolTable/symbol/type/symbolTable.c
+        src/symbolTable/symbol/type/symbolType.c
         src/ast/expression/rvalue/binaryOperationResult/binaryOperationResult.c src/ast/expression/rvalue/binaryOperationResult/binaryOperationResult.h
         src/ast/statement/declare/declare.c src/ast/statement/declare/declare.h
         src/ast/expression/rvalue/intLiteral/intLiteral.c src/ast/expression/rvalue/intLiteral/intLiteral.h

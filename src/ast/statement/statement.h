@@ -3,5 +3,10 @@
 
 #include "../node.h"
 
-typedef ASTNode Statement;
+typedef struct Statement {
+    ASTNode base;
+
+    void (*generate_code)(struct Statement *node);
+} Statement;
+
 #endif //TOYLANG_STATEMENT_H

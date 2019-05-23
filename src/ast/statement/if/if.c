@@ -75,6 +75,6 @@ IfStatement *create_if_statement(
     result->condition = condition;
     result->statement = statement;
     result->else_statement = else_statement;
-    ((Statement *) (result))->generate_code = (void (*)(ASTNode *)) generate_code;
+    ((Statement *) (result))->generate_code = (void (*)(Statement *)) generate_code;
     return result;
 }
