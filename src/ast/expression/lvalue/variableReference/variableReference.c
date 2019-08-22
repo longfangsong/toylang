@@ -24,8 +24,8 @@ static void generate_rvalue_code(VariableReference *rValue) {
     char *lvalue_ir_string = ((LValue *) rValue)->lvalue_ir((LValue *) rValue);
     printf("%s = load %s, %s* %s\n",
            rvalue_ir_string,
-           type_name(rValue->variable),
-           type_name(rValue->variable),
+           symbol_type(rValue->variable),
+           symbol_type(rValue->variable),
            lvalue_ir_string);
     free(rvalue_ir_string);
     free(lvalue_ir_string);

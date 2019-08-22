@@ -16,6 +16,6 @@ void init_symbol(Symbol *memory, bool mutable, SymbolType type, char *name);
 
 Symbol *create_symbol(bool mutable, SymbolType type, char *name);
 
-char *type_name(Symbol *symbol);
+char *symbol_type(Symbol *symbol);
 
 #endif //TOYLANG_SYMBOL_H

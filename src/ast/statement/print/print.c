@@ -41,7 +41,7 @@ PrintStatement *create_print_statement(RValue *expression) {
 #ifdef DEBUG
     ((ASTNode *) result)->print_ast_node = (void (*)(ASTNode *, size_t)) print_ast_node;
 #endif
-    ((ASTNode *) result)->free_node = (void (*)(ASTNode *)) free;
+    ((ASTNode *) result)->free_node = (void (*)(ASTNode *)) free_node;
     ((Statement *) result)->generate_code = (void (*)(Statement *)) generate_code;
     result->expression = expression;
     return result;

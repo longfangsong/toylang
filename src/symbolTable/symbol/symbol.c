@@ -18,7 +18,7 @@ Symbol *create_symbol(bool mutable, SymbolType type, char *name) {
     return result;
 }
 
-char *type_name(Symbol *symbol) {
+char *symbol_type(Symbol *symbol) {
     switch (symbol->type) {
         case Int:
             return "i32";

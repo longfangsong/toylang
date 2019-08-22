@@ -10,7 +10,7 @@ add_executable(compiler
         src/symbolTable/symbol/symbol.c src/symbolTable/symbol/symbol.h
         src/symbolTable/symbol/type/symbolType.h
         src/symbolTable/symbol/array/array.c src/symbolTable/symbol/array/array.h
-        src/symbolTable/symbolTable.c src/symbolTable/symbolType.h
+        src/symbolTable/symbolTable.c
         src/tools/tools.c src/tools/tools.h
         src/ast/statement/statement.h
         src/ast/node.h
@@ -24,10 +24,10 @@ add_executable(compiler
         src/ast/expression/lvalue/arrayElementReference/arrayElement.c src/ast/expression/lvalue/arrayElementReference/arrayElement.h
         src/symbolTable/symbol/type/symbolType.c
         src/ast/expression/rvalue/binaryOperationResult/binaryOperationResult.c src/ast/expression/rvalue/binaryOperationResult/binaryOperationResult.h
-        src/ast/statement/declare/declare.c src/ast/statement/declare/declare.h
+        src/ast/statement/declare/variable/variable.c src/ast/statement/declare/variable/variable.h
         src/ast/expression/rvalue/intLiteral/intLiteral.c src/ast/expression/rvalue/intLiteral/intLiteral.h
         src/ast/expression/rvalue/doubleLiteral/doubleLiteral.c src/ast/expression/rvalue/doubleLiteral/doubleLiteral.h
         src/ast/statement/if/if.c src/ast/statement/if/if.h
         src/ast/statement/while/while.c src/ast/statement/while/while.h
         src/ast/statement/print/print.c src/ast/statement/print/print.h
-        )
+        src/symbolTable/symbol/function/function.c src/symbolTable/symbol/function/function.h src/symbolTable/symbol/function/paramList/paramList.c src/symbolTable/symbol/function/paramList/paramList.h src/ast/statement/declare/function/function.c src/ast/statement/declare/function/function.h src/ast/statement/return/return.c src/ast/statement/return/return.h)

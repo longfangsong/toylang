@@ -11,7 +11,8 @@
 #include "src/ast/expression/rvalue/doubleLiteral/doubleLiteral.h"
 #include "src/ast/statement/compound/compound.h"
 #include "src/ast/statement/assign/assign.h"
-#include "src/ast/statement/declare/declare.h"
+#include "src/ast/statement/declare/variable/variable.h"
+#include "src/ast/statement/declare/function/function.h"
 #include "src/ast/statement/if/if.h"
 #include "src/ast/statement/while/while.h"
 #include "src/ast/statement/print/print.h"
@@ -21,6 +22,8 @@
 #include "src/symbolTable/symbol/array/array.h"
 
 CompoundStatement *result;
+
+CompoundStatement *globalFunctions;
 
 int yylex();
 int yyerror(char *errMsg);
@@ -41,20 +44,22 @@ int yyerror(char *errMsg);
 %token <type> STRING INT DOUBLE
 %token <void> IF ELSE WHILE FOR
 %token <void> LESSEQ GREATEREQ EQUAL NONEQUAL
-%token <void> PRINT
+%token <void> PRINT RETURN
 
 %left '>' '<' LESSEQ GREATEREQ EQUAL NONEQUAL
 %left '+' '-'
 %left '*' '/'
 
 %type <node> statement assignStatement statementList block ifStatement whileStatement defineStatement printStatement
+%type <node> functionParamList functionDeclareStatement
 %type <node> expression referenceExpression assign atomExpression unaryExpression binaryOrAtomExpression
 %type <node> program
 
 %%
 program:
-    program statement           {add_statement((CompoundStatement *)$1, (Statement*)$2);}
-    |                           {result=create_compound_statement(); $$=(ASTNode*)result;}
+    program statement                   {add_statement((CompoundStatement *)$1, (Statement*)$2);}
+    | program functionDeclareStatement  {add_statement((CompoundStatement *)globalFunctions, (Statement*)$2);}
+    |                                   {result=create_compound_statement(); globalFunctions=create_compound_statement(); $$=(ASTNode*)result;}
     ;
 
 assign:
@@ -65,19 +70,19 @@ defineStatement:
     TYPE IDENTIFY ';'                       {
             Symbol* symbol=create_symbol(true,$1,$2);
             add_symbol(symbol);
-            $$=(ASTNode *)create_declare_statement(symbol, NULL);
+            $$=(ASTNode *)create_variable_declare_statement(symbol, NULL);
         }
     | TYPE IDENTIFY '[' INT_LITERAL ']' ';'    {
             Symbol* symbol=(Symbol*)create_array_symbol(true,$1,$2,(size_t)($4));
             add_symbol(symbol);
-            $$=(ASTNode *)create_declare_statement(symbol, NULL);
+            $$=(ASTNode *)create_variable_declare_statement(symbol, NULL);
         }
     | TYPE IDENTIFY assign ';'              {
             Symbol* symbol=create_symbol(true,$1,$2);
             add_symbol(symbol);
             VariableReference * ref = create_variable_reference(symbol);
             AssignStatement * initial = create_assign_statement((LValue*)ref, (RValue*)$3);
-            $$=(ASTNode *)create_declare_statement(symbol, initial);
+            $$=(ASTNode *)create_variable_declare_statement(symbol, initial);
         }
     ;
 
@@ -109,8 +114,36 @@ printStatement:
     PRINT '(' expression ')' ';'            {$$=(ASTNode*)create_print_statement((RValue*)$3);}
 ;
 
+functionParamList:
+    functionParamList ',' TYPE IDENTIFY     {
+            Symbol* symbol=create_symbol(false,$3,$4);
+            add_param($1, symbol);
+            $$=$4;
+        }
+    | TYPE IDENTIFY                        {
+            push_frame();
+            $$=(ASTNode*)create_param_list();
+            Symbol* symbol=create_symbol(false,$1,$2);
+            add_param($$, symbol);
+        }
+    |                                      {$$=(ASTNode*)create_param_list();}
+    ;
+
+functionDeclareStatement:
+    TYPE IDENTIFY '(' functionParamList ')' block {
+            FunctionDeclareStatement* symbol = create_function_symbol($1, $2, $4, $6);
+            FunctionDeclareStatement* declareStatement = create_function_declare(symbol);
+            add_statement(globalFunctions, (Statement*)declareStatement);
+            pop_frame();
+        }
+
+returnStatement:
+    RETURN ';'
+    | RETURN expression ';';
+
 statement:
     defineStatement
+    | returnStatement
     | assignStatement
     | block
     | ifStatement
@@ -127,6 +160,7 @@ referenceExpression:
             ArraySymbol* symbol = (ArraySymbol*)get_symbol($1);
             $$ = (ASTNode*)create_array_element_reference(symbol, (RValue*)$3);
         }
+    ;
 
 atomExpression:
     INT_LITERAL                             {$$=(ASTNode*)create_int_literal($1);}
@@ -175,6 +209,7 @@ int main(int argc, char *argv[]) {
     push_frame();
     yyparse();
     if(argc == 1 || strcmp(argv[1], "-emit-llvm") == 0) {
+        ((Statement*)globalFunctions)->generate_code((Statement*)globalFunctions);
         printf("@double_fmt_str = private unnamed_addr constant [4 x i8] c\"%%g\\0A\\00\", align 1\n"
                "@int_fmt_str = private unnamed_addr constant [4 x i8] c\"%%d\\0A\\00\", align 1\n");
         printf("define i32 @main() #0 {\n");
