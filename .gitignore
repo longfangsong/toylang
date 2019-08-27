@@ -1,11 +1,7 @@
 .vscode
-compiler
-lex.yy.c
-y.tab.c
-y.tab.h
 *.ll
-test
-a.out
-*.s
 .idea
+*.s
 *.ast
+/target
+**/*.rs.bk
