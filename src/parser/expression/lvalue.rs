@@ -1,13 +1,12 @@
 use nom::IResult;
 
-use crate::parser::Context;
-use crate::parser::expression::result::ExpressionParseResult;
-use crate::parser::expression::variable_reference::variable_reference;
-
-pub trait LValue {
-    fn generate_lvalue(self) -> ExpressionParseResult;
+pub trait LValue: std::fmt::Debug {
+    fn generate_lvalue_ssa(&self) -> (String, u64);
 }
 
-pub fn lvalue<'a>(input: (&'a str, Context<'a>)) -> IResult<(&'a str, Context<'a>), impl LValue> {
-    variable_reference(input)
+pub(crate) fn lift<'a, O: 'a + LValue, P>(parser: P) -> impl Fn(&'a str) -> IResult<&'a str, Box<dyn 'a + LValue>>
+    where P: Fn(&'a str) -> IResult<&'a str, O> {
+    move |code: &'a str| -> IResult<&'a str, Box<dyn 'a + LValue>> {
+        parser(code).map(|(rest, result)| (rest, Box::new(result) as _))
+    }
 }

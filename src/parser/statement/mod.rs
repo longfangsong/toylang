@@ -1,6 +1,6 @@
-pub mod variable_declaration;
-pub mod assignment;
+mod assign;
 
-pub trait Statement {
-    fn generate_code(self) -> String;
+pub(crate) trait Statement {
+    fn generate_ssa(&self) -> String;
 }
+

@@ -1,7 +1,5 @@
-pub mod result;
-pub mod lvalue;
-pub mod rvalue;
-pub mod number_literal;
-pub mod variable_reference;
-pub mod binary_op;
-
+pub(crate) mod rvalue;
+pub(crate) mod lvalue;
+pub(crate) mod constant;
+pub(crate) mod variable;
+pub(crate) mod bin_op;

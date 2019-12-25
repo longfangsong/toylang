@@ -1,28 +1,20 @@
 use nom::branch::alt;
-use nom::combinator::map;
 use nom::IResult;
 
-use crate::parser::Context;
-use crate::parser::expression::binary_op::binary_op;
-use crate::parser::expression::number_literal::number_literal;
-use crate::parser::expression::result::ExpressionParseResult;
-use crate::parser::expression::variable_reference::{variable_reference, VariableReference};
+use crate::parser::expression::{bin_op, constant, variable};
 
-pub trait RValue {
-    fn generate_rvalue(&self) -> ExpressionParseResult;
+pub trait RValue: std::fmt::Debug {
+    fn generate_rvalue_ssa(&self) -> (String, u64);
 }
 
-pub fn as_rvalue_parser<'a, O: 'static + RValue, Parser>(f: Parser)
-                                                         -> impl Fn((&'a str, Context<'a>)) -> IResult<(&'a str, Context<'a>), Box<dyn RValue>>
-    where Parser: Fn((&'a str, Context<'a>)) -> IResult<(&'a str, Context<'a>), O> {
-    move |input| {
-        match f(input) {
-            Ok((remain, out)) => Ok((remain, Box::new(out))),
-            Err(e) => Err(e)
-        }
+// todo: create a box_result to abstract rvalue::lift and lvalue::lift
+pub(crate) fn lift<'a, O: 'a + RValue, P>(parser: P) -> impl Fn(&'a str) -> IResult<&'a str, Box<dyn 'a + RValue>>
+    where P: Fn(&'a str) -> IResult<&'a str, O> {
+    move |code: &'a str| -> IResult<&'a str, Box<dyn 'a + RValue>> {
+        parser(code).map(|(rest, result)| (rest, Box::new(result) as _))
     }
 }
 
-pub fn rvalue<'a>(input: (&'a str, Context<'a>)) -> IResult<(&'a str, Context<'a>), Box<dyn RValue>> {
-    alt((as_rvalue_parser(number_literal), as_rvalue_parser(variable_reference), binary_op))(input)
+pub fn parse<'a>(code: &'a str) -> IResult<&'a str, Box<dyn 'a + RValue>> {
+    alt((lift(bin_op::parse), lift(constant::parse), lift(variable::parse)))(code)
 }
