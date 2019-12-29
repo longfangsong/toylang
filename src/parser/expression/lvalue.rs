@@ -1,7 +1,7 @@
 use nom::IResult;
 
 pub trait LValue: std::fmt::Debug {
-    fn generate_lvalue_ssa(&self) -> (String, u64);
+    fn generate_lvalue_ir(&self) -> (String, u64);
 }
 
 pub(crate) fn lift<'a, O: 'a + LValue, P>(parser: P) -> impl Fn(&'a str) -> IResult<&'a str, Box<dyn 'a + LValue>>

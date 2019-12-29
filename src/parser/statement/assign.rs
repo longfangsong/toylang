@@ -10,21 +10,21 @@ use crate::parser::expression::rvalue::RValue;
 use crate::parser::statement::Statement;
 
 #[derive(Debug)]
-struct Assign<'a> {
+pub(crate) struct Assign<'a> {
     lhs: Box<dyn 'a + LValue>,
     rhs: Box<dyn 'a + RValue>,
 }
 
 impl Statement for Assign<'_> {
-    fn generate_ssa(&self) -> String {
-        let (rhs_ssa_str, rhs_value_reg_id) = self.rhs.generate_rvalue_ssa();
-        let (lhs_ssa_str, lhs_reference_reg_id) = self.lhs.generate_lvalue_ssa();
-        let self_ssa = format!("*%{} = %{};", lhs_reference_reg_id, rhs_value_reg_id);
-        rhs_ssa_str + "\n" + &lhs_ssa_str[..] + "\n" + &self_ssa
+    fn generate_ir(&self) -> String {
+        let (rhs_ir_str, rhs_value_reg_id) = self.rhs.generate_rvalue_ir();
+        let (lhs_ir_str, lhs_reference_reg_id) = self.lhs.generate_lvalue_ir();
+        let self_ir = format!("*%{} = %{};", lhs_reference_reg_id, rhs_value_reg_id);
+        rhs_ir_str + "\n" + &lhs_ir_str[..] + "\n" + &self_ir
     }
 }
 
-fn parse(code: &str) -> IResult<&str, Assign> {
+pub(crate) fn parse(code: &str) -> IResult<&str, Assign> {
     map(tuple((
         lvalue::lift(variable::parse),
         space0,
@@ -42,8 +42,8 @@ fn test_parse() {
 }
 
 #[test]
-fn test_ssa() {
-    let expected_ssa = "%0 = b;\n%1 = 2;\n%2 = d;\n%3 = add %1, %2;\n%4 = add %0, %3;\n%5 = &a;\n*%5 = %4;";
+fn test_ir() {
+    let expected_ir = "%0 = b;\n%1 = 2;\n%2 = d;\n%3 = add %1, %2;\n%4 = add %0, %3;\n%5 = &a;\n*%5 = %4;";
     let result = parse("a = b+2+d;");
-    assert_eq!(result.unwrap().1.generate_ssa(), expected_ssa);
+    assert_eq!(result.unwrap().1.generate_ir(), expected_ir);
 }

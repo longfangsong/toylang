@@ -4,7 +4,7 @@ use nom::IResult;
 use crate::parser::expression::{bin_op, constant, variable};
 
 pub trait RValue: std::fmt::Debug {
-    fn generate_rvalue_ssa(&self) -> (String, u64);
+    fn generate_rvalue_ir(&self) -> (String, u64);
 }
 
 // todo: create a box_result to abstract rvalue::lift and lvalue::lift

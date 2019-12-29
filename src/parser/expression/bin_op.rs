@@ -22,12 +22,12 @@ pub struct BinOp<'a> {
 }
 
 impl RValue for BinOp<'_> {
-    fn generate_rvalue_ssa(&self) -> (String, u64) {
-        let (lhs_ssa_str, lhs_ssa_id) = self.lhs.generate_rvalue_ssa();
-        let (rhs_ssa_str, rhs_ssa_id) = self.rhs.generate_rvalue_ssa();
+    fn generate_rvalue_ir(&self) -> (String, u64) {
+        let (lhs_ir_str, lhs_ir_id) = self.lhs.generate_rvalue_ir();
+        let (rhs_ir_str, rhs_ir_id) = self.rhs.generate_rvalue_ir();
         let id = next_id();
-        let this_ssa = format!("%{} = add %{}, %{};", id, lhs_ssa_id, rhs_ssa_id);
-        let result_str = lhs_ssa_str + "\n" + &rhs_ssa_str[..] + "\n" + &this_ssa[..];
+        let this_ir = format!("%{} = add %{}, %{};", id, lhs_ir_id, rhs_ir_id);
+        let result_str = lhs_ir_str + "\n" + &rhs_ir_str[..] + "\n" + &this_ir[..];
         return (result_str, id);
     }
 }

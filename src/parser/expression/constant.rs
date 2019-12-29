@@ -11,7 +11,7 @@ pub struct Constant {
 }
 
 impl RValue for Constant {
-    fn generate_rvalue_ssa(&self) -> (String, u64) {
+    fn generate_rvalue_ir(&self) -> (String, u64) {
         let id = next_id();
         return (format!("%{} = {};", id, self.value), id);
     }
