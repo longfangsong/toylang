@@ -5,8 +5,9 @@ use std::io::{Read, Write};
 use crate::code_generator::{assign_registers, parse_ir};
 use crate::parser::generate_ir;
 
-mod parser;
+#[macro_use]
 mod tools;
+mod parser;
 mod code_generator;
 
 fn read_file(path: String) -> std::io::Result<String> {
@@ -35,11 +36,5 @@ fn main() -> std::io::Result<()> {
     println!("{}", final_ir.iter()
         .map(|it| it.generate_asm())
         .collect::<Vec<_>>().join("\n"));
-//    let registers_used: Vec<_> = result.iter().map(|it| it.using_regs()).collect();
-//    let register_assign = assign(registers_used);
-//    result.iter_mut().map(|it| it.assign_regs(&register_assign));
-//    let asm = result.iter().map(|it| it.generate_asm()).collect::<Vec<_>>()
-//        .join("\n");
-//    println!("{}", asm);
     Ok(())
 }

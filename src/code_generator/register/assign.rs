@@ -19,7 +19,14 @@ pub fn assign(used_regs: Vec<BTreeSet<&Register>>) -> BTreeMap<&Register, Regist
     while !reg_requirements.is_empty() {
         let reg_requirement = reg_requirements.pop_front().unwrap();
         if !result.contains_key(reg_requirement) {
-            let assign_to = if current_assigned.len() == REGISTERS.len() {
+            let assign_to = if current_assigned.iter()
+                .filter(|it| {
+                    if let Register::PhysicalRegister(r) = it {
+                        true
+                    } else {
+                        false
+                    }
+                }).count() == REGISTERS.len() {
                 next_address += 4;
                 Register::Memory(next_address)
             } else {

@@ -16,8 +16,6 @@ pub(crate) struct LoadVariable<'a> {
     variable_name: &'a str,
 }
 
-// fixme: cannot use .{} directly!
-// 分两步读
 impl<'a> CodeGenerator<'a> for LoadVariable<'a> {
     fn generate_asm(&self) -> String {
         let (_, real_reg_name) = make_sure_in_real_reg(&self.to, "t0");
