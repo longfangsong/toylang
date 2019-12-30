@@ -21,7 +21,7 @@ pub fn parse(code: &str) -> IResult<&str, Variable> {
 impl RValue for Variable<'_> {
     fn generate_rvalue_ir(&self) -> (String, u64) {
         let id = next_id();
-        return (format!("%{} = {};", id, self.name), id);
+        (format!("%{} = {};", id, self.name), id)
     }
 }
 

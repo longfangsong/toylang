@@ -21,7 +21,7 @@ pub fn assign(used_regs: Vec<BTreeSet<&Register>>) -> BTreeMap<&Register, Regist
         if !result.contains_key(reg_requirement) {
             let assign_to = if current_assigned.iter()
                 .filter(|it| {
-                    if let Register::PhysicalRegister(r) = it {
+                    if let Register::PhysicalRegister(_) = it {
                         true
                     } else {
                         false

@@ -28,7 +28,7 @@ impl RValue for BinOp<'_> {
         let id = next_id();
         let this_ir = format!("%{} = add %{}, %{};", id, lhs_ir_id, rhs_ir_id);
         let result_str = lhs_ir_str + "\n" + &rhs_ir_str[..] + "\n" + &this_ir[..];
-        return (result_str, id);
+        (result_str, id)
     }
 }
 

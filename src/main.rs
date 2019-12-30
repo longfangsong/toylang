@@ -18,19 +18,21 @@ fn read_file(path: String) -> std::io::Result<String> {
 }
 
 fn write_file(file: &mut File, content: String) {
-    file.write(&content.as_bytes()[..]).unwrap_or_else(|_| panic!("write file failed"));
+    file.write_all(&content.as_bytes()[..]).unwrap_or_else(|_| panic!("write file failed"));
 }
 
 fn main() -> std::io::Result<()> {
     let ir = env::args().skip(1)
-        .find(|it| !it.starts_with("-"))
+        .find(|it| !it.starts_with('-'))
         .and_then(|path| {
             read_file(path).ok()
         })
         .map(|source| generate_ir(&source[..]));
     let mut f = File::create("ir.tir")?;
-    ir.clone().map(|content| write_file(&mut f, content));
-    let ir = ir.unwrap().clone();
+    if let Some(content) = ir.clone() {
+        write_file(&mut f, content)
+    }
+    let ir = ir.unwrap();
     let result = parse_ir(&ir[..]).unwrap().1;
     let final_ir = assign_registers(&result);
     println!("{}", final_ir.iter()

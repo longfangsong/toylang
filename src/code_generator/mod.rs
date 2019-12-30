@@ -52,8 +52,8 @@ pub(crate) fn parse_ir<'a>(ir: &'a str) -> IResult<&'a str, Vec<Box<dyn 'a + Cod
     many0(parse_with_space)(ir)
 }
 
-pub fn assign_registers<'a>(generators: &Vec<Box<dyn CodeGenerator<'a> + 'a>>) -> Vec<Box<dyn CodeGenerator<'a> + 'a>> {
-    let registers: Vec<_> = generators.clone().iter()
+pub fn assign_registers<'a>(generators: &[Box<dyn CodeGenerator<'a> + 'a>]) -> Vec<Box<dyn CodeGenerator<'a> + 'a>> {
+    let registers: Vec<_> = generators.iter()
         .map(|it| it.using_regs())
         .collect();
     let dict = assign(registers);
