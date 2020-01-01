@@ -1,14 +1,19 @@
+#[macro_use]
+extern crate lazy_static;
+
 use std::env;
 use std::fs::File;
 use std::io::{Read, Write};
 
-use crate::code_generator::{assign_registers, parse_ir};
-use crate::parser::generate_ir;
+use crate::code::generate_ir;
+use crate::register::assign::generate_assign_map;
+use crate::register::SSARegister;
 
 #[macro_use]
 mod tools;
-mod parser;
-mod code_generator;
+mod code;
+mod ssa;
+mod register;
 
 fn read_file(path: String) -> std::io::Result<String> {
     let mut content = String::new();
@@ -22,21 +27,19 @@ fn write_file(file: &mut File, content: String) {
 }
 
 fn main() -> std::io::Result<()> {
-    let ir = env::args().skip(1)
+    let result = env::args().skip(1)
         .find(|it| !it.starts_with('-'))
         .and_then(|path| {
             read_file(path).ok()
         })
-        .map(|source| generate_ir(&source[..]));
-    let mut f = File::create("ir.tir")?;
-    if let Some(content) = ir.clone() {
-        write_file(&mut f, content)
-    }
-    let ir = ir.unwrap();
-    let result = parse_ir(&ir[..]).unwrap().1;
-    let final_ir = assign_registers(&result);
-    println!("{}", final_ir.iter()
-        .map(|it| it.generate_asm())
-        .collect::<Vec<_>>().join("\n"));
+        .map(|content| {
+            let ir = generate_ir(&content);
+            let require_registers: Vec<SSARegister> = ir.iter().map(|it| it.require_registers()).flatten().collect();
+            let assign_map = generate_assign_map(&require_registers);
+            ir.iter()
+                .map(|it| it.generate_asm(&assign_map))
+                .collect::<Vec<_>>().join("")
+        });
+    println!("{}", result.unwrap());
     Ok(())
 }
