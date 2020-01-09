@@ -19,7 +19,7 @@ pub(crate) struct Store {
 
 impl Display for Store {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        writeln!(f, "*{} = {}", self.to, self.from)
+        writeln!(f, "*{} = {};", self.to, self.from)
     }
 }
 

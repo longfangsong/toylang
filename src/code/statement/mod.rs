@@ -3,10 +3,12 @@ use nom::IResult;
 
 use crate::code::statement::assign::Assign;
 use crate::code::statement::compound::Compound;
+use crate::code::statement::if_statement::If;
 use crate::ssa::SSAStatement;
 
 mod assign;
 mod compound;
+mod if_statement;
 
 pub(crate) type StatementResult<'a> = Vec<Box<dyn SSAStatement + 'a>>;
 
@@ -22,5 +24,5 @@ pub(crate) fn lift<'a, O: 'a + Statement<'a>, P>(parser: P) -> impl Fn(&'a str) 
 }
 
 pub(crate) fn parse<'a>(code: &'a str) -> IResult<&'a str, Box<dyn 'a + Statement<'a>>> {
-    alt((lift(Assign::parse), lift(Compound::parse)))(code)
+    alt((lift(Assign::parse), lift(Compound::parse), lift(If::parse)))(code)
 }

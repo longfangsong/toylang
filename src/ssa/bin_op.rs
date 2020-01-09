@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::{Error, Formatter};
 use std::fmt::Display;
 
 use nom::bytes::complete::tag;
@@ -7,7 +8,6 @@ use nom::combinator::map;
 use nom::Err;
 use nom::error::ErrorKind;
 use nom::IResult;
-use nom::lib::std::fmt::{Error, Formatter};
 use nom::sequence::tuple;
 
 use crate::code::expression::bin_op::OP_NAME;
@@ -23,7 +23,7 @@ pub(crate) struct BinOp {
 
 impl Display for BinOp {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        writeln!(f, "{} = add {}, {};", self.result, self.lhs, self.rhs)
+        writeln!(f, "{} = {} {}, {};", self.result, self.op, self.lhs, self.rhs)
     }
 }
 
@@ -63,6 +63,9 @@ fn test_parse_op() {
     let result = parse_op("add %1, %2;").unwrap();
     assert_eq!(result.1, "add");
     assert_eq!(result.0, " %1, %2;");
+    let result = parse_op("slt %1, %2;").unwrap();
+    assert_eq!(result.1, "slt");
+    assert_eq!(result.0, " %1, %2;");
     let result = parse_op("asdf");
     assert!(result.is_err());
     let result = parse_op("1234");
@@ -99,6 +102,12 @@ fn test_parse() {
     assert_eq!(result.1.rhs, SSARegister(2));
     assert_eq!(result.1.op, "add");
 
+    let result = BinOp::parse("%0 = slt %1, %2;").unwrap();
+    assert_eq!(result.1.result, SSARegister(0));
+    assert_eq!(result.1.lhs, SSARegister(1));
+    assert_eq!(result.1.rhs, SSARegister(2));
+    assert_eq!(result.1.op, "slt");
+
     let result = BinOp::parse("%0 = sth %1, %2;");
     assert!(result.is_err());
 }
@@ -117,6 +126,14 @@ fn test_require_registers() {
 
 #[test]
 fn test_generate_asm() {
+    let result = BinOp::parse("%0 = slt %1, %2;").unwrap().1;
+    let mut register_map = HashMap::new();
+    register_map.insert(SSARegister(0), PhysicalRegister::RealRegister("t3"));
+    register_map.insert(SSARegister(1), PhysicalRegister::RealRegister("t4"));
+    register_map.insert(SSARegister(2), PhysicalRegister::RealRegister("t5"));
+    let asm = result.generate_asm(&register_map);
+    assert_eq!(asm, "slt t3, t4, t5\n");
+
     let result = BinOp::parse("%0 = add %1, %2;").unwrap().1;
     let mut register_map = HashMap::new();
     register_map.insert(SSARegister(0), PhysicalRegister::RealRegister("t3"));

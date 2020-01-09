@@ -22,6 +22,7 @@ lazy_static! {
         let mut m = HashMap::new();
         m.insert("+", "add");
         m.insert("-", "sub");
+        m.insert("<", "slt");
         m
     };
 }
