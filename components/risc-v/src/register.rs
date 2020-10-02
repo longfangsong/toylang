@@ -121,3 +121,35 @@ pub fn allocate_registers(irs: &[IR]) -> HashMap<String, AllocatedRegister> {
     }
     result
 }
+
+impl AllocatedRegister {
+    pub fn real_register(&self, backup_register: String) -> String {
+        if let AllocatedRegister::Memory(offset) = self {
+            backup_register
+        } else if let AllocatedRegister::RealRegister(real_register) = self {
+            real_register.name.clone()
+        } else {
+            unreachable!()
+        }
+    }
+    // return code, name
+    pub fn must_real_register_read_code(&self, backup_register: String) -> String {
+        if let AllocatedRegister::Memory(offset) = self {
+            format!("lw {}, -{}(s0)", backup_register, offset)
+        } else if let AllocatedRegister::RealRegister(real_register) = self {
+            "".to_string()
+        } else {
+            unreachable!()
+        }
+    }
+
+    pub fn must_real_register_write_code(&self, backup_register: String) -> String {
+        if let AllocatedRegister::Memory(offset) = self {
+            format!("sw {}, -{}(s0)", backup_register, offset)
+        } else if let AllocatedRegister::RealRegister(real_register) = self {
+            "".to_string()
+        } else {
+            unreachable!()
+        }
+    }
+}

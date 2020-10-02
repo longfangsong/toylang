@@ -5,14 +5,14 @@ use nom::branch::alt;
 use nom::combinator::map;
 use nom::IResult;
 
-mod alloca;
-mod branch;
-mod calculate;
-mod global;
-mod jump;
-mod label;
-mod load;
-mod store;
+pub mod alloca;
+pub mod branch;
+pub mod calculate;
+pub mod global;
+pub mod jump;
+pub mod label;
+pub mod load;
+pub mod store;
 
 pub trait RegisterCreator {
     fn created(&self) -> &str;
