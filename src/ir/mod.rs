@@ -80,7 +80,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let code = include_str!("../test.ir");
+        let code = include_str!("ir/test.ir");
         let parser = |code: &'static str| -> IResult<&'static str, Vec<IR>> {
             many0(map(
                 tuple((multispace0, ir, opt(line_ending))),

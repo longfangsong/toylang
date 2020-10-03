@@ -1,5 +1,5 @@
+mod ir;
+mod parser;
+mod riscv;
 
-
-fn main() -> std::io::Result<()> {
-
-}
+fn main() -> std::io::Result<()> {}
