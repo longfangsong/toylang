@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate sum_type;
-
 use nom::branch::alt;
 use nom::combinator::map;
 use nom::IResult;
@@ -12,46 +9,49 @@ pub mod global;
 pub mod jump;
 pub mod label;
 pub mod load;
+pub mod register;
 pub mod store;
 
-pub trait RegisterCreator {
-    fn created(&self) -> &str;
-}
-
-pub trait RegisterUser {
-    fn used(&self) -> Vec<&str>;
-}
+pub use crate::ir::register::Register;
+pub use alloca::Alloca;
+pub use branch::Branch;
+pub use calculate::Calculate;
+pub use global::Global;
+pub use jump::Jump;
+pub use label::Label;
+pub use load::Load;
+pub use store::Store;
 
 sum_type! {
     #[derive(Debug, Eq, PartialEq, Clone)]
     pub enum IR {
-        Alloca(alloca::Alloca),
-        Store(store::Store),
-        Load(load::Load),
-        Calculate(calculate::Calculate),
-        Global(global::Global),
-        Branch(branch::Branch),
-        Jump(jump::Jump),
-        Label(label::Label),
+        Alloca,
+        Store,
+        Load,
+        Calculate,
+        Global,
+        Branch,
+        Jump,
+        Label,
     }
 }
 
 impl IR {
-    pub fn created(&self) -> Option<&str> {
+    pub fn create_register(&self) -> Option<&Register> {
         match self {
-            IR::Alloca(u) => Some(u.created()),
-            IR::Load(u) => Some(u.created()),
-            IR::Calculate(u) => Some(u.created()),
+            IR::Alloca(it) => Some(it.create_register()),
+            IR::Load(it) => Some(it.create_register()),
+            IR::Calculate(it) => Some(it.create_register()),
             _ => None,
         }
     }
-    pub fn used(&self) -> Vec<&str> {
+    pub fn use_registers(&self) -> Vec<&Register> {
         match self {
-            IR::Store(u) => u.used(),
-            IR::Load(u) => u.used(),
-            IR::Calculate(u) => u.used(),
-            IR::Branch(u) => u.used(),
-            _ => vec![],
+            IR::Store(it) => it.use_registers(),
+            IR::Load(it) => it.use_registers(),
+            IR::Calculate(it) => it.use_registers(),
+            IR::Branch(it) => it.use_registers(),
+            _ => Vec::new(),
         }
     }
 }
@@ -80,7 +80,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let code = include_str!("ir/test.ir");
+        let code = include_str!("./test.ir");
         let parser = |code: &'static str| -> IResult<&'static str, Vec<IR>> {
             many0(map(
                 tuple((multispace0, ir, opt(line_ending))),
@@ -95,7 +95,7 @@ mod tests {
             global_item,
             global::Global {
                 name: "a".to_string(),
-                data_type: "i32".to_string(),
+                // data_type: "i32".to_string(),
                 initial_value: 1,
             }
         );
@@ -103,79 +103,87 @@ mod tests {
         let label_item: label::Label = ir[2].clone().try_into().unwrap();
         assert_eq!(label_item, label::Label("back".to_string()));
 
-        assert_eq!(ir[3].created(), Some("1"));
+        assert_eq!(
+            ir[3].create_register(),
+            Some(&register::Register("1".to_string()))
+        );
         let alloca_item: alloca::Alloca = ir[3].clone().try_into().unwrap();
         assert_eq!(
             alloca_item,
             alloca::Alloca {
-                to_register: "1".to_string(),
-                data_type: "i32".to_string(),
+                to: register::Register("1".to_string())
             }
         );
 
-        assert_eq!(ir[4].created(), Some("2"));
+        assert_eq!(
+            ir[4].create_register(),
+            Some(&register::Register("2".to_string()))
+        );
         let load_item: load::Load = ir[4].clone().try_into().unwrap();
         assert_eq!(
             load_item,
             load::Load {
                 from: load::LoadSource::Global("a".to_string()),
-                to_register: "2".to_string(),
-                data_type: "i32".to_string(),
+                to: register::Register("2".to_string()),
             }
         );
 
-        assert_eq!(ir[5].used().len(), 2);
-        assert!(ir[5].used().iter().any(|&it| it == "1"));
-        assert!(ir[5].used().iter().any(|&it| it == "2"));
+        assert_eq!(ir[5].use_registers().len(), 2);
+        assert!(ir[5].use_registers().iter().any(|&it| it.0 == "1"));
+        assert!(ir[5].use_registers().iter().any(|&it| it.0 == "2"));
         let store_item: store::Store = ir[5].clone().try_into().unwrap();
         assert_eq!(
             store_item,
             store::Store {
-                data_type: "i32".to_string(),
-                value_register: "2".to_string(),
-                target: store::StoreTarget::Local("1".to_string()),
+                value: register::Register("2".to_string()),
+                target: store::StoreTarget::Local(register::Register("1".to_string())),
             }
         );
 
-        assert_eq!(ir[7].used().len(), 1);
-        assert_eq!(ir[7].used()[0], "3");
+        assert_eq!(ir[7].use_registers().len(), 1);
+        assert_eq!(
+            ir[7].use_registers()[0],
+            &register::Register("3".to_string())
+        );
         let store_item: store::Store = ir[7].clone().try_into().unwrap();
         assert_eq!(
             store_item,
             store::Store {
-                data_type: "i32".to_string(),
-                value_register: "3".to_string(),
+                value: register::Register("3".to_string()),
                 target: store::StoreTarget::Global("a".to_string()),
             }
         );
 
-        assert_eq!(ir[12].used().len(), 2);
-        assert!(ir[12].used().iter().any(|&it| it == "5"));
-        assert!(ir[12].used().iter().any(|&it| it == "6"));
+        assert_eq!(ir[12].use_registers().len(), 2);
+        assert!(ir[12].use_registers().iter().any(|&it| it.0 == "5"));
+        assert!(ir[12].use_registers().iter().any(|&it| it.0 == "6"));
         let branch_item: branch::Branch = ir[12].clone().try_into().unwrap();
         assert_eq!(
             branch_item,
             branch::Branch {
                 branch_type: branch::BranchType::LT,
-                operand1: "5".to_string(),
-                operand2: "6".to_string(),
+                operand1: register::Register("5".to_string()),
+                operand2: register::Register("6".to_string()),
                 success_label: "back".to_string(),
                 failure_label: "next".to_string(),
             }
         );
 
-        assert_eq!(ir[14].used().len(), 2);
-        assert!(ir[14].used().iter().any(|&it| it == "5"));
-        assert!(ir[14].used().iter().any(|&it| it == "6"));
-        assert_eq!(ir[14].created(), Some("7"));
+        assert_eq!(ir[14].use_registers().len(), 2);
+        assert!(ir[14].use_registers().iter().any(|&it| it.0 == "5"));
+        assert!(ir[14].use_registers().iter().any(|&it| it.0 == "6"));
+        assert_eq!(
+            ir[14].create_register(),
+            Some(&register::Register("7".to_string()))
+        );
         let calculate_item: calculate::Calculate = ir[14].clone().try_into().unwrap();
         assert_eq!(
             calculate_item,
             calculate::Calculate {
                 operation: calculate::CalculateOperation::Add,
-                operand1: calculate::Operand::Register("5".to_string()),
-                operand2: calculate::Operand::Register("6".to_string()),
-                to_register: "7".to_string(),
+                operand1: calculate::Operand::Register(register::Register("5".to_string())),
+                operand2: calculate::Operand::Register(register::Register("6".to_string())),
+                to_register: register::Register("7".to_string()),
             }
         );
 

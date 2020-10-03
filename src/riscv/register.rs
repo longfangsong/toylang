@@ -1,7 +1,8 @@
-use ir::IR;
+use crate::ir::Register as LogicRegister;
+use crate::ir::IR;
 use serde::de::Visitor;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::{fmt, mem};
 
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone)]
@@ -61,23 +62,23 @@ pub struct RealRegister {
 
 lazy_static! {
     pub static ref REGISTERS: VecDeque<RealRegister> =
-        serde_yaml::from_str(include_str!("../registers.yaml")).unwrap();
+        serde_yaml::from_str(include_str!("./registers.yaml")).unwrap();
 }
 
 #[derive(Debug)]
-pub enum AllocatedRegister {
+pub enum PhysicalRegister {
     RealRegister(RealRegister),
     Memory(usize),
 }
 
-pub fn allocate_registers(irs: &[IR]) -> HashMap<String, AllocatedRegister> {
+pub fn allocate_registers(irs: &[IR]) -> HashMap<&LogicRegister, PhysicalRegister> {
     // find out when each logical register is active
     let mut active_intervals = HashMap::new();
     for (index, ir) in irs.iter().enumerate() {
-        if let Some(created_register) = ir.created() {
+        if let Some(created_register) = ir.create_register() {
             active_intervals.insert(created_register, index..index + 1);
         }
-        for used_register in ir.used() {
+        for used_register in ir.use_registers() {
             if let Some(old_active_range) = active_intervals.get_mut(used_register) {
                 old_active_range.end = index + 1;
             }
@@ -90,16 +91,16 @@ pub fn allocate_registers(irs: &[IR]) -> HashMap<String, AllocatedRegister> {
     let mut used_address = 0; // todo: reuse recycled memory
     for (index, ir) in irs.iter().enumerate() {
         // alloca a physical register for new logical register
-        if let Some(created_register) = ir.created() {
+        if let Some(created_register) = ir.create_register() {
             active_logic_registers.insert(created_register);
             let allocated = available_real_registers
                 .pop_front()
-                .map(|it| AllocatedRegister::RealRegister(it))
+                .map(|it| PhysicalRegister::RealRegister(it))
                 .unwrap_or_else(|| {
                     used_address += 4;
-                    AllocatedRegister::Memory(used_address)
+                    PhysicalRegister::Memory(used_address)
                 });
-            result.insert(created_register.to_string(), allocated);
+            result.insert(created_register, allocated);
         }
         let old_active_logic_registers = mem::take(&mut active_logic_registers);
         for old_active_logic_register in old_active_logic_registers {
@@ -113,7 +114,7 @@ pub fn allocate_registers(irs: &[IR]) -> HashMap<String, AllocatedRegister> {
                 // `active_logic_register` now goes out of lifetime
                 // recycle it's physical register
                 let new_empty_register = result.get(old_active_logic_register).unwrap();
-                if let AllocatedRegister::RealRegister(real_register) = new_empty_register {
+                if let PhysicalRegister::RealRegister(real_register) = new_empty_register {
                     available_real_registers.push_back(real_register.clone());
                 }
             }
@@ -122,11 +123,11 @@ pub fn allocate_registers(irs: &[IR]) -> HashMap<String, AllocatedRegister> {
     result
 }
 
-impl AllocatedRegister {
+impl PhysicalRegister {
     pub fn real_register(&self, backup_register: String) -> String {
-        if let AllocatedRegister::Memory(offset) = self {
+        if let PhysicalRegister::Memory(_offset) = self {
             backup_register
-        } else if let AllocatedRegister::RealRegister(real_register) = self {
+        } else if let PhysicalRegister::RealRegister(real_register) = self {
             real_register.name.clone()
         } else {
             unreachable!()
@@ -134,9 +135,9 @@ impl AllocatedRegister {
     }
     // return code, name
     pub fn must_real_register_read_code(&self, backup_register: String) -> String {
-        if let AllocatedRegister::Memory(offset) = self {
+        if let PhysicalRegister::Memory(offset) = self {
             format!("lw {}, -{}(s0)", backup_register, offset)
-        } else if let AllocatedRegister::RealRegister(real_register) = self {
+        } else if let PhysicalRegister::RealRegister(_real_register) = self {
             "".to_string()
         } else {
             unreachable!()
@@ -144,9 +145,9 @@ impl AllocatedRegister {
     }
 
     pub fn must_real_register_write_code(&self, backup_register: String) -> String {
-        if let AllocatedRegister::Memory(offset) = self {
+        if let PhysicalRegister::Memory(offset) = self {
             format!("sw {}, -{}(s0)", backup_register, offset)
-        } else if let AllocatedRegister::RealRegister(real_register) = self {
+        } else if let PhysicalRegister::RealRegister(_real_register) = self {
             "".to_string()
         } else {
             unreachable!()

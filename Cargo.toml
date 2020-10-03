@@ -9,6 +9,9 @@ edition = "2018"
 [dependencies]
 nom = "5.1.2"
 sum_type = "0.2.0"
+lazy_static = "1.4.0"
+serde = { version = "1.0.116", features = ["derive"] }
+serde_yaml = "0.8.13"
 
 [[bin]]
 name = "backend-riscv"

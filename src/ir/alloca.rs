@@ -1,31 +1,32 @@
-use std::fmt::{self, Display, Formatter};
-use nom::IResult;
+use crate::ir::register::{register, Register};
+use nom::bytes::complete::tag;
+use nom::character::complete::space0;
 use nom::combinator::map;
 use nom::sequence::tuple;
-use nom::bytes::complete::tag;
-use nom::character::complete::{alphanumeric1, space0, space1};
-use crate::RegisterCreator;
+use nom::IResult;
+use std::fmt::{self, Display, Formatter};
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct Alloca {
-    pub to_register: String,
-    pub data_type: String,
+    pub to: Register,
+    // todo: pub data_type: String,
 }
 
 impl Display for Alloca {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "%{} = alloca {}", self.to_register, self.data_type)
+        write!(f, "{} = alloca", self.to)
     }
 }
 
 pub fn alloca(code: &str) -> IResult<&str, Alloca> {
-    map(tuple((tag("%"), alphanumeric1, space0, tag("="), space0, tag("alloca"), space1, alphanumeric1)),
-        |(_, to_register, _, _, _, _, _, data_type): (_, &str, _, _, _, _, _, _)| Alloca { to_register: to_register.to_string(), data_type: data_type.to_string() },
+    map(
+        tuple((register, space0, tag("="), space0, tag("alloca"))),
+        |(to, _, _, _, _)| Alloca { to },
     )(code)
 }
 
-impl RegisterCreator for Alloca {
-    fn created(&self) -> &str {
-        &self.to_register
+impl Alloca {
+    pub fn create_register(&self) -> &Register {
+        &self.to
     }
 }
