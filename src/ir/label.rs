@@ -14,6 +14,6 @@ impl Display for Label {
     }
 }
 
-pub fn label(code: &str) -> IResult<&str, Label> {
+pub fn parse(code: &str) -> IResult<&str, Label> {
     map(tuple((alphanumeric1, tag(":"))), |(label, _): (&str, _)| Label(label.to_string()))(code)
 }

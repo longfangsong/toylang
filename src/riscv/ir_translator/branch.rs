@@ -61,10 +61,10 @@ mod tests {
             }),
         );
         register_map.insert(&logical_register2, PhysicalRegister::Memory(4));
-        let branch = ir::branch::branch("blt %0, %1, label1, label2").unwrap().1;
+        let branch = ir::branch::parse("blt %0, %1, label1, label2").unwrap().1;
         let asm = branch.generate_asm(&register_map);
         assert_eq!(asm, "blt test1, test2, label1\nj label2");
-        let branch = ir::branch::branch("blt %0, %2, label3, label4").unwrap().1;
+        let branch = ir::branch::parse("blt %0, %2, label3, label4").unwrap().1;
         let asm = branch.generate_asm(&register_map);
         assert_eq!(asm, "lw t1, -4(s0)\nblt test1, t1, label3\nj label4");
     }

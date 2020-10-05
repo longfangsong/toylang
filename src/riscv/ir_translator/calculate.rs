@@ -221,38 +221,38 @@ mod tests {
         register_map.insert(&logical_register2, PhysicalRegister::Memory(4));
         register_map.insert(&logical_register3, PhysicalRegister::Memory(8));
         register_map.insert(&logical_register4, PhysicalRegister::Memory(12));
-        let calculate = ir::calculate::calculate("%0 = add %1, %2").unwrap().1;
+        let calculate = ir::calculate::parse("%0 = add %1, %2").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "lw t1, -4(s0)\nadd test1, test2, t1");
 
-        let calculate = ir::calculate::calculate("%2 = sub %0, %1").unwrap().1;
+        let calculate = ir::calculate::parse("%2 = sub %0, %1").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "sub t2, test1, test2\nsw t2, -4(s0)");
 
-        let calculate = ir::calculate::calculate("%2 = xor %3, %4").unwrap().1;
+        let calculate = ir::calculate::parse("%2 = xor %3, %4").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(
             asm,
             "lw t0, -8(s0)\nlw t1, -12(s0)\nxor t2, t0, t1\nsw t2, -4(s0)"
         );
 
-        let calculate = ir::calculate::calculate("%0 = add %1, 99").unwrap().1;
+        let calculate = ir::calculate::parse("%0 = add %1, 99").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "addi test1, test2, 99");
 
-        let calculate = ir::calculate::calculate("%0 = add 88, %1").unwrap().1;
+        let calculate = ir::calculate::parse("%0 = add 88, %1").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "addi test1, test2, 88");
 
-        let calculate = ir::calculate::calculate("%0 = sub 88, %1").unwrap().1;
+        let calculate = ir::calculate::parse("%0 = sub 88, %1").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "li t0, 88\nsub test1, t0, test2");
 
-        let calculate = ir::calculate::calculate("%0 = sub %1, 88").unwrap().1;
+        let calculate = ir::calculate::parse("%0 = sub %1, 88").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "addi test1, test2, -88");
 
-        let calculate = ir::calculate::calculate("%0 = add 11, 22").unwrap().1;
+        let calculate = ir::calculate::parse("%0 = add 11, 22").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "li test1, 33");
     }

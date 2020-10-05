@@ -1,16 +1,45 @@
-use crate::ir::register::{register, Register};
+use crate::ir::register::{parse as parse_register, Register};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::character::complete::{alphanumeric1, space0, space1};
+use nom::character::complete::{alphanumeric1, digit1, space0, space1};
 use nom::combinator::map;
 use nom::sequence::tuple;
 use nom::IResult;
 use std::fmt::{self, Display, Formatter};
+use std::str::FromStr;
 
-#[derive(Debug, Eq, PartialEq, Clone)]
-pub enum StoreTarget {
-    Global(String),
-    Local(Register),
+sum_type! {
+    #[derive(Debug, Eq, PartialEq, Clone)]
+    pub enum StoreSource {
+        NumberLiteral(i64),
+        Register(Register),
+    }
+}
+
+impl Display for StoreSource {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            StoreSource::NumberLiteral(name) => write!(f, "{}", name),
+            StoreSource::Register(name) => write!(f, "{}", name),
+        }
+    }
+}
+
+fn store_source(code: &str) -> IResult<&str, StoreSource> {
+    alt((
+        map(parse_register, StoreSource::Register),
+        map(digit1, |digits| {
+            StoreSource::NumberLiteral(i64::from_str(digits).unwrap())
+        }),
+    ))(code)
+}
+
+sum_type! {
+    #[derive(Debug, Eq, PartialEq, Clone)]
+    pub enum StoreTarget {
+        Global(String),
+        Local(Register),
+    }
 }
 
 impl Display for StoreTarget {
@@ -27,29 +56,29 @@ fn store_target(code: &str) -> IResult<&str, StoreTarget> {
         map(tuple((tag("@"), alphanumeric1)), |(_, name): (_, &str)| {
             StoreTarget::Global(name.to_string())
         }),
-        map(register, StoreTarget::Local),
+        map(parse_register, StoreTarget::Local),
     ))(code)
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Store {
     // todo: pub data_type: String,
-    pub value: Register,
+    pub source: StoreSource,
     pub target: StoreTarget,
 }
 
 impl Display for Store {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "store {}, * {}", self.value, self.target)
+        write!(f, "store {}, * {}", self.source, self.target)
     }
 }
 
-pub fn store(code: &str) -> IResult<&str, Store> {
+pub fn parse(code: &str) -> IResult<&str, Store> {
     map(
         tuple((
             tag("store"),
             space1,
-            register,
+            store_source,
             space0,
             tag(","),
             space0,
@@ -57,16 +86,23 @@ pub fn store(code: &str) -> IResult<&str, Store> {
             space1,
             store_target,
         )),
-        |(_, _, value, _, _, _, _, _, target)| Store { value, target },
+        |(_, _, value, _, _, _, _, _, target)| Store {
+            source: value,
+            target,
+        },
     )(code)
 }
 
 impl Store {
     pub fn use_registers(&self) -> Vec<&Register> {
-        if let StoreTarget::Local(register) = &self.target {
-            vec![&self.value, register]
+        let mut result = if let StoreSource::Register(register) = &self.source {
+            vec![register]
         } else {
-            vec![&self.value]
+            vec![]
+        };
+        if let StoreTarget::Local(register) = &self.target {
+            result.push(register);
         }
+        result
     }
 }

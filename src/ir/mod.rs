@@ -20,7 +20,10 @@ pub use global::Global;
 pub use jump::Jump;
 pub use label::Label;
 pub use load::Load;
+use std::fmt;
+use std::fmt::Display;
 pub use store::Store;
+use sum_type::_core::fmt::Formatter;
 
 sum_type! {
     #[derive(Debug, Eq, PartialEq, Clone)]
@@ -33,6 +36,21 @@ sum_type! {
         Branch,
         Jump,
         Label,
+    }
+}
+
+impl Display for IR {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            IR::Alloca(alloca) => write!(f, "{}", alloca),
+            IR::Store(alloca) => write!(f, "{}", alloca),
+            IR::Load(alloca) => write!(f, "{}", alloca),
+            IR::Calculate(alloca) => write!(f, "{}", alloca),
+            IR::Global(alloca) => write!(f, "{}", alloca),
+            IR::Branch(alloca) => write!(f, "{}", alloca),
+            IR::Jump(alloca) => write!(f, "{}", alloca),
+            IR::Label(alloca) => write!(f, "{}", alloca),
+        }
     }
 }
 
@@ -58,14 +76,14 @@ impl IR {
 
 pub fn ir(code: &str) -> IResult<&str, IR> {
     alt((
-        map(alloca::alloca, IR::Alloca),
-        map(store::store, IR::Store),
-        map(load::load, IR::Load),
-        map(calculate::calculate, IR::Calculate),
-        map(global::global, IR::Global),
-        map(branch::branch, IR::Branch),
-        map(jump::jump, IR::Jump),
-        map(label::label, IR::Label),
+        map(alloca::parse, IR::Alloca),
+        map(store::parse, IR::Store),
+        map(load::parse, IR::Load),
+        map(calculate::parse, IR::Calculate),
+        map(global::parse, IR::Global),
+        map(branch::parse, IR::Branch),
+        map(jump::parse, IR::Jump),
+        map(label::parse, IR::Label),
     ))(code)
 }
 
@@ -135,7 +153,7 @@ mod tests {
         assert_eq!(
             store_item,
             store::Store {
-                value: register::Register("2".to_string()),
+                source: register::Register("2".to_string()).into(),
                 target: store::StoreTarget::Local(register::Register("1".to_string())),
             }
         );
@@ -149,7 +167,7 @@ mod tests {
         assert_eq!(
             store_item,
             store::Store {
-                value: register::Register("3".to_string()),
+                source: register::Register("3".to_string()).into(),
                 target: store::StoreTarget::Global("a".to_string()),
             }
         );

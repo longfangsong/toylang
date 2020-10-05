@@ -39,7 +39,7 @@ impl<'de> Visitor<'de> for SaveVisitor {
         match v {
             "caller" => Ok(Save::Caller),
             "callee" => Ok(Save::Callee),
-            _ => Err(E::custom(format!("expecting \"caller\" or \"callee\""))),
+            _ => Err(E::custom("expecting \"caller\" or \"callee\"".to_string())),
         }
     }
 }
@@ -95,7 +95,7 @@ pub fn allocate_registers(irs: &[IR]) -> HashMap<&LogicRegister, PhysicalRegiste
             active_logic_registers.insert(created_register);
             let allocated = available_real_registers
                 .pop_front()
-                .map(|it| PhysicalRegister::RealRegister(it))
+                .map(PhysicalRegister::RealRegister)
                 .unwrap_or_else(|| {
                     used_address += 4;
                     PhysicalRegister::Memory(used_address)

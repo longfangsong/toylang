@@ -1,4 +1,4 @@
-use crate::ir::register::{register, Register};
+use crate::ir::register::{parse as parse_register, Register};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::{digit1, space0, space1};
@@ -61,7 +61,7 @@ fn operand(code: &str) -> IResult<&str, Operand> {
         map(digit1, |content| {
             Operand::NumberLiteral(i64::from_str(content).unwrap())
         }),
-        map(register, Operand::Register),
+        map(parse_register, Operand::Register),
     ))(code)
 }
 
@@ -83,10 +83,10 @@ impl Display for Calculate {
     }
 }
 
-pub fn calculate(code: &str) -> IResult<&str, Calculate> {
+pub fn parse(code: &str) -> IResult<&str, Calculate> {
     map(
         tuple((
-            register,
+            parse_register,
             space0,
             tag("="),
             space0,

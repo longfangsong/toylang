@@ -1,3 +1,4 @@
+#![allow(unused)]
 #[macro_use]
 extern crate sum_type;
 #[macro_use]

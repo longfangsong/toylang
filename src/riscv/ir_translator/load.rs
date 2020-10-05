@@ -64,19 +64,19 @@ mod tests {
             }),
         );
         register_map.insert(&logical_register2, PhysicalRegister::Memory(4));
-        let load = ir::load::load("%0 = load * @a").unwrap().1;
+        let load = ir::load::parse("%0 = load * @a").unwrap().1;
         let asm = load.generate_asm(&register_map);
         assert_eq!(asm, "lw test1, .a");
 
-        let load = ir::load::load("%0 = load * %1").unwrap().1;
+        let load = ir::load::parse("%0 = load * %1").unwrap().1;
         let asm = load.generate_asm(&register_map);
         assert_eq!(asm, "mv test1, test2");
 
-        let load = ir::load::load("%0 = load * %2").unwrap().1;
+        let load = ir::load::parse("%0 = load * %2").unwrap().1;
         let asm = load.generate_asm(&register_map);
         assert_eq!(asm, "lw test1, -4(s0)");
 
-        let load = ir::load::load("%2 = load * @a").unwrap().1;
+        let load = ir::load::parse("%2 = load * @a").unwrap().1;
         let asm = load.generate_asm(&register_map);
         assert_eq!(asm, "lw t2, .a\nsw t2, -4(s0)");
     }

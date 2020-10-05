@@ -1,4 +1,4 @@
-use crate::ir::register::{register, Register};
+use crate::ir::register::{parse as parse_register, Register};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::{alphanumeric1, space0, space1};
@@ -49,17 +49,17 @@ impl Display for Branch {
     }
 }
 
-pub fn branch(code: &str) -> IResult<&str, Branch> {
+pub fn parse(code: &str) -> IResult<&str, Branch> {
     map(
         tuple((
             tag("b"),
             branch_type,
             space1,
-            register,
+            parse_register,
             space0,
             tag(","),
             space0,
-            register,
+            parse_register,
             space0,
             tag(","),
             space0,
@@ -70,23 +70,23 @@ pub fn branch(code: &str) -> IResult<&str, Branch> {
             alphanumeric1,
         )),
         |(
-             _,
-             branch_type,
-             _,
-             operand1,
-             _,
-             _,
-             _,
-             operand2,
-             _,
-             _,
-             _,
-             success_label,
-             _,
-             _,
-             _,
-             failure_label,
-         )| Branch {
+            _,
+            branch_type,
+            _,
+            operand1,
+            _,
+            _,
+            _,
+            operand2,
+            _,
+            _,
+            _,
+            success_label,
+            _,
+            _,
+            _,
+            failure_label,
+        )| Branch {
             branch_type,
             operand1,
             operand2,

@@ -1,4 +1,4 @@
-use crate::ir::register::{register, Register};
+use crate::ir::register::{parse as parse_register, Register};
 use nom::bytes::complete::tag;
 use nom::character::complete::space0;
 use nom::combinator::map;
@@ -18,9 +18,9 @@ impl Display for Alloca {
     }
 }
 
-pub fn alloca(code: &str) -> IResult<&str, Alloca> {
+pub fn parse(code: &str) -> IResult<&str, Alloca> {
     map(
-        tuple((register, space0, tag("="), space0, tag("alloca"))),
+        tuple((parse_register, space0, tag("="), space0, tag("alloca"))),
         |(to, _, _, _, _)| Alloca { to },
     )(code)
 }

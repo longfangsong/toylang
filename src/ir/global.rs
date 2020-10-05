@@ -19,7 +19,7 @@ impl Display for Global {
     }
 }
 
-pub fn global(code: &str) -> IResult<&str, Global> {
+pub fn parse(code: &str) -> IResult<&str, Global> {
     map(
         tuple((
             tag("@"),

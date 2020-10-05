@@ -14,7 +14,7 @@ impl Display for Register {
     }
 }
 
-pub fn register(code: &str) -> IResult<&str, Register> {
+pub fn parse(code: &str) -> IResult<&str, Register> {
     map(tuple((tag("%"), alphanumeric1)), |(_, name): (_, &str)| {
         Register(name.to_string())
     })(code)

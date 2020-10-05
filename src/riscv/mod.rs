@@ -53,10 +53,10 @@ pub fn compile(irs: Vec<IR>) -> String {
     let registers = register::allocate_registers(&irs);
     let (global, code): (Vec<&IR>, Vec<&IR>) =
         irs.iter()
-            .partition(|x| if let IR::Global(_) = x { true } else { false });
+            .partition(|x| matches!(x, IR::Global(_)));
     let (alloca, code): (Vec<&IR>, Vec<&IR>) =
         code.into_iter()
-            .partition(|x| if let IR::Alloca(_) = x { true } else { false });
+            .partition(|x| matches!(x, IR::Alloca(_)));
     let alloca_code = compile_alloca(alloca, &registers);
     let code = ir_translator::translate_irs(code, &registers);
     let global = compile_globals(global);

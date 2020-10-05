@@ -1,7 +1,9 @@
 use crate::ir;
+use crate::ir::store::StoreSource;
 use crate::ir::Register as LogicalRegister;
 use crate::riscv::register::PhysicalRegister;
 use std::collections::HashMap;
+use std::convert::TryInto;
 
 impl ir::Store {
     pub(crate) fn generate_asm(
@@ -9,7 +11,8 @@ impl ir::Store {
         register_map: &HashMap<&LogicalRegister, PhysicalRegister>,
     ) -> String {
         let mut result = Vec::new();
-        let operand_physical_register = register_map.get(&self.value).unwrap();
+        let source: LogicalRegister = self.source.clone().try_into().unwrap();
+        let operand_physical_register = register_map.get(&source).unwrap();
         let operand_real_register = operand_physical_register.real_register("t0".to_string());
         let operand_real_register_code =
             operand_physical_register.must_real_register_read_code("t0".to_string());
@@ -66,19 +69,19 @@ mod tests {
             }),
         );
         register_map.insert(&logical_register2, PhysicalRegister::Memory(4));
-        let load = ir::store::store("store %0, * @a").unwrap().1;
+        let load = ir::store::parse("store %0, * @a").unwrap().1;
         let asm = load.generate_asm(&register_map);
         assert_eq!(asm, "sw test1, .a");
 
-        let load = ir::store::store("store %0, * %1").unwrap().1;
+        let load = ir::store::parse("store %0, * %1").unwrap().1;
         let asm = load.generate_asm(&register_map);
         assert_eq!(asm, "mv test2, test1");
 
-        let load = ir::store::store("store %0, * %2").unwrap().1;
+        let load = ir::store::parse("store %0, * %2").unwrap().1;
         let asm = load.generate_asm(&register_map);
         assert_eq!(asm, "sw test1, -4(s0)");
 
-        let load = ir::store::store("store %2, * @a").unwrap().1;
+        let load = ir::store::parse("store %2, * @a").unwrap().1;
         let asm = load.generate_asm(&register_map);
         assert_eq!(asm, "lw t0, -4(s0)\nsw t0, .a");
     }

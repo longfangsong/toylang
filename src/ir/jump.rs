@@ -16,6 +16,6 @@ impl Display for Jump {
     }
 }
 
-pub fn jump(code: &str) -> IResult<&str, Jump> {
+pub fn parse(code: &str) -> IResult<&str, Jump> {
     map(tuple((tag("j"), space1, alphanumeric1)), |(_, _, label): (_, _, &str)| Jump { label: label.to_string() })(code)
 }

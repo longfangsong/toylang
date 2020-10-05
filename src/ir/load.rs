@@ -1,4 +1,4 @@
-use crate::ir::register::{register, Register};
+use crate::ir::register::{parse as parse_register, Register};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::{alphanumeric1, space0, space1};
@@ -27,7 +27,7 @@ fn load_source(code: &str) -> IResult<&str, LoadSource> {
         map(tuple((tag("@"), alphanumeric1)), |(_, name): (_, &str)| {
             LoadSource::Global(name.to_string())
         }),
-        map(register, LoadSource::Local),
+        map(parse_register, LoadSource::Local),
     ))(code)
 }
 
@@ -44,10 +44,10 @@ impl Display for Load {
     }
 }
 
-pub fn load(code: &str) -> IResult<&str, Load> {
+pub fn parse(code: &str) -> IResult<&str, Load> {
     map(
         tuple((
-            register,
+            parse_register,
             space0,
             tag("="),
             space0,
