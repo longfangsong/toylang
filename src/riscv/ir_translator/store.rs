@@ -11,15 +11,23 @@ impl ir::Store {
         register_map: &HashMap<&LogicalRegister, PhysicalRegister>,
     ) -> String {
         let mut result = Vec::new();
-        let source: LogicalRegister = self.source.clone().try_into().unwrap();
-        let operand_physical_register = register_map.get(&source).unwrap();
-        let operand_real_register = operand_physical_register.real_register("t0".to_string());
-        let operand_real_register_code =
-            operand_physical_register.must_real_register_read_code("t0".to_string());
-        if operand_real_register != "" {
-            result.push(operand_real_register_code);
-        }
-
+        let operand_real_register = match &self.source {
+            StoreSource::NumberLiteral(n) => {
+                result.push(format!("li t0, {}", n));
+                "t0".to_string()
+            }
+            StoreSource::Register(register) => {
+                let operand_physical_register = register_map.get(&register).unwrap();
+                let operand_real_register =
+                    operand_physical_register.real_register("t0".to_string());
+                let operand_real_register_code =
+                    operand_physical_register.must_real_register_read_code("t0".to_string());
+                if operand_real_register != "" {
+                    result.push(operand_real_register_code);
+                }
+                operand_real_register
+            }
+        };
         result.push(match &self.target {
             ir::store::StoreTarget::Local(target) => {
                 let target_physical_register = register_map.get(target).unwrap();
@@ -84,5 +92,9 @@ mod tests {
         let load = ir::store::parse("store %2, * @a").unwrap().1;
         let asm = load.generate_asm(&register_map);
         assert_eq!(asm, "lw t0, -4(s0)\nsw t0, .a");
+
+        let load = ir::store::parse("store 3, * @a").unwrap().1;
+        let asm = load.generate_asm(&register_map);
+        assert_eq!(asm, "li t0, 3\nsw t0, .a");
     }
 }

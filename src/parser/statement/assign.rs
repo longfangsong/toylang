@@ -35,7 +35,11 @@ impl Assign {
     pub fn ir(&self) -> Vec<IR> {
         let mut result: ExpressionResult = self.rhs.ir();
         match result {
-            ExpressionResult::Constant(_) => unimplemented!(),
+            ExpressionResult::Constant(n) => vec![Store {
+                source: n.into(),
+                target: StoreTarget::Global(self.lhs.0.clone()),
+            }
+            .into()],
             ExpressionResult::Complex {
                 result,
                 mut ir_generated,
@@ -57,6 +61,7 @@ impl Assign {
 mod tests {
     use super::*;
     use crate::ir::calculate::CalculateOperation;
+    use crate::ir::store::StoreSource;
     use crate::ir::Calculate;
     use crate::parser::context::CONTEXT;
     use crate::parser::expression::bin_op::BinOp;
@@ -81,5 +86,11 @@ mod tests {
         assert_eq!(op1.operation, CalculateOperation::Sub);
         let op1: Calculate = ir[4].clone().try_into().unwrap();
         assert_eq!(op1.operation, CalculateOperation::Add);
+
+        let assign = parse("a = 0;").unwrap().1;
+        let ir = assign.ir();
+        assert_eq!(ir.len(), 1);
+        let ir: Store = ir[0].clone().try_into().unwrap();
+        assert_eq!(ir.source, StoreSource::NumberLiteral(0));
     }
 }
