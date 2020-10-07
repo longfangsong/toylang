@@ -1,6 +1,6 @@
 use crate::parser::expression::bin_op::BinOp;
 use crate::parser::expression::rvalue::RValue;
-use crate::parser::expression::{bin_op, constant, parenthesis, variable};
+use crate::parser::expression::{bin_op, constant, parenthesis, variable_ref};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::space0;
@@ -12,7 +12,7 @@ use nom::IResult;
 pub(in crate::parser::expression) fn higher_than_level3(code: &str) -> IResult<&str, RValue> {
     alt((
         map(constant::parse, RValue::Constant),
-        map(variable::parse, RValue::Variable),
+        map(variable_ref::parse, RValue::VariableRef),
         map(parenthesis::parse, RValue::Parenthesis),
     ))(code)
 }

@@ -4,7 +4,7 @@ use crate::parser::expression::{
     bin_op::{self, BinOp},
     constant::{self, Constant},
     parenthesis::{self, Parenthesis},
-    variable::{self, Variable},
+    variable_ref::{self, VariableRef},
     ExpressionResult,
 };
 use nom::branch::alt;
@@ -15,7 +15,7 @@ sum_type! {
     #[derive(Debug, Eq, PartialEq, Clone, Hash)]
     pub enum RValue {
         Constant,
-        Variable,
+        VariableRef,
         Parenthesis,
         BinOp,
     }
@@ -25,7 +25,7 @@ pub fn parse(code: &str) -> IResult<&str, RValue> {
     alt((
         map(bin_op::parse, RValue::BinOp),
         map(constant::parse, RValue::Constant),
-        map(variable::parse, RValue::Variable),
+        map(variable_ref::parse, RValue::VariableRef),
         map(parenthesis::parse, RValue::Parenthesis),
     ))(code)
 }
@@ -34,7 +34,7 @@ impl RValue {
     pub fn ir(&self) -> ExpressionResult {
         match self {
             RValue::Constant(constant) => constant.ir(),
-            RValue::Variable(variable) => variable.ir(),
+            RValue::VariableRef(variable) => variable.ir(),
             RValue::Parenthesis(parenthesis) => parenthesis.ir(),
             RValue::BinOp(bin_op) => bin_op.ir(),
         }

@@ -8,15 +8,15 @@ use nom::sequence::pair;
 use nom::IResult;
 
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
-pub struct Variable(pub String);
+pub struct VariableRef(pub String);
 
-pub fn parse(code: &str) -> IResult<&str, Variable> {
+pub fn parse(code: &str) -> IResult<&str, VariableRef> {
     map(recognize(pair(alpha1, alphanumeric0)), |name: &str| {
-        Variable(name.to_string())
+        VariableRef(name.to_string())
     })(code)
 }
 
-impl Variable {
+impl VariableRef {
     pub fn ir(&self) -> ExpressionResult {
         let result = CONTEXT.next();
         ExpressionResult::Complex {
@@ -24,7 +24,7 @@ impl Variable {
                 from: LoadSource::Global(self.0.clone()),
                 to: result.clone(),
             }
-            .into()],
+                .into()],
             result,
         }
     }

@@ -2,8 +2,8 @@ use crate::ir::store::StoreTarget;
 use crate::ir::{Store, IR};
 use crate::parser::context::Context;
 use crate::parser::expression::rvalue::RValue;
-use crate::parser::expression::variable::Variable;
-use crate::parser::expression::{rvalue, variable, ExpressionResult};
+use crate::parser::expression::variable_ref::VariableRef;
+use crate::parser::expression::{rvalue, variable_ref, ExpressionResult};
 use nom::bytes::complete::tag;
 use nom::character::complete::space0;
 use nom::combinator::map;
@@ -12,14 +12,14 @@ use nom::IResult;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Assign {
-    lhs: Variable,
+    lhs: VariableRef,
     rhs: RValue,
 }
 
 pub fn parse(code: &str) -> IResult<&str, Assign> {
     map(
         tuple((
-            variable::parse,
+            variable_ref::parse,
             space0,
             tag("="),
             space0,
@@ -71,7 +71,7 @@ mod tests {
     #[test]
     fn it_works() {
         let assign = parse("a = 1+2*3;").unwrap().1;
-        assert_eq!(assign.lhs, Variable("a".to_string()));
+        assert_eq!(assign.lhs, VariableRef("a".to_string()));
         let rhs: BinOp = assign.rhs.try_into().unwrap();
         assert_eq!(rhs.operator, "+");
         let assign = parse("a = b+c-d;").unwrap().1;

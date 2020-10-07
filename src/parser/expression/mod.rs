@@ -1,13 +1,13 @@
-use crate::ir::{IR, Register as LogicalRegister};
-use crate::parser::expression::constant::Constant;
 use crate::ir::calculate::Operand;
+use crate::ir::{Register as LogicalRegister, IR};
+use crate::parser::expression::constant::Constant;
 
 pub(crate) mod bin_op;
 mod constant;
+mod lvalue;
 mod parenthesis;
 pub(crate) mod rvalue;
-pub(crate) mod variable;
-mod lvalue;
+pub(crate) mod variable_ref;
 
 pub enum ExpressionResult {
     Constant(i64),
@@ -27,7 +27,7 @@ impl Into<Operand> for ExpressionResult {
     fn into(self) -> Operand {
         match self {
             ExpressionResult::Constant(n) => Operand::NumberLiteral(n),
-            ExpressionResult::Complex { result, .. } => Operand::Register(result)
+            ExpressionResult::Complex { result, .. } => Operand::Register(result),
         }
     }
 }

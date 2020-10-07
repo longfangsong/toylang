@@ -7,5 +7,6 @@ extern crate lazy_static;
 mod ir;
 mod parser;
 mod riscv;
+mod shared;
 
 fn main() {}
