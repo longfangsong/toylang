@@ -45,6 +45,7 @@ impl Declare {
         CONTEXT.insert_variable(&name, self.data_type.clone());
         Global {
             name,
+            data_type: self.data_type.clone(),
             initial_value: 0,
         }
         .into()
@@ -73,6 +74,10 @@ mod tests {
             ir,
             Global {
                 name: "a".to_string(),
+                data_type: Integer {
+                    signed: true,
+                    width: 32,
+                },
                 initial_value: 0,
             }
         );

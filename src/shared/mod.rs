@@ -5,7 +5,10 @@ pub mod data_type {
     use nom::combinator::map;
     use nom::sequence::pair;
     use nom::IResult;
+    use std::fmt;
+    use std::fmt::Display;
     use std::str::FromStr;
+    use sum_type::_core::fmt::Formatter;
 
     #[derive(Debug, Eq, PartialEq, Clone)]
     pub struct Integer {
@@ -24,5 +27,11 @@ pub mod data_type {
                 width: usize::from_str(width_str).unwrap(),
             }),
         ))(code)
+    }
+
+    impl Display for Integer {
+        fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+            write!(f, "{}{}", if self.signed { "i" } else { "u" }, self.width)
+        }
     }
 }

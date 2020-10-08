@@ -1,7 +1,7 @@
-let a;
-let b;
-let c;
-let d;
+let a: i32;
+let b: i32;
+let c: i32;
+let d: i32;
 b = 0;
 c = 1;
 d = 2;

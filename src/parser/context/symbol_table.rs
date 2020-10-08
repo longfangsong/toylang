@@ -13,7 +13,13 @@ pub struct SymbolTable(HashMap<String, Entry>);
 
 impl SymbolTable {
     pub fn insert(&mut self, name: &str, data_type: Integer, assigned_register: LogicalRegister) {
-        self.0.insert(name.to_string(), Entry { data_type, assigned_register });
+        self.0.insert(
+            name.to_string(),
+            Entry {
+                data_type,
+                assigned_register,
+            },
+        );
     }
 
     pub fn get(&self, name: &str) -> Option<&Entry> {

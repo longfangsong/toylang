@@ -24,7 +24,7 @@ impl VariableRef {
                 from: LoadSource::Global(self.0.clone()),
                 to: result.clone(),
             }
-                .into()],
+            .into()],
             result,
         }
     }

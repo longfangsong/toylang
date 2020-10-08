@@ -42,7 +42,11 @@ fn compile_alloca(
         })
         .max()
     {
-        format!("addi sp, sp, -{}\naddi s0, sp, {}", save_space, save_space)
+        if save_space != 0 {
+            format!("addi sp, sp, -{}\naddi s0, sp, {}", save_space, save_space)
+        } else {
+            "".to_string()
+        }
     } else {
         String::new()
     }
@@ -51,12 +55,9 @@ fn compile_alloca(
 pub fn compile(irs: Vec<IR>) -> String {
     // todo: compile in functions
     let registers = register::allocate_registers(&irs);
-    let (global, code): (Vec<&IR>, Vec<&IR>) =
-        irs.iter()
-            .partition(|x| matches!(x, IR::Global(_)));
+    let (global, code): (Vec<&IR>, Vec<&IR>) = irs.iter().partition(|x| matches!(x, IR::Global(_)));
     let (alloca, code): (Vec<&IR>, Vec<&IR>) =
-        code.into_iter()
-            .partition(|x| matches!(x, IR::Alloca(_)));
+        code.into_iter().partition(|x| matches!(x, IR::Alloca(_)));
     let alloca_code = compile_alloca(alloca, &registers);
     let code = ir_translator::translate_irs(code, &registers);
     let global = compile_globals(global);

@@ -135,7 +135,7 @@ impl BinOp {
         let to_register = CONTEXT.next();
         ir_generated.push(
             Calculate {
-                operation: OPERATION_MAP.get(&self.operator).unwrap().clone(),
+                operation: *OPERATION_MAP.get(&self.operator).unwrap(),
                 operand1: lhs_result.into(),
                 operand2: rhs_result.into(),
                 to_register: to_register.clone(),

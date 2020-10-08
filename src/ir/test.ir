@@ -1,8 +1,8 @@
-@a = global 1
-@b = global 2
+@a = global u32 1
+@b = global u32 2
 
 back:
-    %1 = alloca 
+    %1 = alloca u32
     %2 = load * @a
     store %2, * %1
     %3 = load * @b

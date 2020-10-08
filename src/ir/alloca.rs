@@ -1,15 +1,17 @@
 use crate::ir::register::{parse as parse_register, Register};
+use crate::shared::data_type;
+use crate::shared::data_type::Integer;
 use nom::bytes::complete::tag;
-use nom::character::complete::space0;
+use nom::character::complete::{space0, space1};
 use nom::combinator::map;
 use nom::sequence::tuple;
 use nom::IResult;
 use std::fmt::{self, Display, Formatter};
 
-#[derive(Debug, Eq, PartialEq, Clone, Hash)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Alloca {
     pub to: Register,
-    // todo: pub data_type: String,
+    pub data_type: Integer,
 }
 
 impl Display for Alloca {
@@ -20,8 +22,16 @@ impl Display for Alloca {
 
 pub fn parse(code: &str) -> IResult<&str, Alloca> {
     map(
-        tuple((parse_register, space0, tag("="), space0, tag("alloca"))),
-        |(to, _, _, _, _)| Alloca { to },
+        tuple((
+            parse_register,
+            space0,
+            tag("="),
+            space0,
+            tag("alloca"),
+            space1,
+            data_type::parse,
+        )),
+        |(to, _, _, _, _, _, data_type)| Alloca { to, data_type },
     )(code)
 }
 

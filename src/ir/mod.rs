@@ -90,6 +90,7 @@ pub fn ir(code: &str) -> IResult<&str, IR> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::shared::data_type::Integer;
     use nom::character::complete::{line_ending, multispace0};
     use nom::combinator::opt;
     use nom::multi::many0;
@@ -113,7 +114,10 @@ mod tests {
             global_item,
             global::Global {
                 name: "a".to_string(),
-                // data_type: "i32".to_string(),
+                data_type: Integer {
+                    signed: false,
+                    width: 32,
+                },
                 initial_value: 1,
             }
         );
@@ -129,7 +133,11 @@ mod tests {
         assert_eq!(
             alloca_item,
             alloca::Alloca {
-                to: register::Register("1".to_string())
+                to: register::Register("1".to_string()),
+                data_type: Integer {
+                    signed: false,
+                    width: 32,
+                },
             }
         );
 
