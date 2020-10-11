@@ -28,7 +28,7 @@ pub fn parse(code: &str) -> IResult<&str, Declare> {
             space0,
             tag(":"),
             space0,
-            data_type::parse,
+            data_type::parse_integer,
             space0,
             tag(";"),
         )),

@@ -4,22 +4,15 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct Entry {
-    data_type: Integer,
-    assigned_register: LogicalRegister,
+    pub assigned_register: LogicalRegister,
 }
 
 #[derive(Debug, Default)]
 pub struct SymbolTable(HashMap<String, Entry>);
 
 impl SymbolTable {
-    pub fn insert(&mut self, name: &str, data_type: Integer, assigned_register: LogicalRegister) {
-        self.0.insert(
-            name.to_string(),
-            Entry {
-                data_type,
-                assigned_register,
-            },
-        );
+    pub fn insert(&mut self, name: &str, assigned_register: LogicalRegister) {
+        self.0.insert(name.to_string(), Entry { assigned_register });
     }
 
     pub fn get(&self, name: &str) -> Option<&Entry> {

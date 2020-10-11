@@ -26,6 +26,6 @@ mod tests {
         let code = include_str!("./test.toy");
         let statements = parse(code).unwrap().1;
         let irs: Vec<_> = statements.into_iter().map(|it| it.ir()).flatten().collect();
-        println!("{}", riscv::compile(irs));
+        // println!("{}", riscv::compile(irs));
     }
 }

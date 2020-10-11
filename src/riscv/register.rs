@@ -1,8 +1,9 @@
-use crate::ir::Register as LogicRegister;
 use crate::ir::IR;
+use crate::ir::{Register as LogicRegister, RegisterRef};
 use serde::de::Visitor;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::{HashMap, HashSet, VecDeque};
+use std::ops::Range;
 use std::{fmt, mem};
 
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone)]
@@ -71,28 +72,29 @@ pub enum PhysicalRegister {
     Memory(usize),
 }
 
-pub fn allocate_registers(irs: &[IR]) -> HashMap<&LogicRegister, PhysicalRegister> {
+pub struct RegisterAllocationTable(HashMap<RegisterRef, PhysicalRegister>);
+
+pub fn allocate_registers(irs: &[IR]) -> HashMap<RegisterRef, PhysicalRegister> {
     // find out when each logical register is active
-    let mut active_intervals = HashMap::new();
+    let mut active_intervals: HashMap<RegisterRef, Range<usize>> = HashMap::new();
     for (index, ir) in irs.iter().enumerate() {
-        if let Some(created_register) = ir.create_register() {
-            active_intervals.insert(created_register, index..index + 1);
-        }
         for used_register in ir.use_registers() {
             if let Some(old_active_range) = active_intervals.get_mut(used_register) {
                 old_active_range.end = index + 1;
+            } else {
+                active_intervals.insert(used_register.clone(), index..index + 1);
             }
         }
     }
 
-    let mut result = HashMap::new();
+    let mut result: HashMap<RegisterRef, PhysicalRegister> = HashMap::new();
     let mut available_real_registers = REGISTERS.clone();
-    let mut active_logic_registers = HashSet::new();
+    let mut active_logic_registers: HashSet<RegisterRef> = HashSet::new();
     let mut used_address = 0; // todo: reuse recycled memory
     for (index, ir) in irs.iter().enumerate() {
         // alloca a physical register for new logical register
         if let Some(created_register) = ir.create_register() {
-            active_logic_registers.insert(created_register);
+            active_logic_registers.insert(created_register.into());
             let allocated = available_real_registers
                 .pop_front()
                 .map(PhysicalRegister::RealRegister)
@@ -100,12 +102,12 @@ pub fn allocate_registers(irs: &[IR]) -> HashMap<&LogicRegister, PhysicalRegiste
                     used_address += 4;
                     PhysicalRegister::Memory(used_address)
                 });
-            result.insert(created_register, allocated);
+            result.insert(created_register.into(), allocated);
         }
         let old_active_logic_registers = mem::take(&mut active_logic_registers);
         for old_active_logic_register in old_active_logic_registers {
             if active_intervals
-                .get(old_active_logic_register)
+                .get(&old_active_logic_register)
                 .unwrap()
                 .contains(&index)
             {
@@ -113,7 +115,7 @@ pub fn allocate_registers(irs: &[IR]) -> HashMap<&LogicRegister, PhysicalRegiste
             } else {
                 // `active_logic_register` now goes out of lifetime
                 // recycle it's physical register
-                let new_empty_register = result.get(old_active_logic_register).unwrap();
+                let new_empty_register = result.get(&old_active_logic_register).unwrap();
                 if let PhysicalRegister::RealRegister(real_register) = new_empty_register {
                     available_real_registers.push_back(real_register.clone());
                 }

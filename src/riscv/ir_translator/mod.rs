@@ -1,15 +1,16 @@
-use crate::ir::{Register, IR};
+use crate::ir::{Register, RegisterRef, IR};
 use crate::riscv::ir_translator;
 use crate::riscv::register::PhysicalRegister;
 use std::collections::HashMap;
 
+mod alloca;
 mod branch;
 mod calculate;
 mod jump;
 mod load;
 mod store;
 
-fn translate_ir(ir: &IR, registers: &HashMap<&Register, PhysicalRegister>) -> String {
+fn translate_ir(ir: &IR, registers: &HashMap<RegisterRef, PhysicalRegister>) -> String {
     match ir {
         IR::Store(store) => store.generate_asm(registers),
         IR::Load(load) => load.generate_asm(registers),
@@ -23,7 +24,7 @@ fn translate_ir(ir: &IR, registers: &HashMap<&Register, PhysicalRegister>) -> St
     }
 }
 
-pub fn translate_irs(irs: Vec<&IR>, registers: &HashMap<&Register, PhysicalRegister>) -> String {
+pub fn translate_irs(irs: &[IR], registers: &HashMap<RegisterRef, PhysicalRegister>) -> String {
     irs.into_iter()
         .map(|ir| ir_translator::translate_ir(ir, registers))
         .collect::<Vec<_>>()

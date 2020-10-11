@@ -1,5 +1,5 @@
 use crate::ir::store::StoreTarget;
-use crate::ir::{Store, IR};
+use crate::ir::{RegisterRef, Store, IR};
 use crate::parser::context::Context;
 use crate::parser::expression::rvalue::RValue;
 use crate::parser::expression::variable_ref::VariableRef;
@@ -44,6 +44,7 @@ impl Assign {
                 result,
                 mut ir_generated,
             } => {
+                let result: RegisterRef = (&result).into();
                 ir_generated.push(
                     Store {
                         source: result.into(),
@@ -65,11 +66,40 @@ mod tests {
     use crate::ir::Calculate;
     use crate::parser::context::CONTEXT;
     use crate::parser::expression::bin_op::BinOp;
+    use crate::shared::data_type::Integer;
     use std::convert::TryInto;
     use sum_type::SumType;
 
     #[test]
     fn it_works() {
+        CONTEXT.insert_variable(
+            "a",
+            Integer {
+                signed: true,
+                width: 32,
+            },
+        );
+        CONTEXT.insert_variable(
+            "b",
+            Integer {
+                signed: true,
+                width: 32,
+            },
+        );
+        CONTEXT.insert_variable(
+            "c",
+            Integer {
+                signed: true,
+                width: 32,
+            },
+        );
+        CONTEXT.insert_variable(
+            "d",
+            Integer {
+                signed: true,
+                width: 32,
+            },
+        );
         let assign = parse("a = 1+2*3;").unwrap().1;
         assert_eq!(assign.lhs, VariableRef("a".to_string()));
         let rhs: BinOp = assign.rhs.try_into().unwrap();

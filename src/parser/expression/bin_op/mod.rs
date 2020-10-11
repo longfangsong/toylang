@@ -67,6 +67,7 @@ use crate::parser::context::CONTEXT;
 use crate::parser::expression::constant::Constant;
 use crate::parser::expression::rvalue::RValue;
 use crate::parser::expression::ExpressionResult;
+use crate::shared::data_type::{Integer, Type};
 use nom::branch::alt;
 use nom::IResult;
 use std::collections::HashMap;
@@ -124,15 +125,39 @@ impl BinOp {
     pub fn ir(&self) -> ExpressionResult {
         let lhs_result = self.lhs.ir();
         let rhs_result = self.rhs.ir();
+        let mut data_type = Integer {
+            signed: true,
+            width: 32,
+        };
         let mut ir_generated: Vec<_> = match &lhs_result {
             ExpressionResult::Constant(_) => vec![],
-            ExpressionResult::Complex { ir_generated, .. } => ir_generated.clone(),
+            ExpressionResult::Complex {
+                ir_generated,
+                result,
+            } => {
+                if let Type::Integer(integer) = &result.data_type {
+                    data_type = integer.clone().into();
+                    ir_generated.clone()
+                } else {
+                    unreachable!()
+                }
+            }
         };
         ir_generated.extend(match &rhs_result {
             ExpressionResult::Constant(_) => vec![],
-            ExpressionResult::Complex { ir_generated, .. } => ir_generated.clone(),
+            ExpressionResult::Complex {
+                ir_generated,
+                result,
+            } => {
+                if let Type::Integer(integer) = &result.data_type {
+                    data_type = integer.clone().into();
+                    ir_generated.clone()
+                } else {
+                    unreachable!()
+                }
+            }
         });
-        let to_register = CONTEXT.next();
+        let to_register = CONTEXT.next(data_type);
         ir_generated.push(
             Calculate {
                 operation: *OPERATION_MAP.get(&self.operator).unwrap(),

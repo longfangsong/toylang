@@ -1,4 +1,5 @@
-use crate::ir::register::{parse as parse_register, Register};
+use crate::ir::register::{parse as parse_register, Register, RegisterRef};
+use crate::shared::data_type;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::{alphanumeric1, digit1, space0, space1};
@@ -12,7 +13,7 @@ sum_type! {
     #[derive(Debug, Eq, PartialEq, Clone)]
     pub enum StoreSource {
         NumberLiteral(i64),
-        Register(Register),
+        Register(RegisterRef),
     }
 }
 
@@ -38,7 +39,7 @@ sum_type! {
     #[derive(Debug, Eq, PartialEq, Clone)]
     pub enum StoreTarget {
         Global(String),
-        Local(Register),
+        Local(RegisterRef),
     }
 }
 
@@ -82,11 +83,12 @@ pub fn parse(code: &str) -> IResult<&str, Store> {
             space0,
             tag(","),
             space0,
+            data_type::parse_integer,
             tag("*"),
             space1,
             store_target,
         )),
-        |(_, _, value, _, _, _, _, _, target)| Store {
+        |(_, _, value, _, _, _, data_type, _, _, target)| Store {
             source: value,
             target,
         },
@@ -94,7 +96,7 @@ pub fn parse(code: &str) -> IResult<&str, Store> {
 }
 
 impl Store {
-    pub fn use_registers(&self) -> Vec<&Register> {
+    pub fn use_registers(&self) -> Vec<&RegisterRef> {
         let mut result = if let StoreSource::Register(register) = &self.source {
             vec![register]
         } else {
@@ -104,5 +106,16 @@ impl Store {
             result.push(register);
         }
         result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        let code = "store %2, u32* %1";
+        let ir = parse(code).unwrap().1;
     }
 }

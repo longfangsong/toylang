@@ -35,7 +35,7 @@ pub fn parse(code: &str) -> IResult<&str, Global> {
             space0,
             tag("global"),
             space1,
-            data_type::parse,
+            data_type::parse_integer,
             space1,
             alphanumeric1,
         )),

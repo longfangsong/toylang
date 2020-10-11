@@ -1,4 +1,6 @@
-use crate::ir::register::{parse as parse_register, Register};
+use crate::ir::register::{parse as parse_register, Register, RegisterRef};
+use crate::shared::data_type;
+use crate::shared::data_type::Integer;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::{alphanumeric1, space0, space1};
@@ -10,7 +12,7 @@ use std::fmt::{self, Display, Formatter};
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub enum LoadSource {
     Global(String),
-    Local(Register),
+    Local(RegisterRef),
 }
 
 impl Display for LoadSource {
@@ -35,12 +37,15 @@ fn load_source(code: &str) -> IResult<&str, LoadSource> {
 pub struct Load {
     pub from: LoadSource,
     pub to: Register,
-    // todo: pub data_type: String,
 }
 
 impl Display for Load {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{} = load * {}", self.to, self.from)
+        write!(
+            f,
+            "{} = load {}* {}",
+            self.to.name, self.to.data_type, self.from
+        )
     }
 }
 
@@ -53,11 +58,18 @@ pub fn parse(code: &str) -> IResult<&str, Load> {
             space0,
             tag("load"),
             space1,
+            data_type::parse_integer,
             tag("*"),
             space1,
             load_source,
         )),
-        |(to, _, _, _, _, _, _, _, from)| Load { from, to },
+        |(to, _, _, _, _, _, data_type, _, _, from)| Load {
+            from,
+            to: Register {
+                name: to.0,
+                data_type: data_type.into(),
+            },
+        },
     )(code)
 }
 
@@ -65,7 +77,7 @@ impl Load {
     pub fn create_register(&self) -> &Register {
         &self.to
     }
-    pub fn use_registers(&self) -> Vec<&Register> {
+    pub fn use_registers(&self) -> Vec<&RegisterRef> {
         if let LoadSource::Local(register) = &self.from {
             vec![register]
         } else {

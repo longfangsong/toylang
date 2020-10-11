@@ -19,18 +19,20 @@ impl Context {
         self.next_logical_register.store(0, Ordering::Relaxed);
     }
 
-    pub fn next(&self) -> LogicalRegister {
+    pub fn next(&self, data_type: Integer) -> LogicalRegister {
         let result = self.next_logical_register.fetch_add(1, Ordering::Relaxed);
-        LogicalRegister(format!("{}", result))
+        LogicalRegister {
+            name: format!("{}", result),
+            data_type: data_type.into(),
+        }
     }
 
     pub fn insert_variable(&self, variable_name: &str, variable_type: Integer) {
-        let next_logical_register = self.next();
-        self.symbol_table.write().unwrap().insert(
-            variable_name,
-            variable_type,
-            next_logical_register,
-        );
+        let next_logical_register = self.next(variable_type.clone());
+        self.symbol_table
+            .write()
+            .unwrap()
+            .insert(variable_name, next_logical_register);
     }
 
     pub fn variable_info(&self, variable_name: &str) -> Entry {

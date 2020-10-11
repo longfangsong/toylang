@@ -1,17 +1,17 @@
 use crate::ir;
 use crate::ir::calculate::CalculateOperation;
-use crate::ir::Register as LogicalRegister;
+use crate::ir::RegisterRef as LogicalRegisterRef;
 use crate::riscv::register::PhysicalRegister;
 use std::collections::HashMap;
 
 impl ir::Calculate {
     pub fn generate_asm(
         &self,
-        register_map: &HashMap<&LogicalRegister, PhysicalRegister>,
+        register_map: &HashMap<LogicalRegisterRef, PhysicalRegister>,
     ) -> String {
         let mut result = Vec::new();
 
-        let target_physical_register = register_map.get(&self.to_register).unwrap();
+        let target_physical_register = register_map.get(&(&(self.to_register)).into()).unwrap();
         let target_real_register = target_physical_register.real_register("t2".to_string());
         let target_real_register_code =
             target_physical_register.must_real_register_write_code("t2".to_string());
@@ -192,18 +192,19 @@ impl ir::Calculate {
 mod tests {
     use super::*;
     use crate::riscv::register::{RealRegister, Save};
+    use crate::shared::data_type::Integer;
     use std::collections::HashMap;
 
     #[test]
     fn it_works() {
         let mut register_map = HashMap::new();
-        let logical_register0 = LogicalRegister("0".to_string());
-        let logical_register1 = LogicalRegister("1".to_string());
-        let logical_register2 = LogicalRegister("2".to_string());
-        let logical_register3 = LogicalRegister("3".to_string());
-        let logical_register4 = LogicalRegister("4".to_string());
+        let logical_register0 = LogicalRegisterRef("0".to_string());
+        let logical_register1 = LogicalRegisterRef("1".to_string());
+        let logical_register2 = LogicalRegisterRef("2".to_string());
+        let logical_register3 = LogicalRegisterRef("3".to_string());
+        let logical_register4 = LogicalRegisterRef("4".to_string());
         register_map.insert(
-            &logical_register0,
+            logical_register0,
             PhysicalRegister::RealRegister(RealRegister {
                 id: 1,
                 name: "test1".to_string(),
@@ -211,48 +212,48 @@ mod tests {
             }),
         );
         register_map.insert(
-            &logical_register1,
+            logical_register1,
             PhysicalRegister::RealRegister(RealRegister {
                 id: 2,
                 name: "test2".to_string(),
                 save: Save::Caller,
             }),
         );
-        register_map.insert(&logical_register2, PhysicalRegister::Memory(4));
-        register_map.insert(&logical_register3, PhysicalRegister::Memory(8));
-        register_map.insert(&logical_register4, PhysicalRegister::Memory(12));
-        let calculate = ir::calculate::parse("%0 = add %1, %2").unwrap().1;
+        register_map.insert(logical_register2, PhysicalRegister::Memory(4));
+        register_map.insert(logical_register3, PhysicalRegister::Memory(8));
+        register_map.insert(logical_register4, PhysicalRegister::Memory(12));
+        let calculate = ir::calculate::parse("%0 = add i32 %1, %2").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "lw t1, -4(s0)\nadd test1, test2, t1");
 
-        let calculate = ir::calculate::parse("%2 = sub %0, %1").unwrap().1;
+        let calculate = ir::calculate::parse("%2 = sub i32 %0, %1").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "sub t2, test1, test2\nsw t2, -4(s0)");
 
-        let calculate = ir::calculate::parse("%2 = xor %3, %4").unwrap().1;
+        let calculate = ir::calculate::parse("%2 = xor i32 %3, %4").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(
             asm,
             "lw t0, -8(s0)\nlw t1, -12(s0)\nxor t2, t0, t1\nsw t2, -4(s0)"
         );
 
-        let calculate = ir::calculate::parse("%0 = add %1, 99").unwrap().1;
+        let calculate = ir::calculate::parse("%0 = add i32 %1, 99").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "addi test1, test2, 99");
 
-        let calculate = ir::calculate::parse("%0 = add 88, %1").unwrap().1;
+        let calculate = ir::calculate::parse("%0 = add i32 88, %1").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "addi test1, test2, 88");
 
-        let calculate = ir::calculate::parse("%0 = sub 88, %1").unwrap().1;
+        let calculate = ir::calculate::parse("%0 = sub i32 88, %1").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "li t0, 88\nsub test1, t0, test2");
 
-        let calculate = ir::calculate::parse("%0 = sub %1, 88").unwrap().1;
+        let calculate = ir::calculate::parse("%0 = sub i32 %1, 88").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "addi test1, test2, -88");
 
-        let calculate = ir::calculate::parse("%0 = add 11, 22").unwrap().1;
+        let calculate = ir::calculate::parse("%0 = add i32 11, 22").unwrap().1;
         let asm = calculate.generate_asm(&register_map);
         assert_eq!(asm, "li test1, 33");
     }

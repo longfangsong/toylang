@@ -27,7 +27,7 @@ impl Into<Operand> for ExpressionResult {
     fn into(self) -> Operand {
         match self {
             ExpressionResult::Constant(n) => Operand::NumberLiteral(n),
-            ExpressionResult::Complex { result, .. } => Operand::Register(result),
+            ExpressionResult::Complex { result, .. } => Operand::Register((&result).into()),
         }
     }
 }

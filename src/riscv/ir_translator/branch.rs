@@ -1,13 +1,10 @@
 use crate::ir;
-use crate::ir::Register as LogicalRegister;
+use crate::ir::{Register as LogicalRegister, RegisterRef};
 use crate::riscv::register::PhysicalRegister;
 use std::collections::HashMap;
 
 impl ir::Branch {
-    pub fn generate_asm(
-        &self,
-        register_map: &HashMap<&LogicalRegister, PhysicalRegister>,
-    ) -> String {
+    pub fn generate_asm(&self, register_map: &HashMap<RegisterRef, PhysicalRegister>) -> String {
         let operand1_physical_register = register_map.get(&self.operand1).unwrap();
         let operand1_real_register = operand1_physical_register.real_register("t0".to_string());
         let operand1_real_register_code =
@@ -36,16 +33,17 @@ impl ir::Branch {
 mod tests {
     use super::*;
     use crate::riscv::register::{RealRegister, Save};
+    use crate::shared::data_type::Integer;
     use std::collections::HashMap;
 
     #[test]
     fn it_works() {
         let mut register_map = HashMap::new();
-        let logical_register0 = LogicalRegister("0".to_string());
-        let logical_register1 = LogicalRegister("1".to_string());
-        let logical_register2 = LogicalRegister("2".to_string());
+        let logical_register0 = RegisterRef("0".to_string());
+        let logical_register1 = RegisterRef("1".to_string());
+        let logical_register2 = RegisterRef("2".to_string());
         register_map.insert(
-            &logical_register0,
+            logical_register0,
             PhysicalRegister::RealRegister(RealRegister {
                 id: 1,
                 name: "test1".to_string(),
@@ -53,14 +51,14 @@ mod tests {
             }),
         );
         register_map.insert(
-            &logical_register1,
+            logical_register1,
             PhysicalRegister::RealRegister(RealRegister {
                 id: 2,
                 name: "test2".to_string(),
                 save: Save::Caller,
             }),
         );
-        register_map.insert(&logical_register2, PhysicalRegister::Memory(4));
+        register_map.insert(logical_register2, PhysicalRegister::Memory(4));
         let branch = ir::branch::parse("blt %0, %1, label1, label2").unwrap().1;
         let asm = branch.generate_asm(&register_map);
         assert_eq!(asm, "blt test1, test2, label1\nj label2");

@@ -18,7 +18,8 @@ pub fn parse(code: &str) -> IResult<&str, VariableRef> {
 
 impl VariableRef {
     pub fn ir(&self) -> ExpressionResult {
-        let result = CONTEXT.next();
+        let result = CONTEXT.variable_info(&self.0).assigned_register;
+
         ExpressionResult::Complex {
             ir_generated: vec![Load {
                 from: LoadSource::Global(self.0.clone()),

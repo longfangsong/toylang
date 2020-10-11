@@ -12,10 +12,11 @@ pub mod load;
 pub mod register;
 pub mod store;
 
-pub use crate::ir::register::Register;
+pub use crate::ir::register::{Register, RegisterRef};
 pub use alloca::Alloca;
 pub use branch::Branch;
 pub use calculate::Calculate;
+use fmt::Formatter;
 pub use global::Global;
 pub use jump::Jump;
 pub use label::Label;
@@ -23,7 +24,6 @@ pub use load::Load;
 use std::fmt;
 use std::fmt::Display;
 pub use store::Store;
-use sum_type::_core::fmt::Formatter;
 
 sum_type! {
     #[derive(Debug, Eq, PartialEq, Clone)]
@@ -63,7 +63,7 @@ impl IR {
             _ => None,
         }
     }
-    pub fn use_registers(&self) -> Vec<&Register> {
+    pub fn use_registers(&self) -> Vec<&RegisterRef> {
         match self {
             IR::Store(it) => it.use_registers(),
             IR::Load(it) => it.use_registers(),
@@ -90,7 +90,7 @@ pub fn ir(code: &str) -> IResult<&str, IR> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::shared::data_type::Integer;
+    use crate::shared::data_type::{Integer, Type};
     use nom::character::complete::{line_ending, multispace0};
     use nom::combinator::opt;
     use nom::multi::many0;
@@ -127,30 +127,51 @@ mod tests {
 
         assert_eq!(
             ir[3].create_register(),
-            Some(&register::Register("1".to_string()))
+            Some(&register::Register {
+                name: "1".to_string(),
+                data_type: Type::Address,
+            })
         );
         let alloca_item: alloca::Alloca = ir[3].clone().try_into().unwrap();
         assert_eq!(
             alloca_item,
             alloca::Alloca {
-                to: register::Register("1".to_string()),
-                data_type: Integer {
+                to: register::Register {
+                    name: "1".to_string(),
+                    data_type: Type::Address,
+                },
+                alloc_type: Integer {
                     signed: false,
                     width: 32,
-                },
+                }
+                .into(),
             }
         );
 
         assert_eq!(
             ir[4].create_register(),
-            Some(&register::Register("2".to_string()))
+            Some(&register::Register {
+                name: "2".to_string(),
+                data_type: Integer {
+                    signed: false,
+                    width: 32,
+                }
+                .into(),
+            })
         );
         let load_item: load::Load = ir[4].clone().try_into().unwrap();
         assert_eq!(
             load_item,
             load::Load {
                 from: load::LoadSource::Global("a".to_string()),
-                to: register::Register("2".to_string()),
+                to: register::Register {
+                    name: "2".to_string(),
+                    data_type: Integer {
+                        signed: false,
+                        width: 32,
+                    }
+                    .into(),
+                },
             }
         );
 
@@ -161,21 +182,21 @@ mod tests {
         assert_eq!(
             store_item,
             store::Store {
-                source: register::Register("2".to_string()).into(),
-                target: store::StoreTarget::Local(register::Register("1".to_string())),
+                source: register::RegisterRef("2".to_string()).into(),
+                target: store::StoreTarget::Local(register::RegisterRef("1".to_string())),
             }
         );
 
         assert_eq!(ir[7].use_registers().len(), 1);
         assert_eq!(
             ir[7].use_registers()[0],
-            &register::Register("3".to_string())
+            &register::RegisterRef("3".to_string())
         );
         let store_item: store::Store = ir[7].clone().try_into().unwrap();
         assert_eq!(
             store_item,
             store::Store {
-                source: register::Register("3".to_string()).into(),
+                source: register::RegisterRef("3".to_string()).into(),
                 target: store::StoreTarget::Global("a".to_string()),
             }
         );
@@ -188,8 +209,8 @@ mod tests {
             branch_item,
             branch::Branch {
                 branch_type: branch::BranchType::LT,
-                operand1: register::Register("5".to_string()),
-                operand2: register::Register("6".to_string()),
+                operand1: register::RegisterRef("5".to_string()),
+                operand2: register::RegisterRef("6".to_string()),
                 success_label: "back".to_string(),
                 failure_label: "next".to_string(),
             }
@@ -200,16 +221,30 @@ mod tests {
         assert!(ir[14].use_registers().iter().any(|&it| it.0 == "6"));
         assert_eq!(
             ir[14].create_register(),
-            Some(&register::Register("7".to_string()))
+            Some(&register::Register {
+                name: "7".to_string(),
+                data_type: Integer {
+                    signed: false,
+                    width: 32,
+                }
+                .into(),
+            })
         );
         let calculate_item: calculate::Calculate = ir[14].clone().try_into().unwrap();
         assert_eq!(
             calculate_item,
             calculate::Calculate {
                 operation: calculate::CalculateOperation::Add,
-                operand1: calculate::Operand::Register(register::Register("5".to_string())),
-                operand2: calculate::Operand::Register(register::Register("6".to_string())),
-                to_register: register::Register("7".to_string()),
+                operand1: calculate::Operand::Register(register::RegisterRef("5".to_string())),
+                operand2: calculate::Operand::Register(register::RegisterRef("6".to_string())),
+                to_register: register::Register {
+                    name: "7".to_string(),
+                    data_type: Integer {
+                        signed: false,
+                        width: 32,
+                    }
+                    .into(),
+                },
             }
         );
 

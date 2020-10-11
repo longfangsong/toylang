@@ -1,4 +1,5 @@
 use crate::ir::register::{parse as parse_register, Register};
+use crate::ir::RegisterRef;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::{alphanumeric1, space0, space1};
@@ -33,8 +34,8 @@ impl Display for BranchType {
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct Branch {
     pub branch_type: BranchType,
-    pub operand1: Register,
-    pub operand2: Register,
+    pub operand1: RegisterRef,
+    pub operand2: RegisterRef,
     pub success_label: String,
     pub failure_label: String,
 }
@@ -97,7 +98,7 @@ pub fn parse(code: &str) -> IResult<&str, Branch> {
 }
 
 impl Branch {
-    pub fn use_registers(&self) -> Vec<&Register> {
+    pub fn use_registers(&self) -> Vec<&RegisterRef> {
         vec![&self.operand1, &self.operand2]
     }
 }

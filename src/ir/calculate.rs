@@ -1,4 +1,5 @@
-use crate::ir::register::{parse as parse_register, Register};
+use crate::ir::register::{parse as parse_register, Register, RegisterRef};
+use crate::shared::data_type;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::{digit1, space0, space1};
@@ -44,7 +45,7 @@ fn calculate_operation(code: &str) -> IResult<&str, CalculateOperation> {
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub enum Operand {
     NumberLiteral(i64),
-    Register(Register),
+    Register(RegisterRef),
 }
 
 impl Display for Operand {
@@ -77,8 +78,12 @@ impl Display for Calculate {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{} = {} {}, {}",
-            self.to_register, self.operation, self.operand1, self.operand2
+            "{} = {} {} {}, {}",
+            self.to_register.name,
+            self.to_register.data_type,
+            self.operation,
+            self.operand1,
+            self.operand2
         )
     }
 }
@@ -92,17 +97,24 @@ pub fn parse(code: &str) -> IResult<&str, Calculate> {
             space0,
             calculate_operation,
             space1,
+            data_type::parse_integer,
+            space1,
             operand,
             space0,
             tag(","),
             space0,
             operand,
         )),
-        |(to_register, _, _, _, operation, _, operand1, _, _, _, operand2)| Calculate {
-            operation,
-            operand1,
-            operand2,
-            to_register,
+        |(to_register, _, _, _, operation, _, data_type, _, operand1, _, _, _, operand2)| {
+            Calculate {
+                operation,
+                operand1,
+                operand2,
+                to_register: Register {
+                    name: to_register.0,
+                    data_type: data_type.into(),
+                },
+            }
         },
     )(code)
 }
@@ -112,7 +124,7 @@ impl Calculate {
         &self.to_register
     }
 
-    pub fn use_registers(&self) -> Vec<&Register> {
+    pub fn use_registers(&self) -> Vec<&RegisterRef> {
         let mut result = Vec::new();
         if let Operand::Register(register) = &self.operand1 {
             result.push(register)
