@@ -76,27 +76,27 @@ pub fn compile(irs: Vec<IR>) -> String {
     let global = compile_globals(&global);
     alloca_code + "\n" + &code + "\n" + &global
 }
-//
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use crate::ir;
-//     use nom::character::complete::{line_ending, multispace0};
-//     use nom::combinator::{map, opt};
-//     use nom::multi::many0;
-//     use nom::sequence::tuple;
-//     use nom::IResult;
-//
-//     #[test]
-//     fn it_works() {
-//         let code = include_str!("./test.ir");
-//         let parser = |code: &'static str| -> IResult<&'static str, Vec<IR>> {
-//             many0(map(
-//                 tuple((multispace0, ir::ir, opt(line_ending))),
-//                 |(_, result, _)| result,
-//             ))(code)
-//         };
-//         let (_, ir) = parser(code).unwrap();
-//         println!("{}", compile(ir));
-//     }
-// }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ir;
+    use nom::character::complete::{line_ending, multispace0};
+    use nom::combinator::{map, opt};
+    use nom::multi::many0;
+    use nom::sequence::tuple;
+    use nom::IResult;
+
+    #[test]
+    fn it_works() {
+        let code = include_str!("./test.ir");
+        let parser = |code: &'static str| -> IResult<&'static str, Vec<IR>> {
+            many0(map(
+                tuple((multispace0, ir::ir, opt(line_ending))),
+                |(_, result, _)| result,
+            ))(code)
+        };
+        let (_, ir) = parser(code).unwrap();
+        println!("{}", compile(ir));
+    }
+}

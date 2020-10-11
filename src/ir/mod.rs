@@ -57,7 +57,6 @@ impl Display for IR {
 impl IR {
     pub fn create_register(&self) -> Option<&Register> {
         match self {
-            IR::Alloca(it) => Some(it.create_register()),
             IR::Load(it) => Some(it.create_register()),
             IR::Calculate(it) => Some(it.create_register()),
             _ => None,
@@ -125,13 +124,6 @@ mod tests {
         let label_item: label::Label = ir[2].clone().try_into().unwrap();
         assert_eq!(label_item, label::Label("back".to_string()));
 
-        assert_eq!(
-            ir[3].create_register(),
-            Some(&register::Register {
-                name: "1".to_string(),
-                data_type: Type::Address,
-            })
-        );
         let alloca_item: alloca::Alloca = ir[3].clone().try_into().unwrap();
         assert_eq!(
             alloca_item,

@@ -78,6 +78,9 @@ pub fn allocate_registers(irs: &[IR]) -> HashMap<RegisterRef, PhysicalRegister> 
     // find out when each logical register is active
     let mut active_intervals: HashMap<RegisterRef, Range<usize>> = HashMap::new();
     for (index, ir) in irs.iter().enumerate() {
+        if let Some(create_register) = ir.create_register() {
+            active_intervals.insert(create_register.into(), index..index + 1);
+        }
         for used_register in ir.use_registers() {
             if let Some(old_active_range) = active_intervals.get_mut(used_register) {
                 old_active_range.end = index + 1;

@@ -44,10 +44,6 @@ pub fn parse(code: &str) -> IResult<&str, Alloca> {
 }
 
 impl Alloca {
-    pub fn create_register(&self) -> &Register {
-        &self.to
-    }
-
     pub fn alloc_space(&self) -> usize {
         4
     }
