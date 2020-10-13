@@ -9,6 +9,7 @@ pub mod global;
 pub mod jump;
 pub mod label;
 pub mod load;
+pub mod phi;
 pub mod register;
 pub mod store;
 
@@ -21,6 +22,7 @@ pub use global::Global;
 pub use jump::Jump;
 pub use label::Label;
 pub use load::Load;
+pub use phi::Phi;
 use std::fmt;
 use std::fmt::Display;
 pub use store::Store;
@@ -36,6 +38,7 @@ sum_type! {
         Branch,
         Jump,
         Label,
+        Phi,
     }
 }
 
@@ -50,6 +53,7 @@ impl Display for IR {
             IR::Branch(alloca) => write!(f, "{}", alloca),
             IR::Jump(alloca) => write!(f, "{}", alloca),
             IR::Label(alloca) => write!(f, "{}", alloca),
+            IR::Phi(phi) => write!(f, "{}", phi),
         }
     }
 }
@@ -68,6 +72,7 @@ impl IR {
             IR::Load(it) => it.use_registers(),
             IR::Calculate(it) => it.use_registers(),
             IR::Branch(it) => it.use_registers(),
+            IR::Phi(it) => it.use_registers(),
             _ => Vec::new(),
         }
     }
@@ -83,6 +88,7 @@ pub fn ir(code: &str) -> IResult<&str, IR> {
         map(branch::parse, IR::Branch),
         map(jump::parse, IR::Jump),
         map(label::parse, IR::Label),
+        map(phi::parse, IR::Phi),
     ))(code)
 }
 

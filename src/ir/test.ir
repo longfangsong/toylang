@@ -16,3 +16,13 @@ back:
 next:
     %7 = add u32 %5, %6
     j back
+
+
+    %8 = add u32 %7, %6
+    blt %8, %6, lt, nlt
+lt:
+    %9 = add u32 %6, %4
+nlt:
+    %10 = or u32 %6, %4
+
+    %11 = phi u32 [lt, %9], [nlt, %10]
