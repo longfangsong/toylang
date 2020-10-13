@@ -41,11 +41,8 @@ pub struct Load {
 
 impl Display for Load {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{} = load {}* {}",
-            self.to.name, self.to.data_type, self.from
-        )
+        let to_ref: RegisterRef = (&self.to).into();
+        write!(f, "{} = load {}* {}", to_ref, self.to.data_type, self.from)
     }
 }
 

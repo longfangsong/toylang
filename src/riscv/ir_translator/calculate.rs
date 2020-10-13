@@ -25,7 +25,7 @@ impl ir::Calculate {
                 // todo: transmute, check and so on
                 let calculate_result = match self.operation {
                     CalculateOperation::Add => num1 + num2,
-                    CalculateOperation::Less => (num1 < num2) as i64,
+                    CalculateOperation::LT => (num1 < num2) as i64,
                     CalculateOperation::Sub => num1 - num2,
                     CalculateOperation::Or => num1 | num2,
                     CalculateOperation::Xor => num1 ^ num2,
@@ -33,6 +33,7 @@ impl ir::Calculate {
                     CalculateOperation::SLL => ((*num1 as u64) << (*num2 as u64)) as i64,
                     CalculateOperation::SRL => ((*num1 as u64) >> (*num2 as u64)) as i64,
                     CalculateOperation::SRA => num1 >> num2,
+                    _ => unreachable!(),
                 };
                 result.push(format!("li {}, {}", target_real_register, calculate_result))
             }
@@ -68,7 +69,7 @@ impl ir::Calculate {
                         target_real_register, operand2_real_register, num1
                     ),
                     // these five are not
-                    CalculateOperation::Less => {
+                    CalculateOperation::LT => {
                         // operand2_real_register will use t1, so t0 is free
                         format!(
                             "li t0, {}\nslt {}, t0, {}",
@@ -91,6 +92,7 @@ impl ir::Calculate {
                         "li t0, {}\nsra {}, t0, {}",
                         num1, target_real_register, operand2_real_register
                     ),
+                    _ => unreachable!(),
                 };
                 result.push(calculate_code);
             }
@@ -112,7 +114,7 @@ impl ir::Calculate {
                         "addi {}, {}, {}",
                         target_real_register, operand1_real_register, num2
                     ),
-                    CalculateOperation::Less => format!(
+                    CalculateOperation::LT => format!(
                         "slti {}, {}, {}",
                         target_real_register, operand1_real_register, num2
                     ),
@@ -144,6 +146,7 @@ impl ir::Calculate {
                         "srai {}, {}, {}",
                         target_real_register, operand1_real_register, num2
                     ),
+                    _ => unreachable!(),
                 };
                 result.push(calculate_code);
             }
@@ -166,7 +169,7 @@ impl ir::Calculate {
                 }
                 let calculate_code = match self.operation {
                     CalculateOperation::Add => "add",
-                    CalculateOperation::Less => "slt",
+                    CalculateOperation::LT => "slt",
                     CalculateOperation::Sub => "sub",
                     CalculateOperation::Or => "or",
                     CalculateOperation::Xor => "xor",
@@ -174,6 +177,7 @@ impl ir::Calculate {
                     CalculateOperation::SLL => "sll",
                     CalculateOperation::SRL => "srl",
                     CalculateOperation::SRA => "sra",
+                    _ => unreachable!(),
                 }
                 .to_string()
                     + &format!(

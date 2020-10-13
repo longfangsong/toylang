@@ -74,11 +74,16 @@ use std::collections::HashMap;
 use std::convert::TryInto;
 
 lazy_static! {
-    static ref OPERATION_MAP: HashMap<String, CalculateOperation> = {
+    pub static ref OPERATION_MAP: HashMap<String, CalculateOperation> = {
         let mut result = HashMap::new();
         result.insert("+".to_string(), CalculateOperation::Add);
         result.insert("-".to_string(), CalculateOperation::Sub);
-        result.insert("<".to_string(), CalculateOperation::Less);
+        result.insert("<".to_string(), CalculateOperation::LT);
+        result.insert("<=".to_string(), CalculateOperation::LE);
+        result.insert(">".to_string(), CalculateOperation::GT);
+        result.insert(">=".to_string(), CalculateOperation::GE);
+        result.insert("==".to_string(), CalculateOperation::EQ);
+        result.insert("!=".to_string(), CalculateOperation::NE);
         result.insert("|".to_string(), CalculateOperation::Or);
         result.insert("&".to_string(), CalculateOperation::And);
         result.insert("^".to_string(), CalculateOperation::Xor);

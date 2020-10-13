@@ -25,7 +25,7 @@ fn translate_ir(ir: &IR, registers: &HashMap<RegisterRef, PhysicalRegister>) -> 
 }
 
 pub fn translate_irs(irs: &[IR], registers: &HashMap<RegisterRef, PhysicalRegister>) -> String {
-    irs.into_iter()
+    irs.iter()
         .map(|ir| ir_translator::translate_ir(ir, registers))
         .collect::<Vec<_>>()
         .join("\n")

@@ -34,6 +34,7 @@ impl Display for BranchType {
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct Branch {
     pub branch_type: BranchType,
+    // todo: this should be RegisterRef | NumberLiteral
     pub operand1: RegisterRef,
     pub operand2: RegisterRef,
     pub success_label: String,

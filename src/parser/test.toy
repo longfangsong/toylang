@@ -6,3 +6,11 @@ b = 0;
 c = 1;
 d = 2;
 a = b+c-d;
+if a < b {
+    d = a + b;
+    b = c + d;
+}
+if a > b {
+    d = b;
+    c = b + a;
+}

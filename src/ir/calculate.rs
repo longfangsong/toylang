@@ -12,7 +12,12 @@ use std::str::FromStr;
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum CalculateOperation {
     Add,
-    Less,
+    LT,
+    LE,
+    GT,
+    GE,
+    EQ,
+    NE,
     Sub,
     Or,
     Xor,
@@ -31,7 +36,7 @@ impl Display for CalculateOperation {
 fn calculate_operation(code: &str) -> IResult<&str, CalculateOperation> {
     alt((
         map(tag("add"), |_| CalculateOperation::Add),
-        map(tag("less"), |_| CalculateOperation::Less),
+        map(tag("less"), |_| CalculateOperation::LT),
         map(tag("sub"), |_| CalculateOperation::Sub),
         map(tag("or"), |_| CalculateOperation::Or),
         map(tag("xor"), |_| CalculateOperation::Xor),

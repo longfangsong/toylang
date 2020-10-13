@@ -11,6 +11,7 @@ use std::sync::RwLock;
 
 pub struct Context {
     next_logical_register: AtomicUsize,
+    next_branch_id: AtomicUsize,
     symbol_table: RwLock<SymbolTable>,
 }
 
@@ -25,6 +26,13 @@ impl Context {
             name: format!("{}", result),
             data_type: data_type.into(),
         }
+    }
+
+    pub fn next_branch_id(&self) -> String {
+        format!(
+            "branch_{}",
+            self.next_branch_id.fetch_add(1, Ordering::Relaxed)
+        )
     }
 
     pub fn insert_variable(&self, variable_name: &str, variable_type: Integer) {
@@ -48,6 +56,7 @@ impl Context {
 lazy_static! {
     pub static ref CONTEXT: Context = Context {
         next_logical_register: AtomicUsize::new(0),
+        next_branch_id: AtomicUsize::new(0),
         symbol_table: Default::default(),
     };
 }

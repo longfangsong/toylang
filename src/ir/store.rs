@@ -70,7 +70,8 @@ pub struct Store {
 
 impl Display for Store {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "store {}, * {}", self.source, self.target)
+        // todo: real type
+        write!(f, "store {}, {}* {}", self.source, "i32", self.target)
     }
 }
 

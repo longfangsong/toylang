@@ -4,10 +4,6 @@ use crate::ir::IR;
 use crate::riscv::register::PhysicalRegister;
 use std::collections::HashMap;
 
-// use crate::ir::IR;
-// use register::PhysicalRegister;
-// use std::collections::HashMap;
-//
 mod ir_translator;
 mod register;
 
@@ -20,12 +16,16 @@ fn compile_global(ir: &IR) -> String {
 }
 
 fn compile_globals(irs: &[IR]) -> String {
-    ".data\n".to_string()
-        + &irs
-            .iter()
-            .map(compile_global)
-            .collect::<Vec<_>>()
-            .join("\n")
+    if !irs.is_empty() {
+        ".data\n".to_string()
+            + &irs
+                .iter()
+                .map(compile_global)
+                .collect::<Vec<_>>()
+                .join("\n")
+    } else {
+        "".to_string()
+    }
 }
 
 fn compile_alloca(

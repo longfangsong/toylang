@@ -9,6 +9,7 @@ mod parenthesis;
 pub(crate) mod rvalue;
 pub(crate) mod variable_ref;
 
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub enum ExpressionResult {
     Constant(i64),
     Complex {
