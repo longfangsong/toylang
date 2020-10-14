@@ -3,8 +3,8 @@ mod compound;
 mod declare;
 mod if_statement;
 
+use crate::ast::statement::compound::Compound;
 use crate::ir::IR;
-use crate::parser::statement::compound::Compound;
 use assign::Assign;
 use declare::Declare;
 use nom::branch::alt;

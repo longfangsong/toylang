@@ -1,12 +1,12 @@
+use crate::ast::context::CONTEXT;
+use crate::ast::expression::bin_op::OPERATION_MAP;
+use crate::ast::expression::rvalue::RValue;
+use crate::ast::expression::{rvalue, ExpressionResult};
+use crate::ast::statement::compound;
+use crate::ast::statement::compound::Compound;
 use crate::ir::branch::BranchType;
 use crate::ir::calculate::CalculateOperation;
 use crate::ir::{Branch, Jump, Label, IR};
-use crate::parser::context::CONTEXT;
-use crate::parser::expression::bin_op::OPERATION_MAP;
-use crate::parser::expression::rvalue::RValue;
-use crate::parser::expression::{rvalue, ExpressionResult};
-use crate::parser::statement::compound;
-use crate::parser::statement::compound::Compound;
 use nom::bytes::complete::tag;
 use nom::character::complete::space0;
 use nom::combinator::map;

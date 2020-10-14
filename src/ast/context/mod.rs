@@ -1,8 +1,8 @@
 mod symbol_table;
 
+use crate::ast::context::symbol_table::{Entry, SymbolTable};
+use crate::ast::expression::variable_ref::VariableRef;
 use crate::ir::Register as LogicalRegister;
-use crate::parser::context::symbol_table::{Entry, SymbolTable};
-use crate::parser::expression::variable_ref::VariableRef;
 use crate::shared::data_type::Integer;
 use std::cell::RefCell;
 use std::collections::HashMap;

@@ -1,12 +1,12 @@
-use crate::ir::IR;
-use crate::parser::context::Context;
-use crate::parser::expression::{
+use crate::ast::context::Context;
+use crate::ast::expression::{
     bin_op::{self, BinOp},
     constant::{self, Constant},
     parenthesis::{self, Parenthesis},
     variable_ref::{self, VariableRef},
     ExpressionResult,
 };
+use crate::ir::IR;
 use nom::branch::alt;
 use nom::combinator::map;
 use nom::IResult;

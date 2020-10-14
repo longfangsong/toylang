@@ -1,7 +1,7 @@
+use crate::ast::context::CONTEXT;
+use crate::ast::expression::ExpressionResult;
 use crate::ir::load::LoadSource;
 use crate::ir::{Load, Store};
-use crate::parser::context::CONTEXT;
-use crate::parser::expression::ExpressionResult;
 use nom::character::complete::{alpha1, alphanumeric0};
 use nom::combinator::{map, recognize};
 use nom::sequence::pair;

@@ -1,6 +1,6 @@
-use crate::parser::expression::bin_op::BinOp;
-use crate::parser::expression::rvalue::RValue;
-use crate::parser::expression::{bin_op, constant, parenthesis, variable_ref};
+use crate::ast::expression::bin_op::BinOp;
+use crate::ast::expression::rvalue::RValue;
+use crate::ast::expression::{bin_op, constant, parenthesis, variable_ref};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::space0;
@@ -9,7 +9,7 @@ use nom::multi::many1;
 use nom::sequence::tuple;
 use nom::IResult;
 
-pub(in crate::parser::expression) fn higher_than_level3(code: &str) -> IResult<&str, RValue> {
+pub(in crate::ast::expression) fn higher_than_level3(code: &str) -> IResult<&str, RValue> {
     alt((
         map(constant::parse, RValue::Constant),
         map(variable_ref::parse, RValue::VariableRef),
@@ -38,7 +38,7 @@ pub fn parse(code: &str) -> IResult<&str, BinOp> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser::expression::constant::Constant;
+    use crate::ast::expression::constant::Constant;
     use std::convert::TryInto;
 
     #[test]

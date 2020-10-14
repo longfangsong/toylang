@@ -1,6 +1,6 @@
+use crate::ast::context::Context;
+use crate::ast::expression::ExpressionResult;
 use crate::ir::{Alloca, IR};
-use crate::parser::context::Context;
-use crate::parser::expression::ExpressionResult;
 use nom::character::complete::digit1;
 use nom::combinator::map;
 use nom::IResult;

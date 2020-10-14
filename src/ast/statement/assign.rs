@@ -1,9 +1,9 @@
+use crate::ast::context::Context;
+use crate::ast::expression::rvalue::RValue;
+use crate::ast::expression::variable_ref::VariableRef;
+use crate::ast::expression::{rvalue, variable_ref, ExpressionResult};
 use crate::ir::store::StoreTarget;
 use crate::ir::{RegisterRef, Store, IR};
-use crate::parser::context::Context;
-use crate::parser::expression::rvalue::RValue;
-use crate::parser::expression::variable_ref::VariableRef;
-use crate::parser::expression::{rvalue, variable_ref, ExpressionResult};
 use nom::bytes::complete::tag;
 use nom::character::complete::space0;
 use nom::combinator::map;
@@ -61,11 +61,11 @@ impl Assign {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::context::CONTEXT;
+    use crate::ast::expression::bin_op::BinOp;
     use crate::ir::calculate::CalculateOperation;
     use crate::ir::store::StoreSource;
     use crate::ir::Calculate;
-    use crate::parser::context::CONTEXT;
-    use crate::parser::expression::bin_op::BinOp;
     use crate::shared::data_type::Integer;
     use std::convert::TryInto;
     use sum_type::SumType;

@@ -1,7 +1,7 @@
+use crate::ast::context::CONTEXT;
+use crate::ast::statement;
+use crate::ast::statement::{compound, Statement};
 use crate::ir::IR;
-use crate::parser::context::CONTEXT;
-use crate::parser::statement;
-use crate::parser::statement::{compound, Statement};
 use nom::bytes::complete::tag;
 use nom::character::complete::multispace0;
 use nom::combinator::map;

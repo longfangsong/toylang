@@ -1,4 +1,4 @@
-use crate::parser::statement::Statement;
+use crate::ast::statement::Statement;
 use nom::character::complete::multispace0;
 use nom::combinator::map;
 use nom::multi::many0;
@@ -8,6 +8,7 @@ use nom::IResult;
 mod context;
 mod expression;
 mod statement;
+mod visitor;
 
 pub fn parse(code: &str) -> IResult<&str, Vec<Statement>> {
     many0(map(

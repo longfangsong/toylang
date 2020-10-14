@@ -1,6 +1,6 @@
+use crate::ast::expression::constant::Constant;
 use crate::ir::calculate::Operand;
 use crate::ir::{Register as LogicalRegister, IR};
-use crate::parser::expression::constant::Constant;
 
 pub(crate) mod bin_op;
 mod constant;

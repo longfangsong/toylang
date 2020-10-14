@@ -1,8 +1,8 @@
+use crate::ast::context::CONTEXT;
+use crate::ast::expression::variable_ref;
+use crate::ast::expression::variable_ref::VariableRef;
 use crate::ir::{Alloca, IR};
 use crate::ir::{Global, Register as LogicalRegister};
-use crate::parser::context::CONTEXT;
-use crate::parser::expression::variable_ref;
-use crate::parser::expression::variable_ref::VariableRef;
 use crate::shared::data_type;
 use crate::shared::data_type::Integer;
 use nom::bytes::complete::tag;

@@ -61,12 +61,12 @@ bin_op_level!(8, 7, "&" "&");
 bin_op_level!(9, 8, "^" "^");
 bin_op_level!(10, 9, "|" "|");
 
+use crate::ast::context::CONTEXT;
+use crate::ast::expression::constant::Constant;
+use crate::ast::expression::rvalue::RValue;
+use crate::ast::expression::ExpressionResult;
 use crate::ir::calculate::{CalculateOperation, Operand};
 use crate::ir::{Calculate, Store, IR};
-use crate::parser::context::CONTEXT;
-use crate::parser::expression::constant::Constant;
-use crate::parser::expression::rvalue::RValue;
-use crate::parser::expression::ExpressionResult;
 use crate::shared::data_type::{Integer, Type};
 use nom::branch::alt;
 use nom::IResult;
