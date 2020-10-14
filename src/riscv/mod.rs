@@ -92,7 +92,7 @@ mod tests {
         let code = include_str!("./test.ir");
         let parser = |code: &'static str| -> IResult<&'static str, Vec<IR>> {
             many0(map(
-                tuple((multispace0, ir::ir, opt(line_ending))),
+                tuple((multispace0, ir::parse, opt(line_ending))),
                 |(_, result, _)| result,
             ))(code)
         };

@@ -1,6 +1,6 @@
 use crate::ir::branch::BranchType;
 use crate::ir::calculate::CalculateOperation;
-use crate::ir::{Branch, Label, IR};
+use crate::ir::{Branch, Jump, Label, IR};
 use crate::parser::context::CONTEXT;
 use crate::parser::expression::bin_op::OPERATION_MAP;
 use crate::parser::expression::rvalue::RValue;
@@ -52,42 +52,42 @@ fn generate_branch(condition: &RValue) -> (Vec<IR>, String) {
                     operand1: (&lhs_result).into(),
                     operand2: (&rhs_result).into(),
                     success_label: next_branch_id.clone() + "_true",
-                    failure_label: next_branch_id.clone() + "_false",
+                    failure_label: next_branch_id.clone() + "_end",
                 },
                 CalculateOperation::NE => Branch {
                     branch_type: BranchType::NE,
                     operand1: (&lhs_result).into(),
                     operand2: (&rhs_result).into(),
                     success_label: next_branch_id.clone() + "_true",
-                    failure_label: next_branch_id.clone() + "_false",
+                    failure_label: next_branch_id.clone() + "_end",
                 },
                 CalculateOperation::LT => Branch {
                     branch_type: BranchType::LT,
                     operand1: (&lhs_result).into(),
                     operand2: (&rhs_result).into(),
                     success_label: next_branch_id.clone() + "_true",
-                    failure_label: next_branch_id.clone() + "_false",
+                    failure_label: next_branch_id.clone() + "_end",
                 },
                 CalculateOperation::GE => Branch {
                     branch_type: BranchType::GE,
                     operand1: (&lhs_result).into(),
                     operand2: (&rhs_result).into(),
                     success_label: next_branch_id.clone() + "_true",
-                    failure_label: next_branch_id.clone() + "_false",
+                    failure_label: next_branch_id.clone() + "_end",
                 },
                 CalculateOperation::LE => Branch {
                     branch_type: BranchType::GE,
                     operand1: (&rhs_result).into(),
                     operand2: (&lhs_result).into(),
                     success_label: next_branch_id.clone() + "_true",
-                    failure_label: next_branch_id.clone() + "_false",
+                    failure_label: next_branch_id.clone() + "_end",
                 },
                 CalculateOperation::GT => Branch {
                     branch_type: BranchType::LT,
                     operand1: (&rhs_result).into(),
                     operand2: (&lhs_result).into(),
                     success_label: next_branch_id.clone() + "_true",
-                    failure_label: next_branch_id.clone() + "_false",
+                    failure_label: next_branch_id.clone() + "_end",
                 },
                 _ => unreachable!(),
             };
@@ -112,7 +112,7 @@ impl If {
         let (mut result, label) = generate_branch(&self.condition);
         result.push(Label(label.clone() + "_true").into());
         result.extend(self.content.ir());
-        result.push(Label(label + "_false").into());
+        result.push(Label(label + "_end").into());
         result
     }
 }

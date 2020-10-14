@@ -22,7 +22,8 @@ next:
     blt %8, %6, lt, nlt
 lt:
     %9 = add u32 %6, %4
+    j end
 nlt:
     %10 = or u32 %6, %4
-
+end:
     %11 = phi u32 [lt, %9], [nlt, %10]

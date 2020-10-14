@@ -17,7 +17,6 @@ fn translate_ir(ir: &IR, registers: &HashMap<RegisterRef, PhysicalRegister>) -> 
         IR::Calculate(calculate) => calculate.generate_asm(registers),
         IR::Branch(branch) => branch.generate_asm(registers),
         IR::Jump(jump) => jump.generate_asm(registers),
-        IR::Label(label) => format!("{}", label),
 
         IR::Alloca(_alloca) => unreachable!(),
         IR::Global(_global) => unreachable!(),
