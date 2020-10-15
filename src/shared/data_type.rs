@@ -1,3 +1,4 @@
+use crate::shared::parse;
 use fmt::Formatter;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -18,6 +19,8 @@ pub struct Integer {
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub enum Type {
     Integer(Integer),
+    Struct(String),
+    None,
     Address,
 }
 
@@ -26,6 +29,8 @@ impl Display for Type {
         match self {
             Type::Integer(i) => i.fmt(f),
             Type::Address => write!(f, "address"),
+            Type::Struct(name) => write!(f, "{}", name),
+            Type::None => write!(f, "()"),
         }
     }
 }
@@ -56,6 +61,8 @@ pub fn parse_type(code: &str) -> IResult<&str, Type> {
             |_| Type::Address,
         ),
         map(parse_integer, Type::Integer),
+        map(parse::ident, Type::Struct),
+        map(tag("()"), |_| Type::None),
     ))(code)
 }
 

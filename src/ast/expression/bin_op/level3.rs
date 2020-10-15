@@ -1,6 +1,6 @@
 use crate::ast::expression::bin_op::BinOp;
 use crate::ast::expression::rvalue::RValue;
-use crate::ast::expression::{bin_op, constant, parenthesis, variable_ref};
+use crate::ast::expression::{bin_op, constant, field, parenthesis, variable_ref};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::space0;
@@ -11,6 +11,7 @@ use nom::IResult;
 
 pub(in crate::ast::expression) fn higher_than_level3(code: &str) -> IResult<&str, RValue> {
     alt((
+        map(field::parse, RValue::Field),
         map(constant::parse, RValue::Constant),
         map(variable_ref::parse, RValue::VariableRef),
         map(parenthesis::parse, RValue::Parenthesis),

@@ -3,11 +3,11 @@ macro_rules! bin_op_level {
     ($n: expr, $n_1: expr, $($op: expr)*) => {
         paste! {
             mod [<level $n>] {
-                use crate::parser::expression::bin_op::{
+                use crate::ast::expression::bin_op::{
                     self, BinOp,
                     [<level $n_1>]::{self, [<higher_than_level $n_1>]}
                 };
-                use crate::parser::expression::rvalue::RValue;
+                use crate::ast::expression::rvalue::RValue;
                 use nom::branch::alt;
                 use nom::bytes::complete::tag;
                 use nom::character::complete::space0;
@@ -16,7 +16,7 @@ macro_rules! bin_op_level {
                 use nom::sequence::tuple;
                 use nom::IResult;
 
-                pub(in crate::parser::expression) fn [<higher_than_level $n>](
+                pub(in crate::ast::expression) fn [<higher_than_level $n>](
                     code: &str,
                 ) -> IResult<&str, RValue> {
                     alt((
@@ -61,37 +61,10 @@ bin_op_level!(8, 7, "&" "&");
 bin_op_level!(9, 8, "^" "^");
 bin_op_level!(10, 9, "|" "|");
 
-use crate::ast::context::CONTEXT;
-use crate::ast::expression::constant::Constant;
 use crate::ast::expression::rvalue::RValue;
-use crate::ast::expression::ExpressionResult;
-use crate::ir::calculate::{CalculateOperation, Operand};
-use crate::ir::{Calculate, Store, IR};
-use crate::shared::data_type::{Integer, Type};
 use nom::branch::alt;
 use nom::IResult;
-use std::collections::HashMap;
 use std::convert::TryInto;
-
-lazy_static! {
-    pub static ref OPERATION_MAP: HashMap<String, CalculateOperation> = {
-        let mut result = HashMap::new();
-        result.insert("+".to_string(), CalculateOperation::Add);
-        result.insert("-".to_string(), CalculateOperation::Sub);
-        result.insert("<".to_string(), CalculateOperation::LT);
-        result.insert("<=".to_string(), CalculateOperation::LE);
-        result.insert(">".to_string(), CalculateOperation::GT);
-        result.insert(">=".to_string(), CalculateOperation::GE);
-        result.insert("==".to_string(), CalculateOperation::EQ);
-        result.insert("!=".to_string(), CalculateOperation::NE);
-        result.insert("|".to_string(), CalculateOperation::Or);
-        result.insert("&".to_string(), CalculateOperation::And);
-        result.insert("^".to_string(), CalculateOperation::Xor);
-        result.insert(">>".to_string(), CalculateOperation::SRL);
-        result.insert("<<".to_string(), CalculateOperation::SLL);
-        result
-    };
-}
 
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct BinOp {
@@ -126,55 +99,13 @@ pub fn parse(code: &str) -> IResult<&str, BinOp> {
     ))(code)
 }
 
-impl BinOp {
-    pub fn ir(&self) -> ExpressionResult {
-        let lhs_result = self.lhs.ir();
-        let rhs_result = self.rhs.ir();
-        let mut data_type = Integer {
-            signed: true,
-            width: 32,
-        };
-        let mut ir_generated: Vec<_> = match &lhs_result {
-            ExpressionResult::Constant(_) => vec![],
-            ExpressionResult::Complex {
-                ir_generated,
-                result,
-            } => {
-                if let Type::Integer(integer) = &result.data_type {
-                    data_type = integer.clone().into();
-                    ir_generated.clone()
-                } else {
-                    unreachable!()
-                }
-            }
-        };
-        ir_generated.extend(match &rhs_result {
-            ExpressionResult::Constant(_) => vec![],
-            ExpressionResult::Complex {
-                ir_generated,
-                result,
-            } => {
-                if let Type::Integer(integer) = &result.data_type {
-                    data_type = integer.clone().into();
-                    ir_generated.clone()
-                } else {
-                    unreachable!()
-                }
-            }
-        });
-        let to_register = CONTEXT.next(data_type);
-        ir_generated.push(
-            Calculate {
-                operation: *OPERATION_MAP.get(&self.operator).unwrap(),
-                operand1: lhs_result.into(),
-                operand2: rhs_result.into(),
-                to_register: to_register.clone(),
-            }
-            .into(),
-        );
-        ExpressionResult::Complex {
-            ir_generated,
-            result: to_register,
-        }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    pub fn can_parse() {
+        let bin_op = parse("s.a + s.b").unwrap().1;
+        assert_eq!(bin_op.operator, "+");
     }
 }

@@ -1,7 +1,3 @@
-use crate::ast::context::CONTEXT;
-use crate::ast::expression::ExpressionResult;
-use crate::ir::load::LoadSource;
-use crate::ir::{Load, Store};
 use nom::character::complete::{alpha1, alphanumeric0};
 use nom::combinator::{map, recognize};
 use nom::sequence::pair;
@@ -14,19 +10,4 @@ pub fn parse(code: &str) -> IResult<&str, VariableRef> {
     map(recognize(pair(alpha1, alphanumeric0)), |name: &str| {
         VariableRef(name.to_string())
     })(code)
-}
-
-impl VariableRef {
-    pub fn ir(&self) -> ExpressionResult {
-        let result = CONTEXT.variable_info(&self.0).assigned_register;
-
-        ExpressionResult::Complex {
-            ir_generated: vec![Load {
-                from: LoadSource::Global(self.0.clone()),
-                to: result.clone(),
-            }
-            .into()],
-            result,
-        }
-    }
 }

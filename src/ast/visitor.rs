@@ -1,7 +1,81 @@
-use crate::ast::expression::rvalue::RValue;
-use crate::ast::statement::Statement;
+use crate::ast::function::{FunctionDefinition, FunctionDefinitionVisitor};
+use crate::ast::global_definition::{VariableDefinition, VariableDefinitionVisitor};
+use crate::ast::statement::assign::{Assign, AssignVisitor};
+use crate::ast::statement::declare::{Declare, DeclareVisitor};
+use crate::ast::statement::if_statement::{If, IfVisitor};
+use crate::ast::statement::return_statement::{Return, ReturnVisitor};
+use crate::ast::statement::while_statement::{While, WhileVisitor};
+use crate::ast::statement::StatementVisitor;
+use crate::ast::type_definition::{TypeDefinition, TypeDefinitionVisitor};
+use crate::ast::ASTNode;
+use std::io::Write;
 
-pub trait ASTVisitor {
-    fn visit_statement(&mut self, statement: &Statement);
-    fn visit_expression(&mut self, expression: &RValue);
+pub trait ASTVisitor:
+    TypeDefinitionVisitor + VariableDefinitionVisitor + FunctionDefinitionVisitor
+{
+    fn visit_ast(&mut self, ast: &ASTNode) {
+        match ast {
+            ASTNode::Type(type_definition) => self.visit_type_definition(type_definition),
+            ASTNode::Function(function_definition) => {
+                self.visit_function_definition(function_definition)
+            }
+            ASTNode::GlobalVariable(variable_definition) => {
+                self.visit_global_definition(variable_definition)
+            }
+        }
+    }
 }
+
+pub struct ASTDisplayer<W: Write>(pub W);
+
+impl<W: Write> TypeDefinitionVisitor for ASTDisplayer<W> {
+    fn visit_type_definition(&mut self, type_definition: &TypeDefinition) {
+        writeln!(self.0, "{:#?}", type_definition).unwrap()
+    }
+}
+
+impl<W: Write> VariableDefinitionVisitor for ASTDisplayer<W> {
+    fn visit_global_definition(&mut self, variable_definition: &VariableDefinition) {
+        writeln!(self.0, "{:#?}", variable_definition).unwrap()
+    }
+}
+
+impl<W: Write> DeclareVisitor for ASTDisplayer<W> {
+    fn visit_declare(&mut self, declare: &Declare) {
+        writeln!(self.0, "{:#?}", declare).unwrap()
+    }
+}
+
+impl<W: Write> AssignVisitor for ASTDisplayer<W> {
+    fn visit_assign(&mut self, assign: &Assign) {
+        writeln!(self.0, "{:#?}", assign).unwrap()
+    }
+}
+
+impl<W: Write> ReturnVisitor for ASTDisplayer<W> {
+    fn visit_return(&mut self, return_statement: &Return) {
+        writeln!(self.0, "{:#?}", return_statement).unwrap()
+    }
+}
+
+impl<W: Write> IfVisitor for ASTDisplayer<W> {
+    fn visit_if(&mut self, if_statement: &If) {
+        writeln!(self.0, "{:#?}", if_statement).unwrap()
+    }
+}
+
+impl<W: Write> WhileVisitor for ASTDisplayer<W> {
+    fn visit_while(&mut self, while_statement: &While) {
+        writeln!(self.0, "{:#?}", while_statement).unwrap()
+    }
+}
+
+impl<W: Write> StatementVisitor for ASTDisplayer<W> {}
+
+impl<W: Write> FunctionDefinitionVisitor for ASTDisplayer<W> {
+    fn visit_function_definition(&mut self, function_definition: &FunctionDefinition) {
+        writeln!(self.0, "{:#?}", function_definition).unwrap()
+    }
+}
+
+impl<W: Write> ASTVisitor for ASTDisplayer<W> {}

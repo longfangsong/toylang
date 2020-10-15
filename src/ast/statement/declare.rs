@@ -1,20 +1,19 @@
-use crate::ast::context::CONTEXT;
-use crate::ast::expression::variable_ref;
-use crate::ast::expression::variable_ref::VariableRef;
-use crate::ir::{Alloca, IR};
-use crate::ir::{Global, Register as LogicalRegister};
+use crate::ast::expression::rvalue;
+use crate::ast::expression::rvalue::RValue;
 use crate::shared::data_type;
-use crate::shared::data_type::Integer;
+use crate::shared::data_type::Type;
+use crate::shared::parse;
 use nom::bytes::complete::tag;
-use nom::character::complete::{alpha1, alphanumeric0, space0, space1};
-use nom::combinator::{map, recognize};
-use nom::sequence::{pair, tuple};
+use nom::character::complete::{space0, space1};
+use nom::combinator::{map, opt};
+use nom::sequence::tuple;
 use nom::IResult;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Declare {
     pub variable_name: String,
-    pub data_type: Integer,
+    pub data_type: Type,
+    pub init_value: Option<RValue>,
 }
 
 pub fn parse(code: &str) -> IResult<&str, Declare> {
@@ -22,64 +21,26 @@ pub fn parse(code: &str) -> IResult<&str, Declare> {
         tuple((
             tag("let"),
             space1,
-            map(recognize(pair(alpha1, alphanumeric0)), |x: &str| {
-                x.to_string()
-            }),
+            parse::ident,
             space0,
             tag(":"),
             space0,
-            data_type::parse_integer,
+            data_type::parse_type,
             space0,
+            opt(map(
+                tuple((space0, tag("="), space0, rvalue::parse, space0)),
+                |(_, _, _, x, _)| x,
+            )),
             tag(";"),
         )),
-        |(_, _, variable_name, _, _, _, data_type, _, _)| Declare {
+        |(_, _, variable_name, _, _, _, data_type, _, init_value, _)| Declare {
             variable_name,
             data_type,
+            init_value,
         },
     )(code)
 }
 
-impl Declare {
-    pub fn ir(&self) -> IR {
-        let name = self.variable_name.clone();
-        CONTEXT.insert_variable(&name, self.data_type.clone());
-        Global {
-            name,
-            data_type: self.data_type.clone(),
-            initial_value: 0,
-        }
-        .into()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::convert::TryInto;
-
-    #[test]
-    fn it_works() {
-        let code = parse("let a: i32;").unwrap().1;
-        assert_eq!(code.variable_name, "a");
-        assert_eq!(
-            code.data_type,
-            Integer {
-                signed: true,
-                width: 32,
-            }
-        );
-
-        let ir: Global = code.ir().try_into().unwrap();
-        assert_eq!(
-            ir,
-            Global {
-                name: "a".to_string(),
-                data_type: Integer {
-                    signed: true,
-                    width: 32,
-                },
-                initial_value: 0,
-            }
-        );
-    }
+pub trait DeclareVisitor {
+    fn visit_declare(&mut self, declare: &Declare);
 }

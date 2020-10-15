@@ -1,0 +1,37 @@
+struct S {
+    a: i32,
+    b: i32
+}
+
+fn reduce(s:S) -> i32 {
+    return s.a + s.b;
+}
+
+let g: i32 = 100;
+
+fn add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+
+
+fn main() -> () {
+    let a: i32 = 1;
+    let b: i32 = 2;
+    let c: i32 = add(a, b);
+    while g > 0 {
+        c = c - a;
+        g = g - 1;
+    }
+    if c > 0 {
+        b = a;
+    } else {
+        b = c;
+    }
+    // todo: finish parsing these
+    let gpio: Address = 0x40000000;
+    gpio.write_i32(b);
+    let s = S { a: 1, b: 2 };
+    s.a = s.a + s.b;
+    gpio.write_i32(s.reduce());
+}
+

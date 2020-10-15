@@ -1,5 +1,5 @@
+use crate::ast::expression::rvalue;
 use crate::ast::expression::rvalue::RValue;
-use crate::ast::expression::{rvalue, ExpressionResult};
 use nom::bytes::complete::tag;
 use nom::combinator::map;
 use nom::sequence::delimited;
@@ -12,10 +12,4 @@ pub fn parse(code: &str) -> IResult<&str, Parenthesis> {
     map(delimited(tag("("), rvalue::parse, tag(")")), |content| {
         Parenthesis(Box::new(content))
     })(code)
-}
-
-impl Parenthesis {
-    pub fn ir(&self) -> ExpressionResult {
-        self.0.ir()
-    }
 }

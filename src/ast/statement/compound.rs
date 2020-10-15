@@ -1,7 +1,4 @@
-use crate::ast::context::CONTEXT;
-use crate::ast::statement;
-use crate::ast::statement::{compound, Statement};
-use crate::ir::IR;
+use crate::ast::statement::{self, Statement};
 use nom::bytes::complete::tag;
 use nom::character::complete::multispace0;
 use nom::combinator::map;
@@ -24,38 +21,4 @@ pub fn parse(code: &str) -> IResult<&str, Compound> {
         ),
         Compound,
     )(code)
-}
-
-impl Compound {
-    pub fn ir(&self) -> Vec<IR> {
-        self.0.iter().flat_map(|it| it.ir()).collect()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::shared::data_type::Integer;
-
-    #[test]
-    fn it_works() {
-        CONTEXT.insert_variable(
-            "c",
-            Integer {
-                signed: true,
-                width: 32,
-            },
-        );
-        CONTEXT.insert_variable(
-            "d",
-            Integer {
-                signed: true,
-                width: 32,
-            },
-        );
-        let item = parse("{ c = d; }").unwrap().1;
-        let ir = item.ir();
-        // todo: more tests
-        assert_eq!(ir.len(), 2);
-    }
 }

@@ -1,32 +1,40 @@
-use crate::ast::statement::Statement;
+use crate::ast::function::FunctionDefinition;
+use crate::ast::global_definition::VariableDefinition;
+use crate::ast::type_definition::TypeDefinition;
+use nom::branch::alt;
 use nom::character::complete::multispace0;
 use nom::combinator::map;
 use nom::multi::many0;
-use nom::sequence::tuple;
+use nom::sequence::delimited;
 use nom::IResult;
+use sum_type::sum_type;
 
-mod context;
 mod expression;
+mod function;
+mod global_definition;
 mod statement;
-mod visitor;
+mod type_definition;
+pub(crate) mod visitor;
 
-pub fn parse(code: &str) -> IResult<&str, Vec<Statement>> {
-    many0(map(
-        tuple((multispace0, statement::parse, multispace0)),
-        |(_, statement, _)| statement,
+sum_type! {
+    #[derive(Debug, Eq, PartialEq, Clone)]
+    pub enum ASTNode {
+        Type(TypeDefinition),
+        Function(FunctionDefinition),
+        GlobalVariable(VariableDefinition),
+    }
+}
+
+pub fn parse(code: &str) -> IResult<&str, ASTNode> {
+    alt((
+        map(type_definition::parse, ASTNode::Type),
+        map(function::parse, ASTNode::Function),
+        map(global_definition::parse, ASTNode::GlobalVariable),
     ))(code)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::riscv;
+pub type AST = Vec<ASTNode>;
 
-    #[test]
-    fn it_works() {
-        let code = include_str!("./test.toy");
-        let statements = parse(code).unwrap().1;
-        let irs: Vec<_> = statements.into_iter().map(|it| it.ir()).flatten().collect();
-        // println!("{}", riscv::compile(irs));
-    }
+pub fn from_source(source: &str) -> IResult<&str, AST> {
+    many0(delimited(multispace0, parse, multispace0))(source)
 }

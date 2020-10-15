@@ -1,34 +1,7 @@
-use crate::ast::expression::constant::Constant;
-use crate::ir::calculate::Operand;
-use crate::ir::{Register as LogicalRegister, IR};
-
-pub(crate) mod bin_op;
+pub mod bin_op;
 mod constant;
-mod lvalue;
+mod field;
+mod function_call;
 mod parenthesis;
-pub(crate) mod rvalue;
-pub(crate) mod variable_ref;
-
-#[derive(Debug, Eq, PartialEq, Clone)]
-pub enum ExpressionResult {
-    Constant(i64),
-    Complex {
-        ir_generated: Vec<IR>,
-        result: LogicalRegister,
-    },
-}
-
-impl From<Constant> for ExpressionResult {
-    fn from(constant: Constant) -> Self {
-        ExpressionResult::Constant(constant.0)
-    }
-}
-
-impl Into<Operand> for ExpressionResult {
-    fn into(self) -> Operand {
-        match self {
-            ExpressionResult::Constant(n) => Operand::NumberLiteral(n),
-            ExpressionResult::Complex { result, .. } => Operand::Register((&result).into()),
-        }
-    }
-}
+pub mod rvalue;
+mod variable_ref;
