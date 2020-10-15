@@ -27,11 +27,9 @@ fn main() -> () {
     } else {
         b = c;
     }
-    // todo: finish parsing these
-    let gpio: Address = 0x40000000;
-    gpio.write_i32(b);
-    let s = S { a: 1, b: 2 };
-    s.a = s.a + s.b;
-    gpio.write_i32(s.reduce());
+    let gpio: address = 0x40000000;
+    gpio.write(b);
+    let s:S = S { a: 1, b: 2 };
+    gpio.write(s.reduce());
 }
 

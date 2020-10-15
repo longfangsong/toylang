@@ -2,6 +2,7 @@ use crate::ast::function::{FunctionDefinition, FunctionDefinitionVisitor};
 use crate::ast::global_definition::{VariableDefinition, VariableDefinitionVisitor};
 use crate::ast::statement::assign::{Assign, AssignVisitor};
 use crate::ast::statement::declare::{Declare, DeclareVisitor};
+use crate::ast::statement::function_call::{FunctionCall, FunctionCallVisitor};
 use crate::ast::statement::if_statement::{If, IfVisitor};
 use crate::ast::statement::return_statement::{Return, ReturnVisitor};
 use crate::ast::statement::while_statement::{While, WhileVisitor};
@@ -67,6 +68,12 @@ impl<W: Write> IfVisitor for ASTDisplayer<W> {
 impl<W: Write> WhileVisitor for ASTDisplayer<W> {
     fn visit_while(&mut self, while_statement: &While) {
         writeln!(self.0, "{:#?}", while_statement).unwrap()
+    }
+}
+
+impl<W: Write> FunctionCallVisitor for ASTDisplayer<W> {
+    fn visit_function_call(&mut self, function_call: &FunctionCall) {
+        writeln!(self.0, "{:#?}", function_call).unwrap()
     }
 }
 

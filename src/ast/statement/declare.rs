@@ -44,3 +44,16 @@ pub fn parse(code: &str) -> IResult<&str, Declare> {
 pub trait DeclareVisitor {
     fn visit_declare(&mut self, declare: &Declare);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_parse() {
+        let declare = parse("let gpio: address = 0x40000000;").unwrap().1;
+        assert_eq!(declare.variable_name, "gpio");
+        let declare = parse("let s:S = S { a: 1, b: 2 };").unwrap().1;
+        assert_eq!(declare.variable_name, "s");
+    }
+}

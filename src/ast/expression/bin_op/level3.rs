@@ -1,6 +1,6 @@
 use crate::ast::expression::bin_op::BinOp;
 use crate::ast::expression::rvalue::RValue;
-use crate::ast::expression::{bin_op, constant, field, parenthesis, variable_ref};
+use crate::ast::expression::{bin_op, field, integer_literal, parenthesis, variable_ref};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::space0;
@@ -12,7 +12,7 @@ use nom::IResult;
 pub(in crate::ast::expression) fn higher_than_level3(code: &str) -> IResult<&str, RValue> {
     alt((
         map(field::parse, RValue::Field),
-        map(constant::parse, RValue::Constant),
+        map(integer_literal::parse, RValue::IntegerLiteral),
         map(variable_ref::parse, RValue::VariableRef),
         map(parenthesis::parse, RValue::Parenthesis),
     ))(code)
@@ -39,7 +39,7 @@ pub fn parse(code: &str) -> IResult<&str, BinOp> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::expression::constant::Constant;
+    use crate::ast::expression::integer_literal::IntegerLiteral;
     use std::convert::TryInto;
 
     #[test]
@@ -52,10 +52,10 @@ mod tests {
             lhs,
             BinOp {
                 operator: "*".to_string(),
-                lhs: Box::new(Constant(1).into()),
-                rhs: Box::new(Constant(2).into()),
+                lhs: Box::new(IntegerLiteral(1).into()),
+                rhs: Box::new(IntegerLiteral(2).into()),
             }
         );
-        assert_eq!(rhs, Box::new(Constant(3).into()));
+        assert_eq!(rhs, Box::new(IntegerLiteral(3).into()));
     }
 }
