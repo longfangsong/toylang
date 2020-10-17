@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use structopt::StructOpt;
 
 mod ast;
+mod ir;
 mod shared;
 
 #[derive(Debug, StructOpt)]
