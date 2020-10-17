@@ -1,6 +1,6 @@
 use crate::ast::expression::rvalue::RValue;
 use crate::ast::expression::{parenthesis, variable_ref};
-use crate::shared::parse;
+use crate::shared::parsing;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{map, not, peek};
@@ -39,7 +39,7 @@ pub fn parse(code: &str) -> IResult<&str, Field> {
         tuple((
             higher_than_field,
             many1(map(
-                tuple((tag("."), parse::ident, peek(not(tag("("))))),
+                tuple((tag("."), parsing::ident, peek(not(tag("("))))),
                 |(_, name, _)| name,
             )),
         )),

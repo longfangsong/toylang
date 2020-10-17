@@ -1,4 +1,4 @@
-use crate::shared::parse;
+use crate::shared::parsing;
 use nom::combinator::map;
 use nom::IResult;
 
@@ -12,5 +12,5 @@ impl From<i64> for IntegerLiteral {
 }
 
 pub fn parse(code: &str) -> IResult<&str, IntegerLiteral> {
-    map(parse::integer, IntegerLiteral)(code)
+    map(parsing::integer, IntegerLiteral)(code)
 }

@@ -1,6 +1,6 @@
 use crate::ast::expression::rvalue::RValue;
 use crate::ast::expression::{bin_op, integer_literal, parenthesis, rvalue, variable_ref};
-use crate::shared::parse;
+use crate::shared::parsing;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::space0;
@@ -27,7 +27,7 @@ pub struct FunctionCall {
 fn parse_function_like_call(code: &str) -> IResult<&str, FunctionCall> {
     map(
         tuple((
-            parse::ident,
+            parsing::ident,
             delimited(
                 tag("("),
                 separated_list(tuple((space0, tag(","), space0)), higher_than_function),
@@ -43,7 +43,7 @@ fn parse_method_like_call(code: &str) -> IResult<&str, FunctionCall> {
         tuple((
             higher_than_function,
             tag("."),
-            parse::ident,
+            parsing::ident,
             delimited(
                 tag("("),
                 separated_list(tuple((space0, tag(","), space0)), rvalue::parse),

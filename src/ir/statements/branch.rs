@@ -1,8 +1,13 @@
-use crate::ir::utils::LocalOrNumberLiteral;
+use crate::ir::utils::{local_or_number_literal, LocalOrNumberLiteral};
+use crate::shared::parsing;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
+use nom::character::complete::{space0, space1};
 use nom::combinator::map;
+use nom::sequence::tuple;
 use nom::IResult;
+use std::fmt;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum BranchType {
@@ -10,6 +15,12 @@ pub enum BranchType {
     NE,
     LT,
     GE,
+}
+
+impl Display for BranchType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", format!("{:?}", self).to_ascii_lowercase())
+    }
 }
 
 fn branch_type(code: &str) -> IResult<&str, BranchType> {
@@ -28,4 +39,61 @@ pub struct Branch {
     pub operand2: LocalOrNumberLiteral,
     pub success_label: String,
     pub failure_label: String,
+}
+
+impl Display for Branch {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "b{} {}, {}, {}, {}",
+            self.branch_type, self.operand1, self.operand2, self.success_label, self.failure_label
+        )
+    }
+}
+
+pub fn parse(code: &str) -> IResult<&str, Branch> {
+    map(
+        tuple((
+            tag("b"),
+            branch_type,
+            space1,
+            local_or_number_literal,
+            space0,
+            tag(","),
+            space1,
+            local_or_number_literal,
+            space0,
+            tag(","),
+            space0,
+            parsing::ident,
+            space0,
+            tag(","),
+            space0,
+            parsing::ident,
+        )),
+        |(
+            _,
+            branch_type,
+            _,
+            operand1,
+            _,
+            _,
+            _,
+            operand2,
+            _,
+            _,
+            _,
+            success_label,
+            _,
+            _,
+            _,
+            failure_label,
+        )| Branch {
+            branch_type,
+            operand1,
+            operand2,
+            success_label,
+            failure_label,
+        },
+    )(code)
 }

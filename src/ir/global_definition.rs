@@ -1,28 +1,35 @@
+use crate::ir::integer_literal;
+use crate::ir::integer_literal::IntegerLiteral;
+use crate::ir::utils::{global, Global};
+use crate::shared::data_type;
 use crate::shared::data_type::Type;
 use nom::bytes::complete::tag;
-use nom::character::complete::multispace0;
+use nom::character::complete::{multispace0, space0, space1};
 use nom::combinator::map;
-use nom::sequence::{delimited, tuple};
+use nom::sequence::tuple;
 use nom::IResult;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct GlobalDefinition {
-    name: String,
+    item: Global,
     data_type: Type,
-    initial_value: Constant,
+    initial_value: IntegerLiteral,
 }
 
-fn parse(content: &str) -> IResult<&str, GlobalDefinition> {
+fn parse(code: &str) -> IResult<&str, GlobalDefinition> {
     map(
         tuple((
-            tag("%"),
-            parse::ident,
-            multispace0,
+            global::parse,
+            space0,
+            tag("="),
+            space0,
+            tag("global"),
             data_type::parse,
-            constant::parse,
+            space1,
+            integer_literal::parse,
         )),
-        |(_, name, _, data_type, initial_value)| GlobalDefinition {
-            name,
+        |(item, _, _, _, _, data_type, _, initial_value)| GlobalDefinition {
+            item,
             data_type,
             initial_value,
         },

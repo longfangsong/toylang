@@ -1,4 +1,4 @@
-use crate::shared::parse;
+use crate::shared::parsing;
 use fmt::Formatter;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -54,14 +54,14 @@ pub fn parse_integer(code: &str) -> IResult<&str, Integer> {
     ))(code)
 }
 
-pub fn parse_type(code: &str) -> IResult<&str, Type> {
+pub fn parse(code: &str) -> IResult<&str, Type> {
     alt((
         map(
             alt((recognize(pair(parse_integer, tag("*"))), tag("address"))),
             |_| Type::Address,
         ),
         map(parse_integer, Type::Integer),
-        map(parse::ident, Type::Struct),
+        map(parsing::ident, Type::Struct),
         map(tag("()"), |_| Type::None),
     ))(code)
 }

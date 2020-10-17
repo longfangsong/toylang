@@ -2,7 +2,7 @@ use crate::ast::statement;
 use crate::ast::statement::{Statement, StatementVisitor};
 use crate::shared::data_type;
 use crate::shared::data_type::Type;
-use crate::shared::parse;
+use crate::shared::parsing;
 use nom::bytes::complete::tag;
 use nom::character::complete::{multispace0, space0};
 use nom::combinator::map;
@@ -18,13 +18,7 @@ pub struct Parameter {
 
 pub fn parse_parameter(code: &str) -> IResult<&str, Parameter> {
     map(
-        tuple((
-            parse::ident,
-            space0,
-            tag(":"),
-            space0,
-            data_type::parse_type,
-        )),
+        tuple((parsing::ident, space0, tag(":"), space0, data_type::parse)),
         |(name, _, _, _, data_type)| Parameter { name, data_type },
     )(code)
 }
@@ -42,7 +36,7 @@ pub fn parse(code: &str) -> IResult<&str, FunctionDefinition> {
         tuple((
             tag("fn"),
             space0,
-            parse::ident,
+            parsing::ident,
             delimited(
                 pair(tag("("), space0),
                 separated_list(tuple((space0, tag(","), space0)), parse_parameter),
@@ -51,7 +45,7 @@ pub fn parse(code: &str) -> IResult<&str, FunctionDefinition> {
             space0,
             tag("->"),
             space0,
-            data_type::parse_type,
+            data_type::parse,
             delimited(
                 tuple((multispace0, tag("{"), multispace0)),
                 separated_list(multispace0, statement::parse),

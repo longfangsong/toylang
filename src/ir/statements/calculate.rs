@@ -1,14 +1,14 @@
-use crate::ir::utils::LocalOrNumberLiteral;
+use crate::ir::utils::{local, local_or_number_literal, Local, LocalOrNumberLiteral};
 use crate::shared::data_type;
+use crate::shared::data_type::Type;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::character::complete::{digit1, space0, space1};
+use nom::character::complete::{space0, space1};
 use nom::combinator::map;
 use nom::sequence::tuple;
 use nom::IResult;
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use std::str::FromStr;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum CalculateOperation {
@@ -53,5 +53,35 @@ pub struct Calculate {
     pub operation: CalculateOperation,
     pub operand1: LocalOrNumberLiteral,
     pub operand2: LocalOrNumberLiteral,
-    pub to_register: String,
+    pub to: Local,
+    pub data_type: Type,
+}
+
+pub fn parse(code: &str) -> IResult<&str, Calculate> {
+    map(
+        tuple((
+            local::parse,
+            space0,
+            tag("="),
+            space0,
+            calculate_operation,
+            space1,
+            data_type::parse,
+            space1,
+            local_or_number_literal,
+            space0,
+            tag(","),
+            space0,
+            local_or_number_literal,
+        )),
+        |(to_register, _, _, _, operation, _, data_type, _, operand1, _, _, _, operand2)| {
+            Calculate {
+                operation,
+                operand1,
+                operand2,
+                to: to_register,
+                data_type,
+            }
+        },
+    )(code)
 }

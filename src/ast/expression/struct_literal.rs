@@ -1,6 +1,6 @@
 use crate::ast::expression::rvalue;
 use crate::ast::expression::rvalue::RValue;
-use crate::shared::parse;
+use crate::shared::parsing;
 use nom::bytes::complete::tag;
 use nom::character::complete::{multispace0, space0};
 use nom::combinator::map;
@@ -16,7 +16,7 @@ pub struct Field {
 
 pub fn parse_field(code: &str) -> IResult<&str, Field> {
     map(
-        tuple((parse::ident, space0, tag(":"), space0, rvalue::parse)),
+        tuple((parsing::ident, space0, tag(":"), space0, rvalue::parse)),
         |(name, _, _, _, value)| Field { name, value },
     )(code)
 }
@@ -30,7 +30,7 @@ pub struct StructLiteral {
 pub fn parse(code: &str) -> IResult<&str, StructLiteral> {
     map(
         tuple((
-            parse::ident,
+            parsing::ident,
             multispace0,
             delimited(
                 tuple((multispace0, tag("{"), multispace0)),

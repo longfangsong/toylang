@@ -1,5 +1,5 @@
 use crate::shared::data_type::Type;
-use crate::shared::{data_type, parse};
+use crate::shared::{data_type, parsing};
 use nom::bytes::complete::tag;
 use nom::character::complete::multispace0;
 use nom::combinator::map;
@@ -17,7 +17,7 @@ pub fn parse(code: &str) -> IResult<&str, TypeDefinition> {
     map(
         tuple((
             tag("%"),
-            parse::ident,
+            parsing::ident,
             multispace0,
             tag("="),
             multispace0,

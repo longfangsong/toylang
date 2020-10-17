@@ -1,6 +1,6 @@
 use crate::ast::expression::rvalue;
 use crate::ast::expression::rvalue::RValue;
-use crate::shared::parse;
+use crate::shared::parsing;
 use nom::bytes::complete::tag;
 use nom::character::complete::space0;
 use nom::combinator::map;
@@ -16,7 +16,7 @@ pub struct Assign {
 pub fn parse(code: &str) -> IResult<&str, Assign> {
     map(
         tuple((
-            parse::ident,
+            parsing::ident,
             space0,
             tag("="),
             space0,

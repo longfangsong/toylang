@@ -1,5 +1,8 @@
+use crate::ir::basic_block;
 use crate::ir::basic_block::BasicBlock;
+use crate::ir::utils::{local, Local};
 use crate::shared::data_type::Type;
+use crate::shared::{data_type, parsing};
 use nom::bytes::complete::tag;
 use nom::character::complete::{line_ending, multispace0, space0};
 use nom::combinator::map;
@@ -9,8 +12,15 @@ use nom::IResult;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Parameter {
-    name: String,
+    name: Local,
     data_type: Type,
+}
+
+fn parse_parameter(code: &str) -> IResult<&str, Parameter> {
+    map(
+        tuple((local::parse, space0, tag(":"), space0, data_type::parse)),
+        |(name, _, _, _, data_type)| Parameter { name, data_type },
+    )(code)
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
@@ -26,7 +36,7 @@ fn parse(code: &str) -> IResult<&str, FunctionDefinition> {
         tuple((
             tag("fn"),
             space0,
-            parse::ident,
+            parsing::ident,
             delimited(
                 tag("("),
                 separated_list(tuple((multispace0, tag(","), multispace0)), parse_parameter),

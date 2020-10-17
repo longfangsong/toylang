@@ -14,20 +14,28 @@ use branch::Branch;
 use calculate::Calculate;
 use jump::Jump;
 use load::Load;
-use phi::Phi;
+use nom::branch::alt;
+use nom::combinator::map;
+use nom::IResult;
 use store::Store;
 
 sum_type! {
     #[derive(Debug, Eq, PartialEq, Clone)]
     pub enum IRStatement {
         Alloca,
-        Branch,
         Calculate,
-        Jump,
         Load,
         Store,
-        Phi,
     }
+}
+
+pub fn parse_ir_statement(code: &str) -> IResult<&str, IRStatement> {
+    alt((
+        map(alloca::parse, IRStatement::Alloca),
+        map(calculate::parse, IRStatement::Calculate),
+        map(load::parse, IRStatement::Load),
+        map(store::parse, IRStatement::Store),
+    ))(code)
 }
 
 sum_type! {
@@ -36,4 +44,11 @@ sum_type! {
         Branch,
         Jump,
     }
+}
+
+pub fn parse_terminator(code: &str) -> IResult<&str, Terminator> {
+    alt((
+        map(branch::parse, Terminator::Branch),
+        map(jump::parse, Terminator::Jump),
+    ))(code)
 }

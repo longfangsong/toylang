@@ -1,9 +1,36 @@
-use crate::ir::utils::LocalOrGlobal;
+use crate::ir::utils::{local, local_or_global, Local, LocalOrGlobal};
+use crate::shared::data_type;
 use crate::shared::data_type::Type;
+use nom::bytes::complete::tag;
+use nom::character::complete::{space0, space1};
+use nom::combinator::map;
+use nom::sequence::tuple;
+use nom::IResult;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Load {
-    pub to_register: String,
+    pub to: Local,
     pub data_type: Type,
-    pub from_register: LocalOrGlobal,
+    pub from: LocalOrGlobal,
+}
+
+pub fn parse(code: &str) -> IResult<&str, Load> {
+    map(
+        tuple((
+            local::parse,
+            space0,
+            tag("="),
+            space0,
+            tag("load"),
+            space1,
+            data_type::parse,
+            space1,
+            local_or_global,
+        )),
+        |(to, _, _, _, _, _, data_type, _, from)| Load {
+            to,
+            data_type,
+            from,
+        },
+    )(code)
 }

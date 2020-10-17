@@ -1,5 +1,5 @@
 use crate::shared::data_type::Type;
-use crate::shared::{data_type, parse};
+use crate::shared::{data_type, parsing};
 use nom::bytes::complete::tag;
 use nom::character::complete::{multispace0, space0};
 use nom::combinator::map;
@@ -17,11 +17,11 @@ fn parse_field_definition(code: &str) -> IResult<&str, FieldDefinition> {
     map(
         tuple((
             multispace0,
-            parse::ident,
+            parsing::ident,
             space0,
             tag(":"),
             space0,
-            data_type::parse_type,
+            data_type::parse,
         )),
         |(_, name, _, _, _, data_type)| FieldDefinition { name, data_type },
     )(code)
@@ -39,7 +39,7 @@ pub fn parse(code: &str) -> IResult<&str, TypeDefinition> {
             multispace0,
             tag("struct"),
             multispace0,
-            parse::ident,
+            parsing::ident,
             multispace0,
             delimited(
                 tag("{"),

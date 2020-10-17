@@ -2,7 +2,7 @@ use crate::ast::expression::rvalue;
 use crate::ast::expression::rvalue::RValue;
 use crate::shared::data_type;
 use crate::shared::data_type::Type;
-use crate::shared::parse;
+use crate::shared::parsing;
 use nom::bytes::complete::tag;
 use nom::character::complete::{space0, space1};
 use nom::combinator::{map, opt};
@@ -21,11 +21,11 @@ pub fn parse(code: &str) -> IResult<&str, Declare> {
         tuple((
             tag("let"),
             space1,
-            parse::ident,
+            parsing::ident,
             space0,
             tag(":"),
             space0,
-            data_type::parse_type,
+            data_type::parse,
             space0,
             opt(map(
                 tuple((space0, tag("="), space0, rvalue::parse, space0)),
