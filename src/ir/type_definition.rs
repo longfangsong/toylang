@@ -1,11 +1,12 @@
-use crate::shared::data_type::Type;
-use crate::shared::{data_type, parsing};
-use nom::bytes::complete::tag;
-use nom::character::complete::multispace0;
-use nom::combinator::map;
-use nom::multi::separated_list;
-use nom::sequence::{delimited, pair, tuple};
-use nom::IResult;
+use crate::shared::{data_type, data_type::Type, parsing};
+use nom::{
+    bytes::complete::tag,
+    character::complete::multispace0,
+    combinator::map,
+    multi::separated_list,
+    sequence::{delimited, pair, tuple},
+    IResult,
+};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct TypeDefinition {
@@ -34,4 +35,8 @@ pub fn parse(code: &str) -> IResult<&str, TypeDefinition> {
         )),
         |(_, name, _, _, _, _, _, fields)| TypeDefinition { name, fields },
     )(code)
+}
+
+pub trait TypeDefinitionVisitor {
+    fn visit_type_definition(&mut self, type_definition: &TypeDefinition);
 }

@@ -1,12 +1,9 @@
 pub mod global;
 pub mod local;
 
-pub use crate::ir::utils::global::Global;
-pub use crate::ir::utils::local::Local;
+pub use crate::ir::utils::{global::Global, local::Local};
 use crate::shared::parsing;
-use nom::branch::alt;
-use nom::combinator::map;
-use nom::IResult;
+use nom::{branch::alt, combinator::map, IResult};
 use std::fmt::{self, Display, Formatter};
 use sum_type::sum_type;
 

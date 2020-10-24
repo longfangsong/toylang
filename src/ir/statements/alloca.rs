@@ -1,11 +1,14 @@
-use crate::ir::utils::{local, Local};
-use crate::shared::data_type;
-use crate::shared::data_type::Type;
-use nom::bytes::complete::tag;
-use nom::character::complete::{space0, space1};
-use nom::combinator::map;
-use nom::sequence::tuple;
-use nom::IResult;
+use crate::{
+    ir::utils::{local, Local},
+    shared::{data_type, data_type::Type},
+};
+use nom::{
+    bytes::complete::tag,
+    character::complete::{space0, space1},
+    combinator::map,
+    sequence::tuple,
+    IResult,
+};
 use std::fmt::{self, Display, Formatter};
 
 #[derive(Debug, Eq, PartialEq, Clone)]

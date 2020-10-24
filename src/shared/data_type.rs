@@ -1,14 +1,14 @@
 use crate::shared::parsing;
 use fmt::Formatter;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::character::complete::digit1;
-use nom::combinator::{map, recognize};
-use nom::sequence::pair;
-use nom::IResult;
-use std::fmt;
-use std::fmt::Display;
-use std::str::FromStr;
+use nom::{
+    branch::alt,
+    bytes::complete::tag,
+    character::complete::digit1,
+    combinator::{map, recognize},
+    sequence::pair,
+    IResult,
+};
+use std::{fmt, fmt::Display, str::FromStr};
 
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct Integer {

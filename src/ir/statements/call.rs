@@ -1,12 +1,15 @@
-use crate::ir::utils::{local, local_or_number_literal, Local, LocalOrNumberLiteral};
-use crate::shared::data_type::Type;
-use crate::shared::{data_type, parsing};
-use nom::bytes::complete::tag;
-use nom::character::complete::space0;
-use nom::combinator::{map, opt};
-use nom::multi::separated_list;
-use nom::sequence::{delimited, pair, tuple};
-use nom::IResult;
+use crate::{
+    ir::utils::{local, local_or_number_literal, Local, LocalOrNumberLiteral},
+    shared::{data_type, data_type::Type, parsing},
+};
+use nom::{
+    bytes::complete::tag,
+    character::complete::space0,
+    combinator::{map, opt},
+    multi::separated_list,
+    sequence::{delimited, pair, tuple},
+    IResult,
+};
 use std::fmt::{self, Display, Formatter};
 
 pub struct Call {

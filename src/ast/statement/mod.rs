@@ -12,9 +12,7 @@ use assign::{Assign, AssignVisitor};
 use declare::{Declare, DeclareVisitor};
 use function_call::{FunctionCall, FunctionCallVisitor};
 use if_statement::{If, IfVisitor};
-use nom::branch::alt;
-use nom::combinator::map;
-use nom::IResult;
+use nom::{branch::alt, combinator::map, IResult};
 use return_statement::{Return, ReturnVisitor};
 use while_statement::{While, WhileVisitor};
 

@@ -1,8 +1,5 @@
 use crate::shared::parsing;
-use nom::bytes::complete::tag;
-use nom::combinator::map;
-use nom::sequence::pair;
-use nom::IResult;
+use nom::{bytes::complete::tag, combinator::map, sequence::pair, IResult};
 use std::fmt::{self, Display, Formatter};
 
 #[derive(Debug, Eq, PartialEq, Clone)]

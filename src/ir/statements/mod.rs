@@ -14,9 +14,7 @@ use branch::Branch;
 use calculate::Calculate;
 use jump::Jump;
 use load::Load;
-use nom::branch::alt;
-use nom::combinator::map;
-use nom::IResult;
+use nom::{branch::alt, combinator::map, IResult};
 use store::Store;
 
 sum_type! {

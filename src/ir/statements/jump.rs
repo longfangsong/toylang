@@ -1,10 +1,14 @@
-use nom::bytes::complete::tag;
-use nom::character::complete::{alphanumeric1, space1};
-use nom::combinator::map;
-use nom::sequence::tuple;
-use nom::IResult;
-use std::fmt;
-use std::fmt::{Display, Formatter};
+use nom::{
+    bytes::complete::tag,
+    character::complete::{alphanumeric1, space1},
+    combinator::map,
+    sequence::tuple,
+    IResult,
+};
+use std::{
+    fmt,
+    fmt::{Display, Formatter},
+};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Jump {

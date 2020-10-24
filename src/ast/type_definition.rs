@@ -1,11 +1,12 @@
-use crate::shared::data_type::Type;
-use crate::shared::{data_type, parsing};
-use nom::bytes::complete::tag;
-use nom::character::complete::{multispace0, space0};
-use nom::combinator::map;
-use nom::multi::separated_list;
-use nom::sequence::{delimited, tuple};
-use nom::IResult;
+use crate::shared::{data_type, data_type::Type, parsing};
+use nom::{
+    bytes::complete::tag,
+    character::complete::{multispace0, space0},
+    combinator::map,
+    multi::separated_list,
+    sequence::{delimited, tuple},
+    IResult,
+};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct FieldDefinition {

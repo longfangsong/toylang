@@ -1,12 +1,10 @@
-use crate::ast::expression::rvalue;
-use crate::ast::expression::rvalue::RValue;
-use crate::ast::statement::compound;
-use crate::ast::statement::compound::Compound;
-use nom::bytes::complete::tag;
-use nom::character::complete::space0;
-use nom::combinator::map;
-use nom::sequence::tuple;
-use nom::IResult;
+use crate::ast::{
+    expression::{rvalue, rvalue::RValue},
+    statement::{compound, compound::Compound},
+};
+use nom::{
+    bytes::complete::tag, character::complete::space0, combinator::map, sequence::tuple, IResult,
+};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct While {

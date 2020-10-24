@@ -1,7 +1,5 @@
 use crate::ast::visitor::{ASTDisplayer, ASTVisitor};
-use std::fs::File;
-use std::io::Read;
-use std::path::PathBuf;
+use std::{fs::File, io::Read, path::PathBuf};
 use structopt::StructOpt;
 
 mod ast;

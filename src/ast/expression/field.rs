@@ -1,12 +1,15 @@
-use crate::ast::expression::rvalue::RValue;
-use crate::ast::expression::{parenthesis, variable_ref};
-use crate::shared::parsing;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::combinator::{map, not, peek};
-use nom::multi::many1;
-use nom::sequence::tuple;
-use nom::IResult;
+use crate::{
+    ast::expression::{parenthesis, rvalue::RValue, variable_ref},
+    shared::parsing,
+};
+use nom::{
+    branch::alt,
+    bytes::complete::tag,
+    combinator::{map, not, peek},
+    multi::many1,
+    sequence::tuple,
+    IResult,
+};
 use std::convert::TryInto;
 
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]

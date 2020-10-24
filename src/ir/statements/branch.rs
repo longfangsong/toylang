@@ -1,13 +1,19 @@
-use crate::ir::utils::{local_or_number_literal, LocalOrNumberLiteral};
-use crate::shared::parsing;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::character::complete::{space0, space1};
-use nom::combinator::map;
-use nom::sequence::tuple;
-use nom::IResult;
-use std::fmt;
-use std::fmt::{Display, Formatter};
+use crate::{
+    ir::utils::{local_or_number_literal, LocalOrNumberLiteral},
+    shared::parsing,
+};
+use nom::{
+    branch::alt,
+    bytes::complete::tag,
+    character::complete::{space0, space1},
+    combinator::map,
+    sequence::tuple,
+    IResult,
+};
+use std::{
+    fmt,
+    fmt::{Display, Formatter},
+};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum BranchType {

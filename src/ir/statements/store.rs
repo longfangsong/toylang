@@ -1,14 +1,14 @@
-use crate::ir::utils::{
-    local_or_global, local_or_number_literal, LocalOrGlobal, LocalOrNumberLiteral,
+use crate::{
+    ir::utils::{local_or_global, local_or_number_literal, LocalOrGlobal, LocalOrNumberLiteral},
+    shared::{data_type, data_type::Type},
 };
-use crate::shared::data_type;
-use crate::shared::data_type::Type;
-use nom::bytes::complete::tag;
-use nom::character::complete::space1;
-use nom::character::streaming::space0;
-use nom::combinator::map;
-use nom::sequence::tuple;
-use nom::IResult;
+use nom::{
+    bytes::complete::tag,
+    character::{complete::space1, streaming::space0},
+    combinator::map,
+    sequence::tuple,
+    IResult,
+};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Store {

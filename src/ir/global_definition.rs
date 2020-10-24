@@ -1,13 +1,18 @@
-use crate::ir::integer_literal;
-use crate::ir::integer_literal::IntegerLiteral;
-use crate::ir::utils::{global, Global};
-use crate::shared::data_type;
-use crate::shared::data_type::Type;
-use nom::bytes::complete::tag;
-use nom::character::complete::{multispace0, space0, space1};
-use nom::combinator::map;
-use nom::sequence::tuple;
-use nom::IResult;
+use crate::{
+    ir::{
+        integer_literal,
+        integer_literal::IntegerLiteral,
+        utils::{global, Global},
+    },
+    shared::{data_type, data_type::Type},
+};
+use nom::{
+    bytes::complete::tag,
+    character::complete::{multispace0, space0, space1},
+    combinator::map,
+    sequence::tuple,
+    IResult,
+};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct GlobalDefinition {
@@ -16,7 +21,7 @@ pub struct GlobalDefinition {
     initial_value: IntegerLiteral,
 }
 
-fn parse(code: &str) -> IResult<&str, GlobalDefinition> {
+pub fn parse(code: &str) -> IResult<&str, GlobalDefinition> {
     map(
         tuple((
             global::parse,
@@ -34,4 +39,8 @@ fn parse(code: &str) -> IResult<&str, GlobalDefinition> {
             initial_value,
         },
     )(code)
+}
+
+pub trait GlobalDefinitionVisitor {
+    fn visit_global_definition(&mut self, global_definition: &GlobalDefinition);
 }

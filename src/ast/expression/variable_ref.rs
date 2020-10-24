@@ -1,7 +1,9 @@
-use nom::character::complete::{alpha1, alphanumeric0};
-use nom::combinator::{map, recognize};
-use nom::sequence::pair;
-use nom::IResult;
+use nom::{
+    character::complete::{alpha1, alphanumeric0},
+    combinator::{map, recognize},
+    sequence::pair,
+    IResult,
+};
 
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct VariableRef(pub String);

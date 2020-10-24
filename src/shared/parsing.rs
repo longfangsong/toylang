@@ -1,10 +1,12 @@
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::character::complete::{alpha1, alphanumeric1, digit1, hex_digit1};
-use nom::combinator::{map, recognize};
-use nom::multi::many0;
-use nom::sequence::pair;
-use nom::IResult;
+use nom::{
+    branch::alt,
+    bytes::complete::tag,
+    character::complete::{alpha1, alphanumeric1, digit1, hex_digit1},
+    combinator::{map, recognize},
+    multi::many0,
+    sequence::pair,
+    IResult,
+};
 
 pub fn ident(code: &str) -> IResult<&str, String> {
     map(

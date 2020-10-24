@@ -1,14 +1,19 @@
-use crate::ir::basic_block;
-use crate::ir::basic_block::BasicBlock;
-use crate::ir::utils::{local, Local};
-use crate::shared::data_type::Type;
-use crate::shared::{data_type, parsing};
-use nom::bytes::complete::tag;
-use nom::character::complete::{line_ending, multispace0, space0};
-use nom::combinator::map;
-use nom::multi::separated_list;
-use nom::sequence::{delimited, pair, tuple};
-use nom::IResult;
+use crate::{
+    ir::{
+        basic_block,
+        basic_block::BasicBlock,
+        utils::{local, Local},
+    },
+    shared::{data_type, data_type::Type, parsing},
+};
+use nom::{
+    bytes::complete::tag,
+    character::complete::{line_ending, multispace0, space0},
+    combinator::map,
+    multi::separated_list,
+    sequence::{delimited, pair, tuple},
+    IResult,
+};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Parameter {
@@ -31,7 +36,7 @@ pub struct FunctionDefinition {
     content: Vec<BasicBlock>,
 }
 
-fn parse(code: &str) -> IResult<&str, FunctionDefinition> {
+pub fn parse(code: &str) -> IResult<&str, FunctionDefinition> {
     map(
         tuple((
             tag("fn"),
@@ -60,4 +65,8 @@ fn parse(code: &str) -> IResult<&str, FunctionDefinition> {
             content: basic_blocks,
         },
     )(code)
+}
+
+pub trait FunctionDefinitionVisitor {
+    fn visit_function_definition(&mut self, function_definition: &FunctionDefinition);
 }

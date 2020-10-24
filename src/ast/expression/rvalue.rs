@@ -1,16 +1,9 @@
-use crate::ast::expression::bin_op::BinOp;
-use crate::ast::expression::field::Field;
-use crate::ast::expression::function_call::FunctionCall;
-use crate::ast::expression::integer_literal::IntegerLiteral;
-use crate::ast::expression::parenthesis::Parenthesis;
-use crate::ast::expression::struct_literal::StructLiteral;
-use crate::ast::expression::variable_ref::VariableRef;
 use crate::ast::expression::{
-    bin_op, field, function_call, integer_literal, parenthesis, struct_literal, variable_ref,
+    bin_op, bin_op::BinOp, field, field::Field, function_call, function_call::FunctionCall,
+    integer_literal, integer_literal::IntegerLiteral, parenthesis, parenthesis::Parenthesis,
+    struct_literal, struct_literal::StructLiteral, variable_ref, variable_ref::VariableRef,
 };
-use nom::branch::alt;
-use nom::combinator::map;
-use nom::IResult;
+use nom::{branch::alt, combinator::map, IResult};
 use sum_type::sum_type;
 
 sum_type! {

@@ -1,11 +1,14 @@
-use crate::ir::utils::{local, Local};
-use crate::shared::data_type::Type;
-use crate::shared::{data_type, parsing};
-use nom::bytes::complete::tag;
-use nom::character::complete::{space0, space1};
-use nom::combinator::map;
-use nom::sequence::{delimited, tuple};
-use nom::IResult;
+use crate::{
+    ir::utils::{local, Local},
+    shared::{data_type, data_type::Type, parsing},
+};
+use nom::{
+    bytes::complete::tag,
+    character::complete::{space0, space1},
+    combinator::map,
+    sequence::{delimited, tuple},
+    IResult,
+};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct PhiSource {
@@ -33,22 +36,25 @@ pub struct Phi {
 }
 
 pub fn parse(code: &str) -> IResult<&str, Phi> {
-    map(tuple((
-        local::parse,
-        space0,
-        tag("="),
-        space0,
-        data_type::parse,
-        space1,
-        parse_phi_source,
-        space0,
-        tag(","),
-        space0,
-        parse_phi_source
-    )),|(to,_,_,_,data_type,_,from1,_,_,_,from2)| Phi {
-        to,
-        data_type,
-        from1,
-        from2
-    })(code)
+    map(
+        tuple((
+            local::parse,
+            space0,
+            tag("="),
+            space0,
+            data_type::parse,
+            space1,
+            parse_phi_source,
+            space0,
+            tag(","),
+            space0,
+            parse_phi_source,
+        )),
+        |(to, _, _, _, data_type, _, from1, _, _, _, from2)| Phi {
+            to,
+            data_type,
+            from1,
+            from2,
+        },
+    )(code)
 }

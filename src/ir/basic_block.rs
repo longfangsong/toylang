@@ -1,13 +1,18 @@
-use crate::ir::statements;
-use crate::ir::statements::phi::Phi;
-use crate::ir::statements::{phi, IRStatement, Terminator};
-use crate::shared::parsing;
-use nom::bytes::complete::tag;
-use nom::character::complete::multispace0;
-use nom::combinator::{map, opt};
-use nom::multi::many0;
-use nom::sequence::{pair, tuple};
-use nom::IResult;
+use crate::{
+    ir::{
+        statements,
+        statements::{phi, phi::Phi, IRStatement, Terminator},
+    },
+    shared::parsing,
+};
+use nom::{
+    bytes::complete::tag,
+    character::complete::multispace0,
+    combinator::{map, opt},
+    multi::many0,
+    sequence::{pair, tuple},
+    IResult,
+};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct BasicBlock {

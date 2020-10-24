@@ -1,9 +1,5 @@
-use crate::ast::expression;
-use crate::ast::expression::function_call;
-use nom::bytes::complete::tag;
-use nom::combinator::map;
-use nom::sequence::pair;
-use nom::IResult;
+use crate::ast::{expression, expression::function_call};
+use nom::{bytes::complete::tag, combinator::map, sequence::pair, IResult};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct FunctionCall(pub expression::function_call::FunctionCall);

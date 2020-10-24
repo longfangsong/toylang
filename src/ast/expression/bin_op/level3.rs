@@ -1,13 +1,10 @@
-use crate::ast::expression::bin_op::BinOp;
-use crate::ast::expression::rvalue::RValue;
-use crate::ast::expression::{bin_op, field, integer_literal, parenthesis, variable_ref};
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::character::complete::space0;
-use nom::combinator::map;
-use nom::multi::many1;
-use nom::sequence::tuple;
-use nom::IResult;
+use crate::ast::expression::{
+    bin_op, bin_op::BinOp, field, integer_literal, parenthesis, rvalue::RValue, variable_ref,
+};
+use nom::{
+    branch::alt, bytes::complete::tag, character::complete::space0, combinator::map, multi::many1,
+    sequence::tuple, IResult,
+};
 
 pub(in crate::ast::expression) fn higher_than_level3(code: &str) -> IResult<&str, RValue> {
     alt((

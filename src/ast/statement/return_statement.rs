@@ -1,10 +1,11 @@
-use crate::ast::expression::rvalue;
-use crate::ast::expression::rvalue::RValue;
-use nom::bytes::complete::tag;
-use nom::character::complete::{space0, space1};
-use nom::combinator::map;
-use nom::sequence::tuple;
-use nom::IResult;
+use crate::ast::expression::{rvalue, rvalue::RValue};
+use nom::{
+    bytes::complete::tag,
+    character::complete::{space0, space1},
+    combinator::map,
+    sequence::tuple,
+    IResult,
+};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Return(RValue);

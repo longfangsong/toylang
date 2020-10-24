@@ -1,12 +1,14 @@
-use crate::ast::expression::rvalue;
-use crate::ast::expression::rvalue::RValue;
-use crate::ast::statement::compound;
-use crate::ast::statement::compound::Compound;
-use nom::bytes::complete::tag;
-use nom::character::complete::{multispace0, space0};
-use nom::combinator::{map, opt};
-use nom::sequence::tuple;
-use nom::IResult;
+use crate::ast::{
+    expression::{rvalue, rvalue::RValue},
+    statement::{compound, compound::Compound},
+};
+use nom::{
+    bytes::complete::tag,
+    character::complete::{multispace0, space0},
+    combinator::{map, opt},
+    sequence::tuple,
+    IResult,
+};
 
 // todo: else
 #[derive(Debug, Eq, PartialEq, Clone)]

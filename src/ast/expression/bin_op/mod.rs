@@ -62,8 +62,7 @@ bin_op_level!(9, 8, "^" "^");
 bin_op_level!(10, 9, "|" "|");
 
 use crate::ast::expression::rvalue::RValue;
-use nom::branch::alt;
-use nom::IResult;
+use nom::{branch::alt, IResult};
 use std::convert::TryInto;
 
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]

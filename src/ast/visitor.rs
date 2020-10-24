@@ -1,14 +1,18 @@
-use crate::ast::function::{FunctionDefinition, FunctionDefinitionVisitor};
-use crate::ast::global_definition::{VariableDefinition, VariableDefinitionVisitor};
-use crate::ast::statement::assign::{Assign, AssignVisitor};
-use crate::ast::statement::declare::{Declare, DeclareVisitor};
-use crate::ast::statement::function_call::{FunctionCall, FunctionCallVisitor};
-use crate::ast::statement::if_statement::{If, IfVisitor};
-use crate::ast::statement::return_statement::{Return, ReturnVisitor};
-use crate::ast::statement::while_statement::{While, WhileVisitor};
-use crate::ast::statement::StatementVisitor;
-use crate::ast::type_definition::{TypeDefinition, TypeDefinitionVisitor};
-use crate::ast::ASTNode;
+use crate::ast::{
+    function::{FunctionDefinition, FunctionDefinitionVisitor},
+    global_definition::{VariableDefinition, VariableDefinitionVisitor},
+    statement::{
+        assign::{Assign, AssignVisitor},
+        declare::{Declare, DeclareVisitor},
+        function_call::{FunctionCall, FunctionCallVisitor},
+        if_statement::{If, IfVisitor},
+        return_statement::{Return, ReturnVisitor},
+        while_statement::{While, WhileVisitor},
+        StatementVisitor,
+    },
+    type_definition::{TypeDefinition, TypeDefinitionVisitor},
+    ASTNode,
+};
 use std::io::Write;
 
 pub trait ASTVisitor:

@@ -1,12 +1,11 @@
-use crate::ast::function::FunctionDefinition;
-use crate::ast::global_definition::VariableDefinition;
-use crate::ast::type_definition::TypeDefinition;
-use nom::branch::alt;
-use nom::character::complete::multispace0;
-use nom::combinator::map;
-use nom::multi::many0;
-use nom::sequence::delimited;
-use nom::IResult;
+use crate::ast::{
+    function::FunctionDefinition, global_definition::VariableDefinition,
+    type_definition::TypeDefinition,
+};
+use nom::{
+    branch::alt, character::complete::multispace0, combinator::map, multi::many0,
+    sequence::delimited, IResult,
+};
 use sum_type::sum_type;
 
 mod expression;

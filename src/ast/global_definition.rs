@@ -1,7 +1,8 @@
-use crate::ast::statement::declare;
-use crate::ast::statement::declare::{Declare, DeclareVisitor};
-use nom::combinator::map;
-use nom::IResult;
+use crate::ast::statement::{
+    declare,
+    declare::{Declare, DeclareVisitor},
+};
+use nom::{combinator::map, IResult};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct VariableDefinition(Declare);

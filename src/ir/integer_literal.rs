@@ -1,6 +1,5 @@
 use crate::shared::parsing;
-use nom::combinator::map;
-use nom::IResult;
+use nom::{combinator::map, IResult};
 
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct IntegerLiteral(pub i64);

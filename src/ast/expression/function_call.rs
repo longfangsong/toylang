@@ -1,13 +1,16 @@
-use crate::ast::expression::rvalue::RValue;
-use crate::ast::expression::{bin_op, integer_literal, parenthesis, rvalue, variable_ref};
-use crate::shared::parsing;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::character::complete::space0;
-use nom::combinator::map;
-use nom::multi::separated_list;
-use nom::sequence::{delimited, tuple};
-use nom::IResult;
+use crate::{
+    ast::expression::{bin_op, integer_literal, parenthesis, rvalue, rvalue::RValue, variable_ref},
+    shared::parsing,
+};
+use nom::{
+    branch::alt,
+    bytes::complete::tag,
+    character::complete::space0,
+    combinator::map,
+    multi::separated_list,
+    sequence::{delimited, tuple},
+    IResult,
+};
 
 fn higher_than_function(code: &str) -> IResult<&str, RValue> {
     alt((
