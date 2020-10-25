@@ -1,3 +1,5 @@
+use nom::character::complete::multispace0;
+use nom::sequence::tuple;
 use nom::{
     branch::alt,
     bytes::complete::tag,
@@ -16,6 +18,15 @@ pub fn ident(code: &str) -> IResult<&str, String> {
         )),
         |s: &str| s.to_string(),
     )(code)
+}
+
+pub fn in_multispace<F, I, O>(f: F) -> impl Fn(I) -> IResult<I, O>
+    where
+        I: nom::InputTakeAtPosition + Clone,
+        <I as nom::InputTakeAtPosition>::Item: nom::AsChar + Clone,
+        F: Fn(I) -> IResult<I, O>,
+{
+    map(tuple((multispace0, f, multispace0)), |(_, x, _)| x)
 }
 
 // todo: 支持负数
@@ -38,6 +49,8 @@ mod tests {
         assert_eq!(result, "a".to_string());
         let result = ident("a_b_c").unwrap().1;
         assert_eq!(result, "a_b_c".to_string());
+        let result = ident("WHILE_0_JUDGE").unwrap().1;
+        assert_eq!(result, "WHILE_0_JUDGE".to_string());
     }
 
     #[test]

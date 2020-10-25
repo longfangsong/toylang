@@ -1,3 +1,4 @@
+use crate::ir::basic_block::BasicBlockVisitor;
 use crate::{
     ir::{
         basic_block,
@@ -6,6 +7,7 @@ use crate::{
     },
     shared::{data_type, data_type::Type, parsing},
 };
+use nom::multi::many0;
 use nom::{
     bytes::complete::tag,
     character::complete::{line_ending, multispace0, space0},
@@ -52,11 +54,7 @@ pub fn parse(code: &str) -> IResult<&str, FunctionDefinition> {
             multispace0,
             data_type::parse,
             multispace0,
-            delimited(
-                tag("{"),
-                separated_list(pair(multispace0, line_ending), basic_block::parse),
-                tag("}"),
-            ),
+            delimited(tag("{"), many0(basic_block::parse), tag("}")),
         )),
         |(_, _, name, parameters, _, _, _, return_type, _, basic_blocks)| FunctionDefinition {
             name,
@@ -67,6 +65,59 @@ pub fn parse(code: &str) -> IResult<&str, FunctionDefinition> {
     )(code)
 }
 
-pub trait FunctionDefinitionVisitor {
+pub trait FunctionDefinitionVisitor: BasicBlockVisitor {
     fn visit_function_definition(&mut self, function_definition: &FunctionDefinition);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_parse() {
+        let code = "fn reduce(%s: S) -> i32 {
+    %0 = loadfield i32 %s, 0
+    %1 = loadfield i32 %s, 1
+    %2 = add i32 %0, %1
+    ret %2
+}";
+        let function_definition = parse(code).unwrap().1;
+        println!("{:?}", function_definition);
+        let code = "fn main() -> () {
+    %1 = alloca i32
+    store i32 1, address %1
+    %2 = alloca i32
+    store i32 2, address %2
+    %3 = alloca i32
+    %4 = load i32 %1
+    %5 = load i32 %2
+    %6 = add i32 %3, %4
+WHILE_0_JUDGE:
+    %7 = load i32 @g
+    blt 0, %7, WHILE_0_TRUE, WHILE_0_FALSE
+WHILE_0_TRUE:
+    %8 = load i32 %3
+    %9 = load i32 %1
+    %10 = sub i32 %8, %9
+    %11 = load i32 @g
+    %12 = sub i32 %11, 1
+    store i32 %12, address @g
+    j WHILE_0_JUDGE
+WHILE_0_FALSE:
+    %13 = load i32 @g
+    blt 0, %13, IF_0_TRUE, IF_0_FALSE
+IF_0_TRUE:
+    %14 = load i32 %1
+    store i32 %14, address %2
+    j IF_0_END
+IF_0_FALSE:
+    %14 = load i32 %1
+    store i32 %14, address %2
+    j IF_0_END
+IF_0_END:
+    ret
+}";
+        let function_definition = parse(code).unwrap().1;
+        println!("{:?}", function_definition);
+    }
 }

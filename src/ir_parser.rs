@@ -1,13 +1,12 @@
-use crate::ast::visitor::{ASTDisplayer, ASTVisitor};
+use crate::ir::visitor::{IRDisplayer, IRVisitor};
 use std::{fs::File, io::Read, path::PathBuf};
 use structopt::StructOpt;
 
-mod ast;
 mod ir;
 mod shared;
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "parser", about = "Parser command for toylang")]
+#[structopt(name = "parser", about = "parse ir for toylang")]
 struct Opt {
     #[structopt(short, long, parse(from_os_str))]
     input: PathBuf,
@@ -25,9 +24,9 @@ fn main() {
     input_source
         .read_to_string(&mut content)
         .unwrap_or_else(|_| panic!("Couldn't read input file"));
-    let syntax_tree = ast::from_source(&content)
+    let irs = ir::from_source(&content)
         .unwrap_or_else(|_| panic!("Couldn't parse input file"))
         .1;
-    let mut displayer = ASTDisplayer(output_file);
-    syntax_tree.iter().map(|x| displayer.visit_ast(x)).collect()
+    let mut displayer = IRDisplayer(output_file);
+    irs.iter().map(|x| displayer.visit_ir(x)).collect()
 }

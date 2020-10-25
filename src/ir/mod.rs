@@ -8,6 +8,7 @@ mod statements;
 mod struct_literal;
 mod type_definition;
 mod utils;
+pub mod visitor;
 
 use crate::ir::{
     function::FunctionDefinitionVisitor, global_definition::GlobalDefinitionVisitor,
@@ -15,6 +16,9 @@ use crate::ir::{
 };
 use function::FunctionDefinition;
 use global_definition::GlobalDefinition;
+use nom::character::complete::multispace0;
+use nom::multi::many0;
+use nom::sequence::delimited;
 use nom::{branch::alt, combinator::map, IResult};
 use type_definition::TypeDefinition;
 
@@ -34,18 +38,6 @@ pub fn parse(code: &str) -> IResult<&str, IR> {
     ))(code)
 }
 
-pub trait IRVisitor:
-    TypeDefinitionVisitor + FunctionDefinitionVisitor + GlobalDefinitionVisitor
-{
-    fn visit_ir(&mut self, ir: &IR) {
-        match ir {
-            IR::TypeDefinition(type_definition) => self.visit_type_definition(type_definition),
-            IR::FunctionDefinition(function_definition) => {
-                self.visit_function_definition(function_definition)
-            }
-            IR::GlobalDefinition(global_definition) => {
-                self.visit_global_definition(global_definition)
-            }
-        }
-    }
+pub fn from_source(source: &str) -> IResult<&str, Vec<IR>> {
+    many0(delimited(multispace0, parse, multispace0))(source)
 }

@@ -17,4 +17,8 @@ structopt = "0.3.19"
 
 [[bin]]
 name = "parser"
-path = "src/parser.rs"
+path = "src/code_parser.rs"
+
+[[bin]]
+name = "ir_lower"
+path = "src/ir_parser.rs"

@@ -25,12 +25,12 @@ pub fn parse(code: &str) -> IResult<&str, TypeDefinition> {
             tag("type"),
             multispace0,
             delimited(
-                tag("{"),
+                tuple((multispace0, tag("{"), multispace0)),
                 separated_list(
                     tuple((multispace0, tag(","), multispace0)),
                     data_type::parse,
                 ),
-                pair(multispace0, tag("}")),
+                tuple((multispace0, tag("}"), multispace0)),
             ),
         )),
         |(_, name, _, _, _, _, _, fields)| TypeDefinition { name, fields },
@@ -39,4 +39,19 @@ pub fn parse(code: &str) -> IResult<&str, TypeDefinition> {
 
 pub trait TypeDefinitionVisitor {
     fn visit_type_definition(&mut self, type_definition: &TypeDefinition);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_parse() {
+        let code = "%S = type {\n
+    i32,\n
+    i32\n
+}";
+        let result = parse(code).unwrap().1;
+        println!("{:?}", result);
+    }
 }

@@ -29,11 +29,12 @@ pub fn parse(code: &str) -> IResult<&str, GlobalDefinition> {
             tag("="),
             space0,
             tag("global"),
+            space1,
             data_type::parse,
             space1,
             integer_literal::parse,
         )),
-        |(item, _, _, _, _, data_type, _, initial_value)| GlobalDefinition {
+        |(item, _, _, _, _, _, data_type, _, initial_value)| GlobalDefinition {
             item,
             data_type,
             initial_value,
@@ -43,4 +44,16 @@ pub fn parse(code: &str) -> IResult<&str, GlobalDefinition> {
 
 pub trait GlobalDefinitionVisitor {
     fn visit_global_definition(&mut self, global_definition: &GlobalDefinition);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_parse() {
+        let code = "@g = global i32 100";
+        let result = parse(code).unwrap().1;
+        println!("{:?}", result);
+    }
 }
