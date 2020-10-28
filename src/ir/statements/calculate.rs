@@ -62,6 +62,23 @@ pub struct Calculate {
     pub data_type: Type,
 }
 
+impl Calculate {
+    pub fn used_registers(&self) -> Vec<&Local> {
+        let mut result = Vec::with_capacity(2);
+        if let LocalOrNumberLiteral::Local(op1) = &self.operand1 {
+            result.push(op1)
+        }
+        if let LocalOrNumberLiteral::Local(op2) = &self.operand2 {
+            result.push(op2)
+        }
+        result
+    }
+
+    fn create_register(&self) -> Option<&Local> {
+        Some(&self.to)
+    }
+}
+
 pub fn parse(code: &str) -> IResult<&str, Calculate> {
     map(
         tuple((

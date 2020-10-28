@@ -37,3 +37,17 @@ pub fn parse(code: &str) -> IResult<&str, Load> {
         },
     )(code)
 }
+
+impl Load {
+    pub fn used_registers(&self) -> Vec<&Local> {
+        if let LocalOrGlobal::Local(to) = &self.to {
+            vec![to]
+        } else {
+            vec![]
+        }
+    }
+
+    pub fn create_register(&self) -> Option<&Local> {
+        Some(&self.to)
+    }
+}

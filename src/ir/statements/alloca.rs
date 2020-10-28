@@ -17,6 +17,16 @@ pub struct Alloca {
     pub alloc_type: Type,
 }
 
+impl Alloca {
+    pub fn used_registers(&self) -> Vec<&Local> {
+        vec![]
+    }
+
+    fn create_register(&self) -> Option<&Local> {
+        Some(&self.to)
+    }
+}
+
 impl Display for Alloca {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{} = alloca {}", self.to, self.alloc_type)

@@ -3,7 +3,7 @@ use nom::{bytes::complete::tag, combinator::map, sequence::pair, IResult};
 use std::fmt::{self, Display, Formatter};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub struct Global(String);
+pub struct Global(pub String);
 
 impl Display for Global {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {

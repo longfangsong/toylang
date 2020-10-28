@@ -16,9 +16,9 @@ use nom::{
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct GlobalDefinition {
-    item: Global,
-    data_type: Type,
-    initial_value: IntegerLiteral,
+    pub item: Global,
+    pub data_type: Type,
+    pub initial_value: IntegerLiteral,
 }
 
 pub fn parse(code: &str) -> IResult<&str, GlobalDefinition> {

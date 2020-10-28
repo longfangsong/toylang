@@ -1,6 +1,8 @@
-use crate::ir::basic_block::{BasicBlock, BasicBlockVisitor};
+use crate::ir::basic_block::BasicBlock;
+pub use crate::ir::basic_block::BasicBlockVisitor;
 use crate::ir::function::{FunctionDefinition, FunctionDefinitionVisitor};
 use crate::ir::global_definition::{GlobalDefinition, GlobalDefinitionVisitor};
+pub use crate::ir::statements::{IRStatementVisitor, TerminatorVisitor};
 use crate::ir::type_definition::{TypeDefinition, TypeDefinitionVisitor};
 use crate::ir::IR;
 use std::io::Write;

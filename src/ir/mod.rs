@@ -6,21 +6,25 @@ mod global_definition;
 mod integer_literal;
 mod statements;
 mod struct_literal;
+mod symbol_table;
 mod type_definition;
 mod utils;
 pub mod visitor;
 
-use crate::ir::{
-    function::FunctionDefinitionVisitor, global_definition::GlobalDefinitionVisitor,
+pub use crate::ir::{
+    function::FunctionDefinitionVisitor,
+    global_definition::GlobalDefinitionVisitor,
+    statements::{IRStatementVisitor, TerminatorVisitor},
     type_definition::TypeDefinitionVisitor,
 };
-use function::FunctionDefinition;
-use global_definition::GlobalDefinition;
+pub use basic_block::BasicBlock;
+pub use function::FunctionDefinition;
+pub use global_definition::GlobalDefinition;
 use nom::character::complete::multispace0;
 use nom::multi::many0;
 use nom::sequence::delimited;
 use nom::{branch::alt, combinator::map, IResult};
-use type_definition::TypeDefinition;
+pub use type_definition::TypeDefinition;
 
 sum_type! {
     pub enum IR {

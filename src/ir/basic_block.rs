@@ -1,4 +1,4 @@
-use crate::ir::statements::parse_terminator;
+use crate::ir::statements::{parse_terminator, IRStatementVisitor, TerminatorVisitor};
 use crate::{
     ir::{
         statements,
@@ -19,10 +19,10 @@ use nom::{
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct BasicBlock {
-    name: Option<String>,
-    phis: Vec<Phi>,
-    content: Vec<IRStatement>,
-    terminator: Option<Terminator>,
+    pub name: Option<String>,
+    pub phis: Vec<Phi>,
+    pub content: Vec<IRStatement>,
+    pub terminator: Option<Terminator>,
 }
 
 fn parse_tag(code: &str) -> IResult<&str, String> {
@@ -81,7 +81,7 @@ pub fn parse(code: &str) -> IResult<&str, BasicBlock> {
     )(code)
 }
 
-pub trait BasicBlockVisitor {
+pub trait BasicBlockVisitor: IRStatementVisitor + TerminatorVisitor {
     fn visit_basic_block(&mut self, basic_block: &BasicBlock);
 }
 

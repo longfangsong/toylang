@@ -1,4 +1,7 @@
+use crate::ir::utils::Local;
+use nom::{branch::alt, combinator::map, IResult};
 use sum_type::sum_type;
+use union_type::union_type;
 
 mod alloca;
 mod branch;
@@ -17,11 +20,10 @@ use calculate::Calculate;
 use jump::Jump;
 use load::Load;
 use load_field::LoadField;
-use nom::{branch::alt, combinator::map, IResult};
 use ret::Ret;
 use store::Store;
 
-sum_type! {
+union_type! {
     #[derive(Debug, Eq, PartialEq, Clone)]
     pub enum IRStatement {
         Alloca,
@@ -29,6 +31,12 @@ sum_type! {
         Load,
         Store,
         LoadField,
+    }
+
+    impl IRStatement {
+        pub fn used_registers(&self) -> Vec<&Local>;
+
+        pub fn create_register(&self) -> Option<&Local>;
     }
 }
 
@@ -57,4 +65,12 @@ pub fn parse_terminator(code: &str) -> IResult<&str, Terminator> {
         map(jump::parse, Terminator::Jump),
         map(ret::parse, Terminator::Ret),
     ))(code)
+}
+
+pub trait IRStatementVisitor {
+    fn visit_ir_statement(&mut self);
+}
+
+pub trait TerminatorVisitor {
+    fn visit_terminator(&mut self);
 }

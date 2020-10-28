@@ -10,8 +10,8 @@ use nom::{
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct TypeDefinition {
-    name: String,
-    fields: Vec<Type>,
+    pub name: String,
+    pub fields: Vec<Type>,
 }
 
 pub fn parse(code: &str) -> IResult<&str, TypeDefinition> {
