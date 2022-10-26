@@ -1,5 +1,4 @@
-use sum_type::sum_type;
-
+use enum_dispatch::enum_dispatch;
 pub mod assign;
 pub mod compound;
 pub mod declare;
@@ -8,24 +7,22 @@ pub mod if_statement;
 pub mod return_statement;
 pub mod while_statement;
 
-use assign::{Assign, AssignVisitor};
-use declare::{Declare, DeclareVisitor};
-use function_call::{FunctionCall, FunctionCallVisitor};
-use if_statement::{If, IfVisitor};
+use assign::Assign;
+use declare::Declare;
 use nom::{branch::alt, combinator::map, IResult};
-use return_statement::{Return, ReturnVisitor};
-use while_statement::{While, WhileVisitor};
+use return_statement::Return;
 
-sum_type! {
-    #[derive(Debug, Eq, PartialEq, Clone)]
-    pub enum Statement {
-        Declare,
-        Assign,
-        Return,
-        If,
-        While,
-        FunctionCall,
-    }
+use self::{function_call::FunctionCall, if_statement::If, while_statement::While};
+
+#[enum_dispatch]
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
+pub enum Statement {
+    Declare,
+    Assign,
+    Return,
+    If,
+    While,
+    FunctionCall,
 }
 
 pub fn parse(code: &str) -> IResult<&str, Statement> {
@@ -37,19 +34,4 @@ pub fn parse(code: &str) -> IResult<&str, Statement> {
         map(while_statement::parse, Statement::While),
         map(function_call::parse, Statement::FunctionCall),
     ))(code)
-}
-
-pub trait StatementVisitor:
-    DeclareVisitor + AssignVisitor + ReturnVisitor + IfVisitor + WhileVisitor + FunctionCallVisitor
-{
-    fn visit_statement(&mut self, statement: &Statement) {
-        match statement {
-            Statement::Declare(declare) => self.visit_declare(declare),
-            Statement::Assign(assign) => self.visit_assign(assign),
-            Statement::Return(return_statement) => self.visit_return(return_statement),
-            Statement::If(if_statement) => self.visit_if(if_statement),
-            Statement::While(while_statement) => self.visit_while(while_statement),
-            Statement::FunctionCall(function_call) => self.visit_function_call(function_call),
-        }
-    }
 }

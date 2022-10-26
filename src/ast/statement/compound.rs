@@ -1,24 +1,19 @@
-use crate::ast::statement::{self, Statement};
-use nom::{
-    bytes::complete::tag,
-    character::complete::multispace0,
-    combinator::map,
-    multi::many0,
-    sequence::{delimited, tuple},
-    IResult,
-};
+use nom::{bytes::complete::tag, combinator::map, multi::many0, sequence::delimited, IResult};
 
-#[derive(Debug, Eq, PartialEq, Clone)]
-pub struct Compound(Vec<Statement>);
+use crate::utility::parsing;
+
+use crate::ast::statement;
+
+use super::Statement;
+
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
+pub struct Compound(pub Vec<Statement>);
 
 pub fn parse(code: &str) -> IResult<&str, Compound> {
     map(
         delimited(
             tag("{"),
-            many0(map(
-                tuple((multispace0, statement::parse, multispace0)),
-                |(_, it, _)| it,
-            )),
+            many0(parsing::in_multispace(statement::parse)),
             tag("}"),
         ),
         Compound,

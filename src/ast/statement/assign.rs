@@ -1,32 +1,31 @@
-use crate::{
-    ast::expression::{rvalue, rvalue::RValue},
-    shared::parsing,
-};
 use nom::{
-    bytes::complete::tag, character::complete::space0, combinator::map, sequence::tuple, IResult,
+    bytes::complete::tag, character::complete::multispace0, combinator::map, sequence::tuple,
+    IResult,
 };
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+use crate::{
+    ast::expression::{
+        lvalue::{self, LValue},
+        rvalue::{self, RValue},
+    },
+    utility::parsing::in_multispace,
+};
+
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct Assign {
-    lhs: String,
-    rhs: RValue,
+    pub lhs: LValue,
+    pub rhs: RValue,
 }
 
 pub fn parse(code: &str) -> IResult<&str, Assign> {
     map(
         tuple((
-            parsing::ident,
-            space0,
-            tag("="),
-            space0,
+            lvalue::parse,
+            in_multispace(tag("=")),
             rvalue::parse,
-            space0,
+            multispace0,
             tag(";"),
         )),
-        |(lhs, _, _, _, rhs, _, _)| Assign { lhs, rhs },
+        |(lhs, _, rhs, _, _)| Assign { lhs, rhs },
     )(code)
-}
-
-pub trait AssignVisitor {
-    fn visit_assign(&mut self, assign: &Assign);
 }

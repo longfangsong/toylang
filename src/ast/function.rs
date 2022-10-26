@@ -1,23 +1,23 @@
-use crate::{
-    ast::{
-        statement,
-        statement::{Statement, StatementVisitor},
-    },
-    shared::{data_type, data_type::Type, parsing},
-};
 use nom::{
     bytes::complete::tag,
     character::complete::{multispace0, space0},
     combinator::map,
-    multi::separated_list,
+    multi::separated_list0,
     sequence::{delimited, pair, tuple},
     IResult,
 };
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+use crate::utility::{
+    data_type::{self, Type},
+    parsing,
+};
+
+use super::statement::compound::{self, Compound};
+
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct Parameter {
-    name: String,
-    data_type: Type,
+    pub name: String,
+    pub data_type: Type,
 }
 
 pub fn parse_parameter(code: &str) -> IResult<&str, Parameter> {
@@ -27,12 +27,12 @@ pub fn parse_parameter(code: &str) -> IResult<&str, Parameter> {
     )(code)
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct FunctionDefinition {
-    name: String,
-    parameters: Vec<Parameter>,
-    return_type: Type,
-    content: Vec<Statement>,
+    pub name: String,
+    pub parameters: Vec<Parameter>,
+    pub return_type: Type,
+    pub content: Compound,
 }
 
 pub fn parse(code: &str) -> IResult<&str, FunctionDefinition> {
@@ -43,30 +43,20 @@ pub fn parse(code: &str) -> IResult<&str, FunctionDefinition> {
             parsing::ident,
             delimited(
                 pair(tag("("), space0),
-                separated_list(tuple((space0, tag(","), space0)), parse_parameter),
-                pair(space0, tag(")")),
+                separated_list0(parsing::in_multispace(tag(",")), parse_parameter),
+                pair(multispace0, tag(")")),
             ),
-            space0,
-            tag("->"),
-            space0,
+            parsing::in_multispace(tag("->")),
             data_type::parse,
-            delimited(
-                tuple((multispace0, tag("{"), multispace0)),
-                separated_list(multispace0, statement::parse),
-                tuple((multispace0, tag("}"), multispace0)),
-            ),
+            parsing::in_multispace(compound::parse),
         )),
-        |(_, _, name, parameters, _, _, _, return_type, content)| FunctionDefinition {
+        |(_, _, name, parameters, _, return_type, content)| FunctionDefinition {
             name,
             parameters,
             return_type,
             content,
         },
     )(code)
-}
-
-pub trait FunctionDefinitionVisitor: StatementVisitor {
-    fn visit_function_definition(&mut self, function_definition: &FunctionDefinition);
 }
 
 #[cfg(test)]

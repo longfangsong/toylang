@@ -1,14 +1,18 @@
-use crate::shared::{data_type, data_type::Type, parsing};
 use nom::{
     bytes::complete::tag,
     character::complete::{multispace0, space0},
     combinator::map,
-    multi::separated_list,
+    multi::separated_list0,
     sequence::{delimited, tuple},
     IResult,
 };
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+use crate::utility::{
+    data_type::{self, Type},
+    parsing,
+};
+
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct FieldDefinition {
     name: String,
     data_type: Type,
@@ -28,7 +32,7 @@ fn parse_field_definition(code: &str) -> IResult<&str, FieldDefinition> {
     )(code)
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct TypeDefinition {
     name: String,
     fields: Vec<FieldDefinition>,
@@ -44,7 +48,7 @@ pub fn parse(code: &str) -> IResult<&str, TypeDefinition> {
             multispace0,
             delimited(
                 tag("{"),
-                separated_list(
+                separated_list0(
                     tuple((multispace0, tag(","), multispace0)),
                     parse_field_definition,
                 ),
@@ -53,8 +57,4 @@ pub fn parse(code: &str) -> IResult<&str, TypeDefinition> {
         )),
         |(_, _, _, name, _, fields)| TypeDefinition { name, fields },
     )(code)
-}
-
-pub trait TypeDefinitionVisitor {
-    fn visit_type_definition(&mut self, type_definition: &TypeDefinition);
 }

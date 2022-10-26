@@ -1,8 +1,0 @@
-fn main() {
-    let a: i32 = 0;
-    let b: i32 = 0;
-    let c: i32 = a + b;
-
-    a = a - b | c + d;
-    b = a - (b | c) + d;
-}

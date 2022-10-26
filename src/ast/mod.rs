@@ -1,27 +1,26 @@
-use crate::ast::{
-    function::FunctionDefinition, global_definition::VariableDefinition,
-    type_definition::TypeDefinition,
-};
+use enum_dispatch::enum_dispatch;
 use nom::{
     branch::alt, character::complete::multispace0, combinator::map, multi::many0,
     sequence::delimited, IResult,
 };
-use sum_type::sum_type;
 
-mod expression;
-mod function;
-mod global_definition;
-mod statement;
-mod type_definition;
-pub(crate) mod visitor;
+use self::{
+    function::FunctionDefinition, global_definition::VariableDefinition,
+    type_definition::TypeDefinition,
+};
 
-sum_type! {
-    #[derive(Debug, Eq, PartialEq, Clone)]
-    pub enum ASTNode {
-        Type(TypeDefinition),
-        Function(FunctionDefinition),
-        GlobalVariable(VariableDefinition),
-    }
+pub mod expression;
+pub mod function;
+pub mod global_definition;
+pub mod statement;
+pub mod type_definition;
+
+#[enum_dispatch]
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
+pub enum ASTNode {
+    Type(TypeDefinition),
+    Function(FunctionDefinition),
+    GlobalVariable(VariableDefinition),
 }
 
 pub fn parse(code: &str) -> IResult<&str, ASTNode> {
@@ -32,8 +31,8 @@ pub fn parse(code: &str) -> IResult<&str, ASTNode> {
     ))(code)
 }
 
-pub type AST = Vec<ASTNode>;
+pub type Ast = Vec<ASTNode>;
 
-pub fn from_source(source: &str) -> IResult<&str, AST> {
+pub fn from_source(source: &str) -> IResult<&str, Ast> {
     many0(delimited(multispace0, parse, multispace0))(source)
 }

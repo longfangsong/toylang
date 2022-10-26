@@ -1,16 +1,20 @@
-use crate::{
-    ast::expression::{rvalue, rvalue::RValue},
-    shared::{data_type, data_type::Type, parsing},
-};
 use nom::{
     bytes::complete::tag,
-    character::complete::{space0, space1},
+    character::complete::{multispace0, space0, space1},
     combinator::{map, opt},
     sequence::tuple,
     IResult,
 };
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+use crate::{
+    ast::expression::rvalue::{self, RValue},
+    utility::{
+        data_type::{self, Type},
+        parsing,
+    },
+};
+
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct Declare {
     pub variable_name: String,
     pub data_type: Type,
@@ -29,7 +33,7 @@ pub fn parse(code: &str) -> IResult<&str, Declare> {
             data_type::parse,
             space0,
             opt(map(
-                tuple((space0, tag("="), space0, rvalue::parse, space0)),
+                tuple((space0, tag("="), multispace0, rvalue::parse, multispace0)),
                 |(_, _, _, x, _)| x,
             )),
             tag(";"),
@@ -40,21 +44,4 @@ pub fn parse(code: &str) -> IResult<&str, Declare> {
             init_value,
         },
     )(code)
-}
-
-pub trait DeclareVisitor {
-    fn visit_declare(&mut self, declare: &Declare);
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn can_parse() {
-        let declare = parse("let gpio: address = 0x40000000;").unwrap().1;
-        assert_eq!(declare.variable_name, "gpio");
-        let declare = parse("let s:S = S { a: 1, b: 2 };").unwrap().1;
-        assert_eq!(declare.variable_name, "s");
-    }
 }
