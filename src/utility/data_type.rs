@@ -44,13 +44,17 @@ impl From<Integer> for Type {
 
 pub fn parse_integer(code: &str) -> IResult<&str, Integer> {
     alt((
-        map(pair(tag("i"), digit1), |(_, width_str): (_, &str)| Integer {
-            signed: true,
-            width: width_str.parse::<usize>().unwrap(),
+        map(pair(tag("i"), digit1), |(_, width_str): (_, &str)| {
+            Integer {
+                signed: true,
+                width: width_str.parse::<usize>().unwrap(),
+            }
         }),
-        map(pair(tag("u"), digit1), |(_, width_str): (_, &str)| Integer {
-            signed: false,
-            width: width_str.parse::<usize>().unwrap(),
+        map(pair(tag("u"), digit1), |(_, width_str): (_, &str)| {
+            Integer {
+                signed: false,
+                width: width_str.parse::<usize>().unwrap(),
+            }
         }),
     ))(code)
 }

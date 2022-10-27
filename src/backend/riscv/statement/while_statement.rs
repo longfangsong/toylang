@@ -1,5 +1,5 @@
 use crate::{
-    ast::statement::{while_statement::While},
+    ast::statement::while_statement::While,
     backend::riscv::{compile_compound, rvalue::compile_rvalue, FunctionCompileContext},
 };
 

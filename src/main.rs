@@ -1,7 +1,7 @@
 mod ast;
 pub mod backend;
+mod ir;
 pub mod utility;
-
 fn main() {
     let ast = ast::from_source(
         r#"fn f(a: i32) -> i32 {

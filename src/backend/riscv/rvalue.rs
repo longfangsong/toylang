@@ -1,11 +1,8 @@
-use crate::ast::{
-    expression::{
-        binary_operator, in_brackets, integer_literal, rvalue::RValue, unary_operator,
-        variable_ref,
-    },
+use crate::ast::expression::{
+    binary_operator, in_brackets, integer_literal, rvalue::RValue, unary_operator, variable_ref,
 };
 
-use super::{FunctionCompileContext};
+use super::FunctionCompileContext;
 
 pub fn compile_rvalue(ctx: &mut FunctionCompileContext, rvalue: &RValue) -> (String, String) {
     match rvalue {
