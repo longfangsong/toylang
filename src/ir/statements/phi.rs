@@ -1,11 +1,18 @@
+use std::fmt;
+
 use crate::{
-    ir::utils::{local, Local},
-    utility::{data_type, data_type::Type, parsing},
+    ir::quantity::{local, Local},
+    utility::{
+        data_type,
+        data_type::Type,
+        parsing::{self, in_multispace},
+    },
 };
 use nom::{
     bytes::complete::tag,
-    character::complete::{space0, space1},
+    character::complete::{space0},
     combinator::map,
+    multi::{separated_list1},
     sequence::{delimited, tuple},
     IResult,
 };
@@ -31,8 +38,20 @@ fn parse_phi_source(code: &str) -> IResult<&str, PhiSource> {
 pub struct Phi {
     to: Local,
     data_type: Type,
-    from1: PhiSource,
-    from2: PhiSource,
+    from: Vec<PhiSource>,
+}
+
+impl fmt::Display for Phi {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} = phi {}", self.to, self.data_type)?;
+        for (i, source) in self.from.iter().enumerate() {
+            if i != 0 {
+                write!(f, ", ")?;
+            }
+            write!(f, "[{}, {}]", source.name, source.block)?;
+        }
+        Ok(())
+    }
 }
 
 pub fn parse(code: &str) -> IResult<&str, Phi> {
@@ -43,18 +62,12 @@ pub fn parse(code: &str) -> IResult<&str, Phi> {
             tag("="),
             space0,
             data_type::parse,
-            space1,
-            parse_phi_source,
-            space0,
-            tag(","),
-            space0,
-            parse_phi_source,
+            separated_list1(in_multispace(tag(",")), in_multispace(parse_phi_source)),
         )),
-        |(to, _, _, _, data_type, _, from1, _, _, _, from2)| Phi {
+        |(to, _, _, _, data_type, from)| Phi {
             to,
             data_type,
-            from1,
-            from2,
+            from,
         },
     )(code)
 }

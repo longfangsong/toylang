@@ -9,8 +9,8 @@ use nom::{
 };
 use std::fmt::{self, Display, Formatter};
 
-#[derive(Debug, Eq, PartialEq, Clone)]
-pub struct Local(String);
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
+pub struct Local(pub String);
 
 impl Display for Local {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {

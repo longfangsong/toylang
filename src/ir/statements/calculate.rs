@@ -1,5 +1,5 @@
 use crate::{
-    ir::utils::{local, local_or_number_literal, Local, LocalOrNumberLiteral},
+    ir::quantity::{local, local_or_number_literal, Local, LocalOrNumberLiteral},
     utility::{data_type, data_type::Type},
 };
 use nom::{
@@ -16,77 +16,85 @@ use std::{
 };
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub enum CalculateOperation {
+pub enum BinaryOperation {
     Add,
-    LT,
-    LE,
-    GT,
-    GE,
-    EQ,
-    NE,
+    LessThan,
+    LessOrEqualThan,
+    GreaterThan,
+    GreaterOrEqualThan,
+    Equal,
+    NotEqual,
     Sub,
     Or,
     Xor,
     And,
-    SLL,
-    SRL,
-    SRA,
+    LogicalShiftLeft,
+    LogicalShiftRight,
+    AthematicShiftRight,
 }
 
-impl Display for CalculateOperation {
+impl Display for BinaryOperation {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", format!("{:?}", self).to_ascii_lowercase())
+        match self {
+            BinaryOperation::Add => write!(f, "add"),
+            BinaryOperation::LessThan => write!(f, "slt"),
+            BinaryOperation::LessOrEqualThan => write!(f, "sle"),
+            BinaryOperation::GreaterThan => write!(f, "sgt"),
+            BinaryOperation::GreaterOrEqualThan => write!(f, "sge"),
+            BinaryOperation::Equal => write!(f, "eq"),
+            BinaryOperation::NotEqual => write!(f, "ne"),
+            BinaryOperation::Sub => write!(f, "sub"),
+            BinaryOperation::Or => write!(f, "or"),
+            BinaryOperation::Xor => write!(f, "xor"),
+            BinaryOperation::And => write!(f, "and"),
+            BinaryOperation::LogicalShiftLeft => write!(f, "shl"),
+            BinaryOperation::LogicalShiftRight => write!(f, "shr"),
+            BinaryOperation::AthematicShiftRight => write!(f, "sra"),
+        }
     }
 }
 
-fn calculate_operation(code: &str) -> IResult<&str, CalculateOperation> {
+fn binary_operation(code: &str) -> IResult<&str, BinaryOperation> {
     alt((
-        map(tag("add"), |_| CalculateOperation::Add),
-        map(tag("less"), |_| CalculateOperation::LT),
-        map(tag("sub"), |_| CalculateOperation::Sub),
-        map(tag("or"), |_| CalculateOperation::Or),
-        map(tag("xor"), |_| CalculateOperation::Xor),
-        map(tag("and"), |_| CalculateOperation::And),
-        map(tag("sll"), |_| CalculateOperation::SLL),
-        map(tag("srl"), |_| CalculateOperation::SRL),
-        map(tag("sra"), |_| CalculateOperation::SRA),
+        map(tag("add"), |_| BinaryOperation::Add),
+        map(tag("less"), |_| BinaryOperation::LessThan),
+        map(tag("sub"), |_| BinaryOperation::Sub),
+        map(tag("or"), |_| BinaryOperation::Or),
+        map(tag("xor"), |_| BinaryOperation::Xor),
+        map(tag("and"), |_| BinaryOperation::And),
+        map(tag("sll"), |_| BinaryOperation::LogicalShiftLeft),
+        map(tag("srl"), |_| BinaryOperation::LogicalShiftRight),
+        map(tag("sra"), |_| BinaryOperation::AthematicShiftRight),
     ))(code)
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub struct Calculate {
-    pub operation: CalculateOperation,
+pub struct BinaryCalculate {
+    pub operation: BinaryOperation,
     pub operand1: LocalOrNumberLiteral,
     pub operand2: LocalOrNumberLiteral,
     pub to: Local,
     pub data_type: Type,
 }
 
-impl Calculate {
-    pub fn used_registers(&self) -> Vec<&Local> {
-        let mut result = Vec::with_capacity(2);
-        if let LocalOrNumberLiteral::Local(op1) = &self.operand1 {
-            result.push(op1)
-        }
-        if let LocalOrNumberLiteral::Local(op2) = &self.operand2 {
-            result.push(op2)
-        }
-        result
-    }
-
-    fn create_register(&self) -> Option<&Local> {
-        Some(&self.to)
+impl fmt::Display for BinaryCalculate {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{} = {} {} {}, {}",
+            self.to, self.data_type, self.operation, self.operand1, self.operand2
+        )
     }
 }
 
-pub fn parse(code: &str) -> IResult<&str, Calculate> {
+pub fn parse_binary(code: &str) -> IResult<&str, BinaryCalculate> {
     map(
         tuple((
             local::parse,
             space0,
             tag("="),
             space0,
-            calculate_operation,
+            binary_operation,
             space1,
             data_type::parse,
             space1,
@@ -97,13 +105,75 @@ pub fn parse(code: &str) -> IResult<&str, Calculate> {
             local_or_number_literal,
         )),
         |(to_register, _, _, _, operation, _, data_type, _, operand1, _, _, _, operand2)| {
-            Calculate {
+            BinaryCalculate {
                 operation,
                 operand1,
                 operand2,
                 to: to_register,
                 data_type,
             }
+        },
+    )(code)
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub enum UnaryOperation {
+    Neg,
+    Not,
+}
+
+fn unary_operation(code: &str) -> IResult<&str, UnaryOperation> {
+    alt((
+        map(tag("neg"), |_| UnaryOperation::Neg),
+        map(tag("not"), |_| UnaryOperation::Not),
+    ))(code)
+}
+
+impl Display for UnaryOperation {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            UnaryOperation::Neg => write!(f, "neg"),
+            UnaryOperation::Not => write!(f, "not"),
+        }
+    }
+}
+
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct UnaryCalculate {
+    pub operation: UnaryOperation,
+    pub operand: LocalOrNumberLiteral,
+    pub to: Local,
+    pub data_type: Type,
+}
+
+impl fmt::Display for UnaryCalculate {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{} = {} {} {}",
+            self.to, self.data_type, self.operand, self.operation
+        )
+    }
+}
+
+pub fn parse_unary(code: &str) -> IResult<&str, UnaryCalculate> {
+    map(
+        tuple((
+            local::parse,
+            space0,
+            tag("="),
+            space0,
+            unary_operation,
+            space1,
+            data_type::parse,
+            space1,
+            local_or_number_literal,
+        )),
+        |(to_register, _, _, _, operation, _, data_type, _, operand)| UnaryCalculate {
+            operation,
+            operand,
+            to: to_register,
+            data_type,
         },
     )(code)
 }

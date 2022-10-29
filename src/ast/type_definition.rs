@@ -14,8 +14,8 @@ use crate::utility::{
 
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct FieldDefinition {
-    name: String,
-    data_type: Type,
+    pub name: String,
+    pub data_type: Type,
 }
 
 fn parse_field_definition(code: &str) -> IResult<&str, FieldDefinition> {
@@ -34,8 +34,8 @@ fn parse_field_definition(code: &str) -> IResult<&str, FieldDefinition> {
 
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct TypeDefinition {
-    name: String,
-    fields: Vec<FieldDefinition>,
+    pub name: String,
+    pub fields: Vec<FieldDefinition>,
 }
 
 pub fn parse(code: &str) -> IResult<&str, TypeDefinition> {

@@ -1,5 +1,5 @@
 use crate::{
-    ir::utils::{local, Local},
+    ir::quantity::{local, Local},
     utility::{data_type, data_type::Type},
 };
 use nom::{
@@ -15,16 +15,6 @@ use std::fmt::{self, Display, Formatter};
 pub struct Alloca {
     pub to: Local,
     pub alloc_type: Type,
-}
-
-impl Alloca {
-    pub fn used_registers(&self) -> Vec<&Local> {
-        vec![]
-    }
-
-    fn create_register(&self) -> Option<&Local> {
-        Some(&self.to)
-    }
 }
 
 impl Display for Alloca {

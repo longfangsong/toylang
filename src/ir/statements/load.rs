@@ -1,5 +1,7 @@
+use std::fmt;
+
 use crate::{
-    ir::utils::{local, local_or_global, Local, LocalOrGlobal},
+    ir::quantity::{local, local_or_global, Local, LocalOrGlobal},
     utility::{data_type, data_type::Type},
 };
 use nom::{
@@ -15,6 +17,12 @@ pub struct Load {
     pub to: Local,
     pub data_type: Type,
     pub from: LocalOrGlobal,
+}
+
+impl fmt::Display for Load {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} = load {} {}", self.to, self.data_type, self.from)
+    }
 }
 
 pub fn parse(code: &str) -> IResult<&str, Load> {

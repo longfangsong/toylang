@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::{
     ir::{
         statements,
@@ -21,6 +23,24 @@ pub struct BasicBlock {
     pub phis: Vec<Phi>,
     pub content: Vec<IRStatement>,
     pub terminator: Option<Terminator>,
+}
+
+impl fmt::Display for BasicBlock {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(name) = &self.name {
+            write!(f, "{}:", name)?;
+        }
+        for phi in &self.phis {
+            writeln!(f, "{}", phi)?;
+        }
+        for statement in &self.content {
+            writeln!(f, "{}", statement)?;
+        }
+        if let Some(terminator) = &self.terminator {
+            writeln!(f, "{}", terminator)?;
+        }
+        Ok(())
+    }
 }
 
 fn parse_tag(code: &str) -> IResult<&str, String> {
@@ -82,7 +102,6 @@ pub fn parse(code: &str) -> IResult<&str, BasicBlock> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
 
     #[test]
     fn can_parse() {

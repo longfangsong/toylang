@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    ast::{function::FunctionDefinition, statement::compound::Compound, Ast},
+    ast::{function_definition::FunctionDefinition, statement::compound::Compound, Ast},
     utility::data_type::{Integer, Type},
 };
 mod rvalue;
@@ -74,9 +74,11 @@ pub fn compile(ast: &Ast) -> String {
     let mut result = String::new();
     for node in ast {
         result += match node {
-            crate::ast::ASTNode::Type(_) => todo!(),
-            crate::ast::ASTNode::Function(function) => compile_function(&mut ctx, function),
-            crate::ast::ASTNode::GlobalVariable(_) => todo!(),
+            crate::ast::ASTNode::TypeDefinition(_) => todo!(),
+            crate::ast::ASTNode::FunctionDefinition(function) => {
+                compile_function(&mut ctx, function)
+            }
+            crate::ast::ASTNode::GlobalVariableDefinition(_) => todo!(),
         }
         .as_str()
     }

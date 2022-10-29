@@ -1,5 +1,7 @@
+use std::fmt;
+
 use crate::{
-    ir::utils::{local, Local},
+    ir::quantity::{local, Local},
     utility::{data_type, data_type::Type, parsing},
 };
 use nom::{
@@ -16,6 +18,12 @@ pub struct LoadField {
     pub data_type: Type,
     pub source: Local,
     pub index: usize,
+}
+
+impl fmt::Display for LoadField {
+    fn fmt(&self, _f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        todo!()
+    }
 }
 
 pub fn parse(code: &str) -> IResult<&str, LoadField> {

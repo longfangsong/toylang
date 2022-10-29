@@ -1,8 +1,9 @@
 use crate::{
+    ast::{self, expression::rvalue::RValue},
     ir::{
         integer_literal,
         integer_literal::IntegerLiteral,
-        utils::{global, Global},
+        quantity::{global, Global},
     },
     utility::{data_type, data_type::Type},
 };
@@ -14,10 +15,13 @@ use nom::{
     IResult,
 };
 
+use super::IRGeneratingContext;
+
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct GlobalDefinition {
     pub item: Global,
     pub data_type: Type,
+    // todo: Other literals
     pub initial_value: IntegerLiteral,
 }
 
@@ -40,6 +44,30 @@ pub fn parse(code: &str) -> IResult<&str, GlobalDefinition> {
             initial_value,
         },
     )(code)
+}
+
+pub fn from_ast(
+    ast: &crate::ast::global_definition::VariableDefinition,
+    _ctx: &mut IRGeneratingContext,
+) -> GlobalDefinition {
+    let ast::statement::declare::Declare {
+        variable_name,
+        data_type,
+        init_value,
+    } = &ast.0;
+    let initial_value = if let Some(RValue::IntegerLiteral(initial_value)) = init_value {
+        initial_value.clone().into()
+    } else if init_value.is_none() {
+        IntegerLiteral(0)
+    } else {
+        unimplemented!()
+    };
+    
+    GlobalDefinition {
+        item: Global(variable_name.clone()),
+        data_type: data_type.clone(),
+        initial_value,
+    }
 }
 
 #[cfg(test)]

@@ -1,5 +1,5 @@
 use crate::{
-    ir::utils::{local_or_number_literal, LocalOrNumberLiteral},
+    ir::quantity::{local_or_number_literal, LocalOrNumberLiteral},
     utility::parsing,
 };
 use nom::{

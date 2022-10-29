@@ -1,4 +1,9 @@
-use crate::utility::{data_type, data_type::Type, parsing};
+use std::collections::HashMap;
+
+use crate::{
+    ast,
+    utility::{data_type, data_type::Type, parsing},
+};
 use nom::{
     bytes::complete::tag,
     character::complete::multispace0,
@@ -7,6 +12,8 @@ use nom::{
     sequence::{delimited, tuple},
     IResult,
 };
+
+use super::IRGeneratingContext;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct TypeDefinition {
@@ -37,8 +44,25 @@ pub fn parse(code: &str) -> IResult<&str, TypeDefinition> {
     )(code)
 }
 
-pub trait TypeDefinitionVisitor {
-    fn visit_type_definition(&mut self, type_definition: &TypeDefinition);
+pub struct TypeDefinitionMapping {
+    pub field_names: HashMap<String, usize>,
+}
+
+pub fn from_ast(
+    ast: &ast::type_definition::TypeDefinition,
+    ctx: &mut IRGeneratingContext,
+) -> TypeDefinition {
+    let ast::type_definition::TypeDefinition { name, fields } = ast;
+    let mut field_names = HashMap::new();
+    for (i, field) in ast.fields.iter().enumerate() {
+        field_names.insert(field.name.clone(), i);
+    }
+    ctx.type_definitions
+        .insert(name.clone(), TypeDefinitionMapping { field_names });
+    TypeDefinition {
+        name: name.clone(),
+        fields: fields.iter().map(|field| field.data_type.clone()).collect(),
+    }
 }
 
 #[cfg(test)]

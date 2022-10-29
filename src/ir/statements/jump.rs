@@ -1,10 +1,6 @@
 use crate::utility::parsing;
 use nom::{
-    bytes::complete::tag,
-    character::complete::{space1},
-    combinator::map,
-    sequence::tuple,
-    IResult,
+    bytes::complete::tag, character::complete::space1, combinator::map, sequence::tuple, IResult,
 };
 use std::{
     fmt,

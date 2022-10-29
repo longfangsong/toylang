@@ -12,6 +12,8 @@ fn main() {
     )
     .unwrap()
     .1;
-    let result = backend::riscv::compile(&ast);
-    println!("{}", result);
+    let result = ir::from_ast(&ast);
+    for r in result {
+        println!("{}", r);
+    }
 }

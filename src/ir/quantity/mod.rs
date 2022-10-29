@@ -1,7 +1,7 @@
 pub mod global;
 pub mod local;
 
-pub use crate::ir::utils::{global::Global, local::Local};
+pub use crate::ir::quantity::{global::Global, local::Local};
 use crate::utility::parsing;
 use enum_dispatch::enum_dispatch;
 use nom::{branch::alt, combinator::map, IResult};
@@ -10,7 +10,7 @@ use std::fmt::{self, Display, Formatter};
 #[enum_dispatch]
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub enum LocalOrNumberLiteral {
-    Local(Local),
+    Local,
     NumberLiteral(i64),
 }
 
@@ -24,7 +24,7 @@ pub fn local_or_number_literal(code: &str) -> IResult<&str, LocalOrNumberLiteral
 impl Display for LocalOrNumberLiteral {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            LocalOrNumberLiteral::Local(local) => write!(f, "%{}", local),
+            LocalOrNumberLiteral::Local(local) => write!(f, "{}", local),
             LocalOrNumberLiteral::NumberLiteral(number) => write!(f, "{}", number),
         }
     }
@@ -33,8 +33,8 @@ impl Display for LocalOrNumberLiteral {
 #[enum_dispatch]
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub enum LocalOrGlobal {
-    Local(Local),
-    Global(Global),
+    Local,
+    Global,
 }
 
 pub fn local_or_global(code: &str) -> IResult<&str, LocalOrGlobal> {

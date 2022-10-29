@@ -1,5 +1,7 @@
+use std::fmt;
+
 use crate::{
-    ir::utils::{local_or_global, local_or_number_literal, LocalOrGlobal, LocalOrNumberLiteral},
+    ir::quantity::{local_or_global, local_or_number_literal, LocalOrGlobal, LocalOrNumberLiteral},
     utility::{data_type, data_type::Type},
 };
 use nom::{
@@ -15,6 +17,16 @@ pub struct Store {
     pub data_type: Type,
     pub source: LocalOrNumberLiteral,
     pub target: LocalOrGlobal,
+}
+
+impl fmt::Display for Store {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "store {} {}, address {}",
+            self.data_type, self.source, self.target
+        )
+    }
 }
 
 pub fn parse(code: &str) -> IResult<&str, Store> {
