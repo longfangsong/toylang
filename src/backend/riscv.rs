@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt::format};
+use std::{collections::HashMap};
 
 use either::Either;
 
@@ -28,7 +28,7 @@ pub fn emit_function_code(function: &ir::FunctionDefinition) -> String {
 
     // assign registers
     // params
-    for (i, ir::function::Parameter { name, data_type }) in parameters.iter().enumerate() {
+    for (i, ir::function::Parameter { name, data_type: _ }) in parameters.iter().enumerate() {
         ctx.local_assign
             .insert(name.clone(), Either::Left(format!("a{}", i)));
     }
@@ -66,7 +66,7 @@ pub fn emit_function_code(function: &ir::FunctionDefinition) -> String {
 fn emit_basic_block_code(basic_block: &ir::BasicBlock, ctx: &mut FunctionCompileContext) -> String {
     let ir::BasicBlock {
         name,
-        phis,
+        phis: _,
         content,
         terminator,
     } = basic_block;
@@ -152,15 +152,25 @@ fn emit_store(store: &ir::statements::Store, ctx: &mut FunctionCompileContext) -
     let ir::statements::Store { source, target, .. } = store;
     match (source, target) {
         (LocalOrNumberLiteral::Local(source), LocalOrGlobal::Local(target)) => {
-            let from_reg = ctx.local_assign.get(&source).unwrap().clone().unwrap_left();
-            let to = ctx.local_assign.get(&target).unwrap().clone().unwrap_right();
+            let from_reg = ctx.local_assign.get(source).unwrap().clone().unwrap_left();
+            let to = ctx
+                .local_assign
+                .get(target)
+                .unwrap()
+                .clone()
+                .unwrap_right();
             format!("sw {}, -{}(sp)\n", from_reg, to)
         }
         (LocalOrNumberLiteral::Local(_), LocalOrGlobal::Global(_)) => unimplemented!(),
         (LocalOrNumberLiteral::NumberLiteral(n), LocalOrGlobal::Local(target)) => {
-            let to = ctx.local_assign.get(&target).unwrap().clone().unwrap_right();
+            let to = ctx
+                .local_assign
+                .get(target)
+                .unwrap()
+                .clone()
+                .unwrap_right();
             format!("li t6, {}\nsw t6, -{}(sp)\n", n, to)
-        },
+        }
         (LocalOrNumberLiteral::NumberLiteral(_), LocalOrGlobal::Global(_)) => unimplemented!(),
     }
 }
@@ -191,7 +201,7 @@ fn emit_unary_calculate(
         operation,
         operand,
         to,
-        data_type,
+        data_type: _,
     } = statement;
     let to_reg = ctx.local_assign.get(to).unwrap().as_ref().left().unwrap();
     match (operation, operand) {
@@ -225,7 +235,7 @@ fn emit_binary_calculate(
         operand1,
         operand2,
         to,
-        data_type,
+        data_type: _,
     } = statement;
     let to_reg = ctx.local_assign.get(to).unwrap().as_ref().left().unwrap();
     match (operation, operand1, operand2) {

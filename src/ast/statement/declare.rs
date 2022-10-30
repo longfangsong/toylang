@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+
 
 use nom::{
     bytes::complete::tag,
@@ -10,7 +10,6 @@ use nom::{
 
 use crate::{
     ast::expression::rvalue::{self, RValue},
-    ir::Local,
     utility::{
         data_type::{self, Type},
         parsing,

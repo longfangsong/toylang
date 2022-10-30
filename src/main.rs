@@ -16,9 +16,8 @@ fn main() {
     .1;
     let result = ir::from_ast(&ast);
     for r in result {
-        // println!("{}", r);
         if let ir::IR::FunctionDefinition(f) = r {
-            println!("{}",emit_function_code(&f));
+            println!("{}", emit_function_code(&f));
         }
     }
 }
