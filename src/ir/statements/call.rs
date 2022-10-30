@@ -1,5 +1,8 @@
 use crate::{
-    ir::quantity::{local, local_or_number_literal, Local, LocalOrNumberLiteral},
+    ir::{
+        function::HasRegister,
+        quantity::{local, local_or_number_literal, Local, LocalOrNumberLiteral},
+    },
     utility::{data_type, data_type::Type, parsing},
 };
 use nom::{
@@ -10,13 +13,26 @@ use nom::{
     sequence::{delimited, tuple},
     IResult,
 };
-use std::fmt::{self, Display, Formatter};
+use std::{
+    collections::HashSet,
+    fmt::{self, Display, Formatter},
+};
 
 pub struct Call {
     to: Option<Local>,
     data_type: Type,
     name: String,
     params: Vec<LocalOrNumberLiteral>,
+}
+
+impl HasRegister for Call {
+    fn get_registers(&self) -> HashSet<Local> {
+        let mut result = HashSet::new();
+        if let Some(to) = &self.to {
+            result.insert(to.clone());
+        }
+        result
+    }
 }
 
 impl Display for Call {

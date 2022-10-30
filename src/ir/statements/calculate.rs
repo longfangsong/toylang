@@ -1,5 +1,8 @@
 use crate::{
-    ir::quantity::{local, local_or_number_literal, Local, LocalOrNumberLiteral},
+    ir::{
+        function::HasRegister,
+        quantity::{local, local_or_number_literal, Local, LocalOrNumberLiteral},
+    },
     utility::{data_type, data_type::Type},
 };
 use nom::{
@@ -11,6 +14,7 @@ use nom::{
     IResult,
 };
 use std::{
+    collections::HashSet,
     fmt,
     fmt::{Display, Formatter},
 };
@@ -75,6 +79,14 @@ pub struct BinaryCalculate {
     pub operand2: LocalOrNumberLiteral,
     pub to: Local,
     pub data_type: Type,
+}
+
+impl HasRegister for BinaryCalculate {
+    fn get_registers(&self) -> HashSet<Local> {
+        let mut result = HashSet::new();
+        result.insert(self.to.clone());
+        result
+    }
 }
 
 impl fmt::Display for BinaryCalculate {
@@ -144,6 +156,14 @@ pub struct UnaryCalculate {
     pub operand: LocalOrNumberLiteral,
     pub to: Local,
     pub data_type: Type,
+}
+
+impl HasRegister for UnaryCalculate {
+    fn get_registers(&self) -> HashSet<Local> {
+        let mut result = HashSet::new();
+        result.insert(self.to.clone());
+        result
+    }
 }
 
 impl fmt::Display for UnaryCalculate {

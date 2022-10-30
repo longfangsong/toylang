@@ -3,13 +3,14 @@ use std::{collections::HashMap, fmt};
 use enum_dispatch::enum_dispatch;
 
 mod basic_block;
-mod function;
+pub mod function;
 mod global_definition;
 mod integer_literal;
-mod quantity;
-mod statements;
+pub mod quantity;
+pub mod statements;
 mod type_definition;
 
+use crate::ast::{ASTNode, Ast};
 pub use basic_block::BasicBlock;
 pub use function::FunctionDefinition;
 pub use global_definition::GlobalDefinition;
@@ -17,9 +18,9 @@ use nom::{
     branch::alt, character::complete::multispace0, combinator::map, multi::many0,
     sequence::delimited, IResult,
 };
+pub use quantity::Local;
+pub use statements::IRStatement;
 pub use type_definition::TypeDefinition;
-
-use crate::ast::{ASTNode, Ast};
 
 use self::type_definition::TypeDefinitionMapping;
 

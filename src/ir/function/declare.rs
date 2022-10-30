@@ -14,7 +14,7 @@ pub fn from_ast(ast: &ast::statement::declare::Declare, ctx: &mut IRGeneratingCo
     ctx.current_basic_block
         .content
         .push(IRStatement::Alloca(Alloca {
-            to: Local(variable_name.clone()),
+            to: Local(format!("{}_addr", variable_name)),
             alloc_type: data_type.clone(),
         }));
     if let Some(init_value) = init_value {

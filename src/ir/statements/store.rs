@@ -1,7 +1,11 @@
 use std::fmt;
 
 use crate::{
-    ir::quantity::{local_or_global, local_or_number_literal, LocalOrGlobal, LocalOrNumberLiteral},
+    ir::{
+        function::HasRegister,
+        quantity::{local_or_global, local_or_number_literal, LocalOrGlobal, LocalOrNumberLiteral},
+        Local,
+    },
     utility::{data_type, data_type::Type},
 };
 use nom::{
@@ -17,6 +21,12 @@ pub struct Store {
     pub data_type: Type,
     pub source: LocalOrNumberLiteral,
     pub target: LocalOrGlobal,
+}
+
+impl HasRegister for Store {
+    fn get_registers(&self) -> std::collections::HashSet<Local> {
+        std::collections::HashSet::new()
+    }
 }
 
 impl fmt::Display for Store {

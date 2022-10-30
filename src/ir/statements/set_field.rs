@@ -1,7 +1,11 @@
 use std::fmt;
 
 use crate::{
-    ir::quantity::{local_or_number_literal, LocalOrNumberLiteral},
+    ir::{
+        function::HasRegister,
+        quantity::{local_or_number_literal, LocalOrNumberLiteral},
+        Local,
+    },
     utility::{data_type, data_type::Type, parsing},
 };
 use nom::{
@@ -34,6 +38,12 @@ pub struct SetField {
     pub data_type: Type,
     pub value: LocalOrNumberLiteral,
     pub field: Field,
+}
+
+impl HasRegister for SetField {
+    fn get_registers(&self) -> std::collections::HashSet<Local> {
+        std::collections::HashSet::new()
+    }
 }
 
 impl fmt::Display for SetField {

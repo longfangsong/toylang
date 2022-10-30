@@ -1,7 +1,10 @@
 use std::fmt;
 
 use crate::{
-    ir::quantity::{local, local_or_global, Local, LocalOrGlobal},
+    ir::{
+        function::HasRegister,
+        quantity::{local, local_or_global, Local, LocalOrGlobal},
+    },
     utility::{data_type, data_type::Type},
 };
 use nom::{
@@ -17,6 +20,14 @@ pub struct Load {
     pub to: Local,
     pub data_type: Type,
     pub from: LocalOrGlobal,
+}
+
+impl HasRegister for Load {
+    fn get_registers(&self) -> std::collections::HashSet<Local> {
+        let mut result = std::collections::HashSet::new();
+        result.insert(self.to.clone());
+        result
+    }
 }
 
 impl fmt::Display for Load {

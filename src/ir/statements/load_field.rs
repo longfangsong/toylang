@@ -1,7 +1,10 @@
-use std::fmt;
+use std::{collections::HashSet, fmt};
 
 use crate::{
-    ir::quantity::{local, Local},
+    ir::{
+        function::HasRegister,
+        quantity::{local, Local},
+    },
     utility::{data_type, data_type::Type, parsing},
 };
 use nom::{
@@ -23,6 +26,14 @@ pub struct LoadField {
 impl fmt::Display for LoadField {
     fn fmt(&self, _f: &mut fmt::Formatter<'_>) -> fmt::Result {
         todo!()
+    }
+}
+
+impl HasRegister for LoadField {
+    fn get_registers(&self) -> HashSet<Local> {
+        let mut result = HashSet::new();
+        result.insert(self.to.clone());
+        result
     }
 }
 

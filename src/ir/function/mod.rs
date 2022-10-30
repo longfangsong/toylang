@@ -1,4 +1,4 @@
-use std::{fmt};
+use std::{collections::HashSet, fmt};
 
 use crate::{
     ast::{self, statement},
@@ -9,6 +9,7 @@ use crate::{
     },
     utility::{data_type, data_type::Type, parsing},
 };
+use enum_dispatch::enum_dispatch;
 use nom::{
     bytes::complete::tag,
     character::complete::{multispace0, space0},
@@ -30,8 +31,8 @@ mod return_statement;
 mod while_statement;
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Parameter {
-    name: Local,
-    data_type: Type,
+    pub name: Local,
+    pub data_type: Type,
 }
 
 fn parse_parameter(code: &str) -> IResult<&str, Parameter> {
@@ -49,12 +50,25 @@ fn parameter_from_ast(ast: &ast::function_definition::Parameter) -> Parameter {
     }
 }
 
+#[enum_dispatch]
+pub trait HasRegister {
+    fn get_registers(&self) -> HashSet<Local>;
+}
+
+impl HasRegister for Parameter {
+    fn get_registers(&self) -> HashSet<Local> {
+        let mut result = HashSet::new();
+        result.insert(self.name.clone());
+        result
+    }
+}
+
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct FunctionDefinition {
-    name: String,
-    parameters: Vec<Parameter>,
-    return_type: Type,
-    content: Vec<BasicBlock>,
+    pub name: String,
+    pub parameters: Vec<Parameter>,
+    pub return_type: Type,
+    pub content: Vec<BasicBlock>,
 }
 
 impl fmt::Display for FunctionDefinition {

@@ -62,7 +62,7 @@ pub fn from_ast(
     } else {
         unimplemented!()
     };
-    
+
     GlobalDefinition {
         item: Global(variable_name.clone()),
         data_type: data_type.clone(),

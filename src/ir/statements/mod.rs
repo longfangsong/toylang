@@ -15,19 +15,20 @@ mod ret;
 mod set_field;
 mod store;
 
+use super::function::HasRegister;
+use crate::ir::quantity::Local;
 pub use alloca::Alloca;
 pub use branch::Branch;
-pub use calculate::BinaryCalculate;
+pub use calculate::{BinaryCalculate, UnaryCalculate};
 pub use jump::Jump;
 pub use load::Load;
 pub use load_field::LoadField;
 pub use ret::Ret;
 pub use set_field::SetField;
+use std::collections::HashSet;
 pub use store::Store;
 
-use self::calculate::UnaryCalculate;
-
-#[enum_dispatch]
+#[enum_dispatch(HasRegister)]
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub enum IRStatement {
     Alloca,

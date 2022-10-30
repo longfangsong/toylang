@@ -10,9 +10,9 @@ use crate::{
 };
 use nom::{
     bytes::complete::tag,
-    character::complete::{space0},
+    character::complete::space0,
     combinator::map,
-    multi::{separated_list1},
+    multi::separated_list1,
     sequence::{delimited, tuple},
     IResult,
 };
@@ -36,7 +36,7 @@ fn parse_phi_source(code: &str) -> IResult<&str, PhiSource> {
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Phi {
-    to: Local,
+    pub to: Local,
     data_type: Type,
     from: Vec<PhiSource>,
 }

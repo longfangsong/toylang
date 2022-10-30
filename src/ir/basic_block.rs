@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{collections::HashSet, fmt};
 
 use crate::{
     ir::{
@@ -17,12 +17,27 @@ use nom::{
     IResult,
 };
 
+use super::{function::HasRegister, Local};
+
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct BasicBlock {
     pub name: Option<String>,
     pub phis: Vec<Phi>,
     pub content: Vec<IRStatement>,
     pub terminator: Option<Terminator>,
+}
+
+impl HasRegister for BasicBlock {
+    fn get_registers(&self) -> HashSet<Local> {
+        let mut result = HashSet::new();
+        for phi in &self.phis {
+            result.insert(phi.to.clone());
+        }
+        for statement in &self.content {
+            result.extend(statement.get_registers());
+        }
+        result
+    }
 }
 
 impl fmt::Display for BasicBlock {

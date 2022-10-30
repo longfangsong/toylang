@@ -1,5 +1,8 @@
 use crate::{
-    ir::quantity::{local, Local},
+    ir::{
+        function::HasRegister,
+        quantity::{local, Local},
+    },
     utility::{data_type, data_type::Type},
 };
 use nom::{
@@ -9,12 +12,23 @@ use nom::{
     sequence::tuple,
     IResult,
 };
-use std::fmt::{self, Display, Formatter};
+use std::{
+    collections::HashSet,
+    fmt::{self, Display, Formatter},
+};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Alloca {
     pub to: Local,
     pub alloc_type: Type,
+}
+
+impl HasRegister for Alloca {
+    fn get_registers(&self) -> HashSet<Local> {
+        let mut result = HashSet::new();
+        result.insert(self.to.clone());
+        result
+    }
 }
 
 impl Display for Alloca {

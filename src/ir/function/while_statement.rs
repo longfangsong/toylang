@@ -4,7 +4,10 @@ use crate::ir::statements::{branch::BranchType, Branch, Jump, Terminator};
 
 use super::{expression::rvalue_from_ast, *};
 pub fn from_ast(ast: &ast::statement::while_statement::While, ctx: &mut IRGeneratingContext) {
-    let ast::statement::while_statement::While { condition, content: _ } = ast;
+    let ast::statement::while_statement::While {
+        condition,
+        content: _,
+    } = ast;
     let statement_id = ctx.parent_context.next_loop_id;
     ctx.parent_context.next_loop_id += 1;
     let condition_label = format!("loop_{}_condition", statement_id);
